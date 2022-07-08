@@ -1,0 +1,38 @@
+version: "3.7"
+
+services:
+  fhir-transfair:
+    build: .
+    environment:
+      BBMRI_BLAZE_URL: "http://localhost:8080/fhir"
+      MII_BLAZE_URL: "http://localhost:8081/fhir"
+    ports:
+      - 8082:8080
+
+  blaze-bbmri:
+    image: "samply/blaze:0.17"
+    environment:
+      BASE_URL: "http://localhost:8080"
+      JAVA_TOOL_OPTIONS: "-Xmx4g"
+      LOG_LEVEL: "debug"
+      ENFORCE_REFERENTIAL_INTEGRITY: "false"
+    volumes:
+      - "bbmri-blaze-data:/app/data"
+    ports:
+      - 8080:8080
+
+  blaze-mii:
+    image: "samply/blaze:0.17"
+    environment:
+      BASE_URL: "http://localhost:8081"
+      JAVA_TOOL_OPTIONS: "-Xmx4g"
+      LOG_LEVEL: "debug"
+      ENFORCE_REFERENTIAL_INTEGRITY: "false"
+    volumes:
+      - "mii-blaze-data:/app/data"
+    ports:
+      - 8081:8080
+
+volumes:
+  mii-blaze-data:
+  bbmri-blaze-data:
