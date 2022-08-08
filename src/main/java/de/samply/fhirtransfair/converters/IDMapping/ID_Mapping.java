@@ -1,5 +1,7 @@
 package de.samply.fhirtransfair.converters.IDMapping;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -40,7 +42,7 @@ public abstract class ID_Mapping {
      * @param id_b id from the second domain
      * @throws IllegalArgumentException is thrown if
      */
-    public void set_mapping(String dom_a, String dom_b, String id_a, String id_b) throws IllegalArgumentException{
+    public void set_mapping(@NotNull String dom_a, @NotNull String dom_b, @NotNull String id_a, @NotNull String id_b) throws IllegalArgumentException{
 
         // check whether domain names are different
         if (dom_a.equals(dom_b)) {
@@ -52,7 +54,7 @@ public abstract class ID_Mapping {
         }
 
         // Check whether both ids are not empty
-        if (id_a == null || id_a.equals("") || id_b == null || id_b.equals("")) {
+        if (id_a.equals("") ||id_b.equals("")) {
             throw new IllegalArgumentException("Empty ID is not allowed!");
         }
 
@@ -83,7 +85,7 @@ public abstract class ID_Mapping {
      * @param ids_b array od IDs from domain b
      * @throws IllegalArgumentException If length of ids_a and ids_b is not equal, no mappings are stored. If an exception is thrown by {@link this.set_mapping} method while adding a single mapping, it is escalated and the respective mapping is skipped.
      */
-    public void set_mappings(String dom_a, String dom_b, String[] ids_a, String[] ids_b) throws IllegalArgumentException {
+    public void set_mappings(@NotNull String dom_a, @NotNull String dom_b, @NotNull String[] ids_a, @NotNull String[] ids_b) throws IllegalArgumentException {
 
         if (ids_a.length != ids_b.length) {
             throw new IllegalArgumentException("ID lists must have same length! First list has length " + ids_a.length + " and second list has length " + ids_b.length);
@@ -99,7 +101,7 @@ public abstract class ID_Mapping {
      * Overloads {@link this.set_mappings} by adding the option to pass ArrayLists instead of arrays
      */
     @SuppressWarnings("unused")
-    public void set_mappings(String dom_a, String dom_b, ArrayList<String> ids_a, ArrayList<String> ids_b) throws IllegalArgumentException{
+    public void set_mappings(@NotNull String dom_a, @NotNull String dom_b, @NotNull ArrayList<String> ids_a, @NotNull ArrayList<String> ids_b) throws IllegalArgumentException{
         this.set_mappings(dom_a, dom_b, ids_a.toArray(new String[0]), ids_b.toArray(new String[0]));
     }
 
@@ -111,7 +113,7 @@ public abstract class ID_Mapping {
      * @throws IllegalArgumentException if mapping does not exist
      * @return id from tar_domain which was mapped from input id
      */
-    public String map_id(String id, String src_domain, String tar_domain) throws IllegalArgumentException{
+    public String map_id(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) throws IllegalArgumentException{
         if(!mappings.containsKey(src_domain) || !mappings.get(src_domain).containsKey(tar_domain)) {
             throw new IllegalArgumentException("Mapping from source domain '" + src_domain + "' to target domain '" + tar_domain + "' does not exist!");
         }

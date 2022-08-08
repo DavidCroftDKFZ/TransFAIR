@@ -2,6 +2,7 @@ package de.samply.fhirtransfair.converters.IDMapping;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class CSV_Mapping extends ID_Mapping {
      * @param s filepath to csv file where mappings are loaded from
      */
     @SuppressWarnings("unused")
-    public CSV_Mapping(String s){
+    public CSV_Mapping(@NotNull String s){
         super();
         this.filepath = s;
     }
@@ -37,7 +38,7 @@ public class CSV_Mapping extends ID_Mapping {
      * Standard setter for field this.filepath
      * @param s  filepath to csv file where mappings are loaded from
      */
-    public void setFilepath(String s){
+    public void setFilepath(@NotNull String s){
         this.filepath = s;
     }
 
