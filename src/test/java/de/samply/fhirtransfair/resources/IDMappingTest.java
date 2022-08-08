@@ -3,6 +3,7 @@ package de.samply.fhirtransfair.resources;
 import com.opencsv.exceptions.CsvMalformedLineException;
 import de.samply.fhirtransfair.converters.IDMapping.CSV_Mapping;
 import de.samply.fhirtransfair.converters.IDMapping.ID_Mapping;
+import de.samply.fhirtransfair.converters.IDMapping.Identity_Mapping;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -38,6 +39,7 @@ public class IDMappingTest {
   @Test
   void generateObject() {
     new CSV_Mapping();
+    new CSV_Mapping(csv_path_config);
     System.gc();
   }
 
@@ -223,6 +225,17 @@ public class IDMappingTest {
     assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_C[4], dom_C, dom_A)); //C->A
     assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_B[4], dom_B, dom_C)); //B->C
     assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_C[4], dom_C, dom_B)); //C->B
+  }
+
+  /**
+   * Tests that the identity mapper returns the input id
+   */
+  @Test
+  void identityMapper(){
+    String id = "A";
+    Identity_Mapping identity_mapper = new Identity_Mapping();
+    assertEquals(id, identity_mapper.map_id(id, dom_A, dom_B)); // id itself should be returned in both directions
+    assertEquals(id, identity_mapper.map_id(id, dom_B, dom_A)); // id itself should be returned in both directions
   }
 
 }
