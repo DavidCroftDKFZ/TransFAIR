@@ -23,25 +23,25 @@ public class Identity_Mapping extends ID_Mapping{
      * @return
      */
     @Override
-    public String map_id(String id, String src_domain, String tar_domain){
+    public String map_id(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain){
         return id;
     }
 
     /**
      * Overrides parental class method to do nothing
      */
-    public void set_mapping(String dom_a, String dom_b, String id_a, String id_b){}
+    public void set_mapping(@NotNull String dom_a, @NotNull String dom_b, @NotNull String id_a, @NotNull String id_b){}
 
     /**
      * Overrides parental class method to do nothing
      */
     @Override
-    public void set_mappings(String dom_a, String dom_b, String[] ids_a, String[] ids_b){}
+    public void set_mappings(@NotNull String dom_a, @NotNull String dom_b, @NotNull String[] ids_a, @NotNull String[] ids_b){}
 
     /**
      * Overrides parental class method to do nothing
      */
     @SuppressWarnings("unused")
-    public void set_mappings(String dom_a, String dom_b, ArrayList<String> ids_a, ArrayList<String> ids_b){}
+    public void set_mappings(@NotNull String dom_a, @NotNull String dom_b, @NotNull ArrayList<String> ids_a, @NotNull ArrayList<String> ids_b){}
 
 }

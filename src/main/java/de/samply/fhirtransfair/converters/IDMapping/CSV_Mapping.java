@@ -59,7 +59,7 @@ public class CSV_Mapping extends ID_Mapping {
      * @throws CsvException in case file at this.filepath is not a proper csv file
      */
     @Override
-    public void read_mappings() throws IOException, CsvException {
+    public void read_mappings() throws IOException, CsvException { //TODO: Automatically call this after
         CSVReader reader = new CSVReader(new FileReader(filepath));
         String[] row;
 
