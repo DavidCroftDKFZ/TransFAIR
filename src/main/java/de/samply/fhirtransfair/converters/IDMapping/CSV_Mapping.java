@@ -66,9 +66,11 @@ public class CSV_Mapping extends ID_Mapping {
         String[] domains = reader.readNext();
 
         while ((row = reader.readNext()) != null) {
-            for(int a=0;a<domains.length;a++){
-                for(int b=a+1;b<domains.length; b++){
-                    if(!row[a].equals("") && !row[b].equals("")){
+            // Pair each domain with each domain
+            // //use indices of row as a row could be shorter than the number of domains e.g. because there are no values in the last domain
+            for(int a=0;a<row.length;a++){
+                for(int b=a+1;b<row.length;b++){
+                    if(!row[a].equals("") && !row[b].equals("")){ //Check whether there is a value und each of the two domains
                         this.set_mapping(domains[a], domains[b], row[a], row[b]);
                     }
                 }

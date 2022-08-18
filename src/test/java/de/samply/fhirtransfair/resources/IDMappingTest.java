@@ -1,10 +1,13 @@
 package de.samply.fhirtransfair.resources;
 
 import com.opencsv.exceptions.CsvMalformedLineException;
+import de.samply.fhirtransfair.converters.IDMapper;
 import de.samply.fhirtransfair.converters.IDMapping.CSV_Mapping;
 import de.samply.fhirtransfair.converters.IDMapping.ID_Mapping;
 import de.samply.fhirtransfair.converters.IDMapping.Identity_Mapping;
+import de.samply.fhirtransfair.converters.Resource_Type;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -14,7 +17,7 @@ import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
-  Test classes responsible for ID mapping. In particular {@link ID_Mapping} and {@link CSV_Mapping}.
+  Test classes responsible for ID mapping. In particular {@link ID_Mapping}, {@link CSV_Mapping} and {@link Identity_Mapping}.
  */
 public class IDMappingTest {
 
@@ -34,7 +37,7 @@ public class IDMappingTest {
   }
 
   /**
-   * Test construction of CSV_Mapping object which inherits from ID_Mapping
+   * Test construction of {@link CSV_Mapping} object which inherits from ID_Mapping
    */
   @Test
   void generateObject() {
@@ -44,7 +47,7 @@ public class IDMappingTest {
   }
 
   /**
-   * Test set_mappings and set_mapping function of class ID_Mapping by using instance of inherited class CSV_Mapping
+   * Test set_mappings and set_mapping function of class {@link ID_Mapping} by using instance of inherited class {@link CSV_Mapping}
    */
   @Test
   void addMapping() {
@@ -97,7 +100,7 @@ public class IDMappingTest {
   }
 
   /**
-   * Test map_id function of class ID_Mapping by using instance of inherited class CSV_Mapping
+   * Test map_id function of class {@link ID_Mapping} by using instance of inherited class {@link CSV_Mapping}
    */
   @Test
   void mapID() {
@@ -126,7 +129,7 @@ public class IDMappingTest {
   }
 
   /**
-   * Test import of mappings in CSV_Mapping from csv file
+   * Test import of mappings in {@link CSV_Mapping} from csv file
    */
   @Test
   void csvImport() {
@@ -136,7 +139,7 @@ public class IDMappingTest {
     String filepath_broken = "./broken_file.csv";
 
     String dom_C = "Domain_C";
-    String[] IDs_A = {"A", "B", "", "", ""};
+    String[] IDs_A = {"A", "B", "", ""}; // The fact that row[3] is smaller than the others should not lead to an exception during the test!
     String[] IDs_B = {"1", "2", "3", "", ""};
     String[] IDs_C = {"alpha", "", "gamma", "", "epsilon"};
 
@@ -219,16 +222,16 @@ public class IDMappingTest {
     assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_C[3], dom_C, dom_B)); //C->B
 
     //Index 4: No mapping, as there is just ID in domain C
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_A[4], dom_A, dom_B)); //A->B
+    // Domain A does not have this index //A->B
     assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_B[4], dom_B, dom_A)); //B->A
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_A[4], dom_A, dom_C)); //A->C
+    // Domain A does not have this index //A->C
     assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_C[4], dom_C, dom_A)); //C->A
     assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_B[4], dom_B, dom_C)); //B->C
     assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_C[4], dom_C, dom_B)); //C->B
   }
 
   /**
-   * Tests that the identity mapper returns the input id
+   * Tests that the identity mapper {@link Identity_Mapping} returns the input id
    */
   @Test
   void identityMapper(){
