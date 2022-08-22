@@ -5,9 +5,9 @@ import java.util.Objects;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 
-public class Condition {
+public class Condition extends ConvertClass<org.hl7.fhir.r4.model.Condition,org.hl7.fhir.r4.model.Condition> {
 
-  String id;
+  String bbmriId = "";
   String subject;
   Date onset;
   Date abatement;
@@ -15,13 +15,16 @@ public class Condition {
   String diagnosisICD10GM;
   String diagnosisICD9;
 
-  public void fromBBMRICondition(org.hl7.fhir.r4.model.Condition condition) {
-    this.id = condition.getId();
-    this.subject = condition.getSubject().getReference();
-    this.onset = condition.getOnsetDateTimeType().getValue();
-    this.abatement = condition.getAbatementDateTimeType().getValue();
+  String miiId = "";
 
-    for (Coding coding : condition.getCode().getCoding()) {
+  @Override
+  public void fromBbmri(org.hl7.fhir.r4.model.Condition resource) {
+    this.bbmriId = resource.getId();
+    this.subject = resource.getSubject().getReference();
+    this.onset = resource.getOnsetDateTimeType().getValue();
+    this.abatement = resource.getAbatementDateTimeType().getValue();
+
+    for (Coding coding : resource.getCode().getCoding()) {
       if (Objects.equals(coding.getSystem(), "http://hl7.org/fhir/sid/icd-10")) {
         this.diagnosisICD10WHO = coding.getCode();
       } else if (Objects.equals(
@@ -35,15 +38,26 @@ public class Condition {
     }
   }
 
-  public void fromMiiCondition(org.hl7.fhir.r4.model.Condition condition) {
-    // https://simplifier.net/medizininformatikinitiative-moduldiagnosen/diagnose
+  @Override
+  public void fromMii(org.hl7.fhir.r4.model.Condition resource) {
+      this.miiId = resource.getId();
   }
 
-  public org.hl7.fhir.r4.model.Condition toBbmriCondition() {
-    return new org.hl7.fhir.r4.model.Condition();
+  @Override
+  public org.hl7.fhir.r4.model.Condition toBbmri() {
+    org.hl7.fhir.r4.model.Condition condition = new org.hl7.fhir.r4.model.Condition();
+
+    if(bbmriId.isEmpty() && !miiId.isEmpty()) {
+      // Todo: Add mapping from Patientfilter
+      this.bbmriId = miiId;
+    }
+
+    return condition;
   }
 
-  public org.hl7.fhir.r4.model.Condition toMiiCondition() {
-    return new org.hl7.fhir.r4.model.Condition();
+  @Override
+  public org.hl7.fhir.r4.model.Condition toMii() {
+    return null;
   }
+
 }

@@ -1,21 +1,22 @@
 package de.samply.fhirtransfair.resources;
 
+import de.samply.fhirtransfair.converters.SnomedSamplyTypeConverter;
 import java.util.Date;
 import java.util.Objects;
 import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Range;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Type;
-import org.jetbrains.annotations.NotNull;
 
-public class Specimen {
+public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.hl7.fhir.r4.model.Specimen> {
 
   // Shared
   Date collectedDate;
 
   // BBMRI data
-  String bbmriId;
+  String bbmriId = "";
   String bbmriSubject;
   // Decoded as https://simplifier.net/bbmri.de/samplematerialtype
   String bbmrisampleType;
@@ -29,7 +30,7 @@ public class Specimen {
 
   // MII data
 
-  String miiId;
+  String miiId = "";
   String miiSubject;
   // Decoded as snomed-ct
   String miiSampleType;
@@ -41,18 +42,19 @@ public class Specimen {
   String miiStoargeTemperatureHigh;
   String miiStoargeTemperaturelow;
 
-  public void fromBBMRISpecimen(@NotNull org.hl7.fhir.r4.model.Specimen specimen) {
-    this.bbmriId = specimen.getId();
-    this.bbmriSubject = specimen.getSubject().getReference();
-    this.bbmrisampleType = specimen.getType().getCodingFirstRep().getCode();
+  @Override
+  public void fromBbmri(org.hl7.fhir.r4.model.Specimen resource) {
+    this.bbmriId = resource.getId();
+    this.bbmriSubject = resource.getSubject().getReference();
+    this.bbmrisampleType = resource.getType().getCodingFirstRep().getCode();
 
-    this.collectedDate = specimen.getCollection().getCollectedDateTimeType().getValue();
-    this.bbmriBodySite = specimen.getCollection().getBodySite().getCodingFirstRep().getCode();
+    this.collectedDate = resource.getCollection().getCollectedDateTimeType().getValue();
+    this.bbmriBodySite = resource.getCollection().getBodySite().getCodingFirstRep().getCode();
     this.bbmriFastingStatus =
-        specimen.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().getCode();
+        resource.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().getCode();
 
     try {
-      for (Extension e : specimen.getExtension()) {
+      for (Extension e : resource.getExtension()) {
         if (Objects.equals(
             e.getUrl(), "https://fhir.bbmri.de/StructureDefinition/StorageTemperature")) {
           Type t = e.getValue();
@@ -77,38 +79,36 @@ public class Specimen {
     }
   }
 
-  public void fromMIISpecimen(@NotNull org.hl7.fhir.r4.model.Specimen specimen) {
-    this.miiId = specimen.getId();
-    this.miiSubject = specimen.getSubject().getReference();
+  @Override
+  public void fromMii(org.hl7.fhir.r4.model.Specimen resource) {
+    this.miiId = resource.getId();
+    this.miiSubject = resource.getSubject().getReference();
 
-    this.miiSampleType = specimen.getType().getCodingFirstRep().getCode();
-    this.collectedDate = specimen.getCollection().getCollectedDateTimeType().getValue();
+    this.miiSampleType = resource.getType().getCodingFirstRep().getCode();
+    this.collectedDate = resource.getCollection().getCollectedDateTimeType().getValue();
 
-    if (specimen
+    if (Objects.equals(resource
         .getCollection()
         .getBodySite()
         .getCodingFirstRep()
-        .getSystem()
-        .equals("http://snomed.info/sct")) {
+        .getSystem(), "http://snomed.info/sct")) {
       this.miiBodySiteSnomedCt =
-          specimen.getCollection().getBodySite().getCodingFirstRep().getCode();
-    } else if (specimen
+          resource.getCollection().getBodySite().getCodingFirstRep().getCode();
+    } else if (Objects.equals(resource
         .getCollection()
         .getBodySite()
         .getCodingFirstRep()
-        .getSystem()
-        .equals("http://terminology.hl7.org/CodeSystem/icd-o-3")) {
-      this.miiBodySiteIcd = specimen.getCollection().getBodySite().getCodingFirstRep().getCode();
+        .getSystem(), "http://terminology.hl7.org/CodeSystem/icd-o-3")) {
+      this.miiBodySiteIcd = resource.getCollection().getBodySite().getCodingFirstRep().getCode();
     }
 
     this.miiFastingStatus =
-        specimen.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().getCode();
+        resource.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().getCode();
 
-    for (Extension extension : specimen.getProcessingFirstRep().getExtension()) {
-      if (extension
-          .getUrl()
-          .equals(
-              "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen")) {
+    for (Extension extension : resource.getProcessingFirstRep().getExtension()) {
+      if (Objects.equals(extension
+              .getUrl(),
+          "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen")) {
         Range r = (Range) extension.getValue();
         this.miiStoargeTemperatureHigh = r.getHigh().getUnit();
         this.miiStoargeTemperaturelow = r.getLow().getUnit();
@@ -116,11 +116,60 @@ public class Specimen {
     }
   }
 
-  public org.hl7.fhir.r4.model.Specimen toBBMRISpecimen() {
-    return new org.hl7.fhir.r4.model.Specimen();
+  @Override
+  public org.hl7.fhir.r4.model.Specimen toBbmri() {
+    org.hl7.fhir.r4.model.Specimen specimen = new org.hl7.fhir.r4.model.Specimen();
+
+    if(bbmriId.isEmpty() && !miiId.isEmpty()) {
+      // Todo: Add mapping from Patientfilter
+      this.bbmriId = miiId;
+    }
+
+    specimen.setId(bbmriId);
+
+    if(bbmriSubject.isEmpty() && !miiSubject.isEmpty()) {
+      this.bbmriSubject = miiSubject;
+    }
+
+    specimen.getSubject().setReference(bbmriSubject);
+
+    if(Objects.equals(bbmrisampleType,null)) {
+      this.bbmrisampleType = SnomedSamplyTypeConverter.fromBbmriToMii(miiSampleType);
+    }
+
+    CodeableConcept coding = new CodeableConcept();
+    coding.getCodingFirstRep().setCode(bbmrisampleType);
+    specimen.setType(coding);
+
+
+    return specimen;
   }
 
-  public org.hl7.fhir.r4.model.Specimen toMIISpecimen() {
-    return new org.hl7.fhir.r4.model.Specimen();
+  @Override
+  public org.hl7.fhir.r4.model.Specimen toMii() {
+    org.hl7.fhir.r4.model.Specimen specimen = new org.hl7.fhir.r4.model.Specimen();
+
+    if(!bbmriId.isEmpty() && miiId.isEmpty()) {
+      // Todo: Add mapping from Patientfilter
+      this.miiId = bbmriId;
+    }
+
+    specimen.setId(miiId);
+
+    if(!bbmriSubject.isEmpty() && miiSubject.isEmpty()) {
+      this.miiSubject = bbmriSubject;
+    }
+
+    specimen.getSubject().setReference(miiSubject);
+
+    if(Objects.equals(miiSampleType,null)) {
+      this.miiSampleType = SnomedSamplyTypeConverter.fromBbmriToMii(bbmrisampleType);
+    }
+
+    CodeableConcept coding = new CodeableConcept();
+    coding.getCodingFirstRep().setCode(miiSampleType);
+    specimen.setType(coding);
+
+    return specimen;
   }
 }

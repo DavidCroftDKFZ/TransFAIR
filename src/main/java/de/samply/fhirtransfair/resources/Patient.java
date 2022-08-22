@@ -1,55 +1,62 @@
 package de.samply.fhirtransfair.resources;
 
 import java.util.Date;
-import java.util.List;
-import org.hl7.fhir.r4.model.Address;
+import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.DateType;
 import org.hl7.fhir.r4.model.Enumerations.AdministrativeGender;
-import org.hl7.fhir.r4.model.HumanName;
+import org.hl7.fhir.r4.model.Enumerations.AdministrativeGenderEnumFactory;
 
-public class Patient {
+public class Patient extends ConvertClass<org.hl7.fhir.r4.model.Patient, org.hl7.fhir.r4.model.Patient> {
+
+  // MII data
+  String miiId = "";
 
   // BBMRI data
-  String bbmrId;
+  String bbmriId = "";
   Date brithDate;
   Boolean patientDeceased;
   Date patientDeceasedDateTime;
   String gender;
 
-  // MII data
-  String miiId;
-  HumanName name;
-  Address address;
-
-  public void fromBBMRIPatient(org.hl7.fhir.r4.model.Patient patient) {
-    this.bbmrId = patient.getId();
-    this.brithDate = patient.getBirthDate();
-    this.gender = patient.getGender().toCode();
-    if (patient.hasDeceased()) {
+  @Override
+  public void fromBbmri(org.hl7.fhir.r4.model.Patient resource) {
+    this.bbmriId = resource.getId();
+    this.brithDate = resource.getBirthDate();
+    this.gender = resource.getGender().toCode();
+    if (resource.hasDeceased()) {
       this.patientDeceased = true;
-      this.patientDeceasedDateTime = patient.getDeceasedDateTimeType().getValue();
+      this.patientDeceasedDateTime = resource.getDeceasedDateTimeType().getValue();
     } else {
       this.patientDeceased = false;
     }
   }
 
-  public void fromMIIPatient(org.hl7.fhir.r4.model.Patient patient) {
-    this.miiId = patient.getId();
-    this.brithDate = patient.getBirthDate();
-    this.gender = patient.getGender().toCode();
-    if (patient.hasDeceased()) {
+  @Override
+  public void fromMii(org.hl7.fhir.r4.model.Patient resource) {
+    this.miiId = resource.getId();
+    this.brithDate = resource.getBirthDate();
+    this.gender = resource.getGender().toCode();
+    if (resource.getDeceasedBooleanType().equals(new BooleanType(true))) {
       this.patientDeceased = true;
-      this.patientDeceasedDateTime = patient.getDeceasedDateTimeType().getValue();
+      this.patientDeceasedDateTime = resource.getDeceasedDateTimeType().getValue();
     } else {
       this.patientDeceased = false;
     }
   }
 
-  public org.hl7.fhir.r4.model.Patient toBbmriPatient() {
+  @Override
+  public org.hl7.fhir.r4.model.Patient toBbmri() {
     org.hl7.fhir.r4.model.Patient patient = new org.hl7.fhir.r4.model.Patient();
-    patient.setId(bbmrId);
-    patient.setGender(AdministrativeGender.valueOf(gender));
+    patient.setGender(new AdministrativeGenderEnumFactory().fromCode(this.gender));
     patient.setBirthDate(brithDate);
+
+    if(bbmriId.isEmpty() && !miiId.isEmpty()) {
+      // Todo: Add mapping from Patientfilter
+      this.bbmriId = miiId;
+    }
+
+    patient.setId(bbmriId);
+
 
     if (this.patientDeceased) {
       patient.setDeceased(new DateType(this.patientDeceasedDateTime));
@@ -58,11 +65,16 @@ public class Patient {
     return patient;
   }
 
-  public org.hl7.fhir.r4.model.Patient toMiiPatient() {
+  @Override
+  public org.hl7.fhir.r4.model.Patient toMii() {
     org.hl7.fhir.r4.model.Patient patient = new org.hl7.fhir.r4.model.Patient();
+
+    if(!bbmriId.isEmpty() && miiId.isEmpty()) {
+      // Todo: Add mapping from Patientfilter
+      this.miiId = bbmriId;
+    }
+
     patient.setId(miiId);
-    patient.setAddress((List<Address>) this.address);
-    patient.setName((List<HumanName>) this.name);
 
     // TODO: Map this value
     patient.setGender(AdministrativeGender.valueOf(this.gender));

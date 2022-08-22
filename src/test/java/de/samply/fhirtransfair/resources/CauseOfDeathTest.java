@@ -27,10 +27,11 @@ public class CauseOfDeathTest {
   void convertFromMiiToMii() {
     CauseOfDeath causeOfDeath = new CauseOfDeath();
     Condition condition = new Condition();
+    condition.getCategoryFirstRep().getCodingFirstRep().setCode("254604005");
 
     causeOfDeath.fromMii(condition);
     org.hl7.fhir.r4.model.Condition miiCauseOfDeath = causeOfDeath.toMii();
-    assertEquals(causeOfDeath, miiCauseOfDeath);
+    assertEquals(condition.getCategoryFirstRep().getCodingFirstRep().getCode(), miiCauseOfDeath.getCategoryFirstRep().getCodingFirstRep().getCode());
   }
 
   @Test
@@ -43,18 +44,19 @@ public class CauseOfDeathTest {
     causeOfDeath.fromBbmri(observation);
     org.hl7.fhir.r4.model.Observation bbmriObservation = causeOfDeath.toBbmri();
 
-    assertEquals(bbmriObservation, observation);
+    assertEquals(observation.getValueCodeableConcept().getCodingFirstRep().getCode(), bbmriObservation.getValueCodeableConcept().getCodingFirstRep().getCode());
   }
 
   @Test
   void convertFromMiiToBbmri() {
     CauseOfDeath causeOfDeath = new CauseOfDeath();
     Condition condition = new Condition();
+    condition.getCategoryFirstRep().getCodingFirstRep().setCode("254604005");
+
 
     causeOfDeath.fromMii(condition);
     org.hl7.fhir.r4.model.Observation observation = causeOfDeath.toBbmri();
 
-    assertEquals("D49.0", observation.getValue().primitiveValue());
-
+    assertEquals("D49.0", observation.getValueCodeableConcept().getCodingFirstRep().getCode());
   }
 }

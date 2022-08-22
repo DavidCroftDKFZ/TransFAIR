@@ -3,39 +3,98 @@ package de.samply.fhirtransfair.resources;
 import java.util.List;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.Reference;
 
-public class CauseOfDeath {
+public class CauseOfDeath extends ConvertClass<Observation, Condition> {
 
   // Currently the MII only has Cause of death
 
-  String miiCauseOfDeath;
-  String bbmriCauseOfDeath;
+  // SnomedCT
+  String miiCauseOfDeath = "";
+  String miiID = "";
+  String miiPatientID = "";
 
-  public void fromBbmri(org.hl7.fhir.r4.model.Observation observation) {
-    // Type, Cause of Death, BMI, Body hight, Body wight, tabacco use
-    this.bbmriCauseOfDeath = observation.getValue().primitiveValue();
-  }
+  // ICD-10
+  String bbmriCauseOfDeath = "";
+  String bbmriID = "";
+  String bbmriPatientID = "";
 
-  public void fromMii(org.hl7.fhir.r4.model.Condition observation) {
-    this.miiCauseOfDeath = observation.getCategoryFirstRep().getCodingFirstRep().getCode();
-  }
   // https://simplifier.net/medizininformatikinitiative-modulperson/sdmiipersontodesursache
+
+  @Override
+  public void fromBbmri(Observation resource) {
+    this.bbmriID = resource.getId();
+    this.bbmriCauseOfDeath = resource.getValue().primitiveValue();
+    this.bbmriPatientID = resource.getSubject().getId();
+  }
+
+  @Override
+  public void fromMii(Condition resource) {
+    this.miiID = resource.getId();
+    this.miiCauseOfDeath = resource.getCode().getCodingFirstRep().getCode();
+    this.miiPatientID = resource.getSubject().getReference();
+  }
 
   public org.hl7.fhir.r4.model.Observation toBbmri() {
     org.hl7.fhir.r4.model.Observation observation = new org.hl7.fhir.r4.model.Observation();
+    Coding codingFirstRep = observation.getCode().getCodingFirstRep();
+    codingFirstRep.setCode("68343-3");
+    codingFirstRep.setSystem("http://loinc.org");
+    codingFirstRep.setDisplay("Primary cause of death");
+
+    if(bbmriID.isEmpty() && !miiID.isEmpty()) {
+      this.bbmriID = miiID;
+    }
+
+    if(!miiPatientID.isEmpty() && bbmriPatientID.isEmpty()) {
+      this.bbmriPatientID = miiPatientID;
+    }
+
+    if(bbmriCauseOfDeath.isEmpty() && !miiCauseOfDeath.isEmpty()) {
+      this.bbmriCauseOfDeath = miiCauseOfDeath;
+    }
+
+    observation.setId(bbmriID);
+    observation.setSubject(new Reference().setReference(bbmriPatientID));
+    CodeableConcept codeableConcept = new CodeableConcept();
+    codeableConcept.getCodingFirstRep().setSystem("http://hl7.org/fhir/sid/icd-10");
+
+    codeableConcept.getCodingFirstRep().setCode(bbmriCauseOfDeath);
+    observation.setValue(codeableConcept);
 
     return observation;
   }
 
   public org.hl7.fhir.r4.model.Condition toMii() {
     org.hl7.fhir.r4.model.Condition condition = new org.hl7.fhir.r4.model.Condition();
-    CodeableConcept codeableConcept = new CodeableConcept();
-    Coding c = new Coding();
-    c.setCode(miiCauseOfDeath);
-    codeableConcept.setCoding((List<Coding>) c);
+    CodeableConcept codingLoinc = new CodeableConcept();
+    codingLoinc.getCodingFirstRep().setSystem("http://loinc.org");
+    codingLoinc.getCodingFirstRep().setCode("79378-6");
 
-    condition.setCategory((List<CodeableConcept>) codeableConcept);
+    if(!bbmriID.isEmpty() && miiID.isEmpty()) {
+      this.bbmriID = miiID;
+    }
+
+    if(miiPatientID.isEmpty() && !bbmriPatientID.isEmpty()) {
+      this.bbmriPatientID = miiPatientID;
+    }
+
+    if(!bbmriCauseOfDeath.isEmpty() && miiCauseOfDeath.isEmpty()) {
+      this.bbmriCauseOfDeath = miiCauseOfDeath;
+    }
+
+    CodeableConcept codingSnomedCt = new CodeableConcept();
+    codingSnomedCt.getCodingFirstRep().setSystem("http://snomed.info/sct");
+    codingSnomedCt.getCodingFirstRep().setCode("16100001");
+
+    condition.setCategory(List.of(codingLoinc,codingSnomedCt));
+
+    CodeableConcept codeableConceptCause = new CodeableConcept();
+    codeableConceptCause.getCodingFirstRep().setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm");
+    codeableConceptCause.getCodingFirstRep().setCode(miiCauseOfDeath);
+    condition.setCode(codeableConceptCause);
 
     return condition;
   }

@@ -3,7 +3,7 @@ package de.samply.fhirtransfair.resources;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Range;
 
-public class Organization {
+public class Organization extends ConvertClass<org.hl7.fhir.r4.model.Organization, org.hl7.fhir.r4.model.Organization> {
 
   String identifer;
   String bioBankDescription;
@@ -39,5 +39,25 @@ public class Organization {
 
   org.hl7.fhir.r4.model.Organization toMiiOrganization() {
     return new org.hl7.fhir.r4.model.Organization();
+  }
+
+  @Override
+  public void fromBbmri(org.hl7.fhir.r4.model.Organization resource) {
+
+  }
+
+  @Override
+  public void fromMii(org.hl7.fhir.r4.model.Organization resource) {
+
+  }
+
+  @Override
+  public org.hl7.fhir.r4.model.Organization toBbmri() {
+    return null;
+  }
+
+  @Override
+  public org.hl7.fhir.r4.model.Organization toMii() {
+    return null;
   }
 }
