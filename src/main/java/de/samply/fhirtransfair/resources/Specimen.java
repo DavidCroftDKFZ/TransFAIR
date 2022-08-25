@@ -1,10 +1,11 @@
 package de.samply.fhirtransfair.resources;
 
 import de.samply.fhirtransfair.converters.SnomedSamplyTypeConverter;
+import de.samply.fhirtransfair.converters.TemperatureConverter;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Range;
 import org.hl7.fhir.r4.model.Reference;
@@ -15,14 +16,15 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
   // Shared
   Date collectedDate;
 
+  String fastingStatus;
+
   // BBMRI data
   String bbmriId = "";
-  String bbmriSubject;
+  String bbmriSubject = "";
   // Decoded as https://simplifier.net/bbmri.de/samplematerialtype
   String bbmrisampleType;
 
   String bbmriBodySite;
-  String bbmriFastingStatus;
 
   String storageTemperature;
   String diagnosisICD10;
@@ -31,16 +33,17 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
   // MII data
 
   String miiId = "";
-  String miiSubject;
+  String miiSubject = "";
   // Decoded as snomed-ct
   String miiSampleType;
 
   String miiBodySiteIcd;
   String miiBodySiteSnomedCt;
-  String miiFastingStatus;
 
-  String miiStoargeTemperatureHigh;
-  String miiStoargeTemperaturelow;
+  Long miiStoargeTemperatureHigh;
+  Long miiStoargeTemperaturelow;
+
+  boolean hasParent;
 
   @Override
   public void fromBbmri(org.hl7.fhir.r4.model.Specimen resource) {
@@ -50,7 +53,7 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
 
     this.collectedDate = resource.getCollection().getCollectedDateTimeType().getValue();
     this.bbmriBodySite = resource.getCollection().getBodySite().getCodingFirstRep().getCode();
-    this.bbmriFastingStatus =
+    this.fastingStatus =
         resource.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().getCode();
 
     try {
@@ -81,6 +84,9 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
 
   @Override
   public void fromMii(org.hl7.fhir.r4.model.Specimen resource) {
+
+    this.hasParent = resource.hasParent();
+
     this.miiId = resource.getId();
     this.miiSubject = resource.getSubject().getReference();
 
@@ -102,7 +108,7 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
       this.miiBodySiteIcd = resource.getCollection().getBodySite().getCodingFirstRep().getCode();
     }
 
-    this.miiFastingStatus =
+    this.fastingStatus =
         resource.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().getCode();
 
     for (Extension extension : resource.getProcessingFirstRep().getExtension()) {
@@ -110,14 +116,18 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
               .getUrl(),
           "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen")) {
         Range r = (Range) extension.getValue();
-        this.miiStoargeTemperatureHigh = r.getHigh().getUnit();
-        this.miiStoargeTemperaturelow = r.getLow().getUnit();
+        this.miiStoargeTemperatureHigh = Long.valueOf(r.getHigh().getUnit());
+        this.miiStoargeTemperaturelow = Long.valueOf(r.getLow().getUnit());
       }
     }
   }
 
   @Override
   public org.hl7.fhir.r4.model.Specimen toBbmri() {
+
+    if(this.hasParent)
+      return null;
+
     org.hl7.fhir.r4.model.Specimen specimen = new org.hl7.fhir.r4.model.Specimen();
 
     if(bbmriId.isEmpty() && !miiId.isEmpty()) {
@@ -133,14 +143,32 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
 
     specimen.getSubject().setReference(bbmriSubject);
 
-    if(Objects.equals(bbmrisampleType,null)) {
-      this.bbmrisampleType = SnomedSamplyTypeConverter.fromBbmriToMii(miiSampleType);
+    if(Objects.equals(bbmrisampleType,null) && !Objects.equals(miiSampleType,null)) {
+      this.bbmrisampleType = SnomedSamplyTypeConverter.fromMiiToBbmri(miiSampleType);
     }
 
     CodeableConcept coding = new CodeableConcept();
     coding.getCodingFirstRep().setCode(bbmrisampleType);
     specimen.setType(coding);
 
+    specimen.getCollection().getCollectedDateTimeType().setValue(this.collectedDate);
+
+    if(Objects.nonNull(miiBodySiteIcd)) {
+      this.bbmriBodySite = miiBodySiteIcd;
+    } else if (Objects.nonNull(miiBodySiteSnomedCt)) {
+      //Todo: Cast from Snomed CT to ICD-0-3
+      this.bbmriBodySite = miiBodySiteSnomedCt;
+    }
+
+    CodeableConcept bodySiteCode = new CodeableConcept();
+    bodySiteCode.getCodingFirstRep().setCode(this.bbmriBodySite);
+    bodySiteCode.getCodingFirstRep().setSystem("urn:oid:1.3.6.1.4.1.19376.1.3.11.36");
+    specimen.getCollection().setBodySite(bodySiteCode);
+
+    specimen.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().setCode(this.fastingStatus);
+
+    specimen.addExtension(TemperatureConverter.fromMiiToBbmri(this.miiStoargeTemperatureHigh,
+       this.miiStoargeTemperaturelow));
 
     return specimen;
   }
@@ -169,6 +197,12 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
     CodeableConcept coding = new CodeableConcept();
     coding.getCodingFirstRep().setCode(miiSampleType);
     specimen.setType(coding);
+
+    specimen.getCollection().getCollectedDateTimeType().setValue(this.collectedDate);
+
+    specimen.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().setCode(this.fastingStatus);
+
+    specimen.getCollection().setExtension(List.of(TemperatureConverter.fromBbrmiToMii(this.storageTemperature)));
 
     return specimen;
   }

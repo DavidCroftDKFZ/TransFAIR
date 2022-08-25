@@ -9,6 +9,7 @@ import de.samply.fhirtransfair.resources.ConvertClass;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
@@ -56,7 +57,7 @@ public class APIController {
   private void loadBlaze(String context) {
     System.out.println("Collecting Info for " + context);
 
-    IGenericClient Client = ctx.newRestfulGenericClient("http://localhost:8078/fhir");
+    IGenericClient Client = ctx.newRestfulGenericClient("http://localhost:8087/fhir");
 
     // We'll populate this list
     HashSet<String> patientRefs = new HashSet<>();
@@ -173,8 +174,14 @@ public class APIController {
     Bundle bundleOut = new Bundle();
     bundleOut.setType(Bundle.BundleType.TRANSACTION);
 
+    try{
+
+
     for (ConvertClass convertClass: resources) {
       DomainResource resource = (DomainResource) convertClass.toMii();
+      if(Objects.equals(resource,null)) {
+        continue;
+      }
 
       bundleOut.addEntry()
           .setFullUrl(resource.getIdElement().getId())
@@ -184,9 +191,13 @@ public class APIController {
           .setMethod(HTTPVerb.PUT);
     }
 
-    System.out.println(ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundleOut));
+    }catch (Error e) {
+      System.out.println(e.getMessage());
+    }
 
-    IGenericClient clientTarget = ctx.newRestfulGenericClient("http://localhost:8079/fhir");
+    // System.out.println(ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundleOut));
+
+    IGenericClient clientTarget = ctx.newRestfulGenericClient("http://localhost:8088/fhir");
     Bundle resp = clientTarget.transaction().withBundle(bundleOut).execute();
 
 // Log the response

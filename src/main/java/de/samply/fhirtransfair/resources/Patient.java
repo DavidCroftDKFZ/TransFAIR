@@ -5,6 +5,7 @@ import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.DateType;
 import org.hl7.fhir.r4.model.Enumerations.AdministrativeGender;
 import org.hl7.fhir.r4.model.Enumerations.AdministrativeGenderEnumFactory;
+import org.hl7.fhir.r4.model.Type;
 
 public class Patient extends ConvertClass<org.hl7.fhir.r4.model.Patient, org.hl7.fhir.r4.model.Patient> {
 
@@ -57,9 +58,8 @@ public class Patient extends ConvertClass<org.hl7.fhir.r4.model.Patient, org.hl7
 
     patient.setId(bbmriId);
 
-
     if (this.patientDeceased) {
-      patient.setDeceased(new DateType(this.patientDeceasedDateTime));
+      patient.getDeceasedDateTimeType().setValue(this.patientDeceasedDateTime);
     }
 
     return patient;
@@ -76,11 +76,10 @@ public class Patient extends ConvertClass<org.hl7.fhir.r4.model.Patient, org.hl7
 
     patient.setId(miiId);
 
-    // TODO: Map this value
-    patient.setGender(AdministrativeGender.valueOf(this.gender));
+    patient.setGender(new AdministrativeGenderEnumFactory().fromCode(this.gender));
     patient.setBirthDate(this.brithDate);
     if (this.patientDeceased) {
-      patient.setDeceased(new DateType(this.patientDeceasedDateTime));
+      patient.getDeceasedDateTimeType().setValue(this.patientDeceasedDateTime);
     }
 
     return patient;
