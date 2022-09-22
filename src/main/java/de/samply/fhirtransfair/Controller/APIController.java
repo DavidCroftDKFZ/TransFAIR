@@ -22,6 +22,10 @@ import org.hl7.fhir.r4.model.Specimen;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.FileWriter;   // Import the FileWriter class
+import java.io.IOException;  // Import the IOException class to handle errors
+
+
 @RestController
 public class APIController {
 
@@ -57,7 +61,7 @@ public class APIController {
   private void loadBlaze(String context) {
     System.out.println("Collecting Info for " + context);
 
-    IGenericClient Client = ctx.newRestfulGenericClient("http://localhost:8087/fhir");
+    IGenericClient Client = ctx.newRestfulGenericClient("http://as-biobank03.klinikum.rwth-aachen.de:8080/fhir");
 
     // We'll populate this list
     HashSet<String> patientRefs = new HashSet<>();
@@ -196,11 +200,24 @@ public class APIController {
     }
 
     // System.out.println(ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundleOut));
+    String output = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundleOut);
+    try {
+      FileWriter myWriter = new FileWriter("MII_Biobank_Data.txt");
+      myWriter.write(output);
+      myWriter.close();
+      System.out.println("Successfully wrote output to file.");
+    } catch (IOException e) {
+      System.out.println("An error occurred while writing output to file.");
+      e.printStackTrace();
+    }
 
+    /*
     IGenericClient clientTarget = ctx.newRestfulGenericClient("http://localhost:8088/fhir");
     Bundle resp = clientTarget.transaction().withBundle(bundleOut).execute();
 
 // Log the response
     System.out.println(ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(resp));
+
+     */
   }
 }

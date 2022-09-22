@@ -6,6 +6,11 @@ import ca.uhn.fhir.util.BundleUtil;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
@@ -16,6 +21,8 @@ import org.hl7.fhir.r4.model.Specimen;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import de.samply.fhirtransfair.Controller.APIController;
 
 /** Main Application Entrypoint. */
 @SpringBootApplication
@@ -35,6 +42,25 @@ public class FhirTransFairApplication {
   public static void main(String[] args) {
     SpringApplication.run(FhirTransFairApplication.class, args);
 
+    /*
+    DefaultHttpClient client = new DefaultHttpClient();
+
+    String url = "http://as-biobank03.klinikum.rwth-aachen.de:8080/fhir";
+
+    HttpGet get = new HttpGet(url);
+    ResponseHandler<String> handler = new BasicResponseHandler();
+    try {
+      String resp = client.execute(get, handler);
+      System.out.println(resp);
+      System.out.println("Response was printed!");
+    }catch(Exception e){
+      e.printStackTrace();
+    }
+
+     */
+
+    APIController controller = new APIController();
+    controller.testcheck();
   }
 
 
