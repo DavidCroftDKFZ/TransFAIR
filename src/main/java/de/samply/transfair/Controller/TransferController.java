@@ -1,10 +1,9 @@
-package de.samply.fhirtransfair.Controller;
+package de.samply.transfair.Controller;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.util.BundleUtil;
-import de.samply.fhirtransfair.resources.CauseOfDeath;
-import de.samply.fhirtransfair.resources.ConvertClass;
+import de.samply.transfair.resources.CauseOfDeath;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -94,7 +93,7 @@ public class TransferController {
   private Patient fetchPatientResource(IGenericClient client, String patientId) {
     Patient p = client.read().resource(Patient.class).withId(patientId).execute();
 
-    de.samply.fhirtransfair.resources.Patient ap = new de.samply.fhirtransfair.resources.Patient();
+    de.samply.transfair.resources.Patient ap = new de.samply.transfair.resources.Patient();
 
     if (Objects.equals(this.sourceFormat, "bbmri.de")) {
       log.debug("Analysing patient " + patientId + " with format bbmri.de");
@@ -134,8 +133,8 @@ public class TransferController {
 
     for (IBaseResource base : resourceList) {
       Specimen specimen = (Specimen) base;
-      de.samply.fhirtransfair.resources.Specimen s =
-          new de.samply.fhirtransfair.resources.Specimen();
+      de.samply.transfair.resources.Specimen s =
+          new de.samply.transfair.resources.Specimen();
       if (Objects.equals(this.sourceFormat, "bbmri.de")) {
         log.debug("Analysing Specimen " + patientId + " with format bbmri.de");
         s.fromBbmri(specimen);
@@ -177,8 +176,8 @@ public class TransferController {
 
     for (IBaseResource base : resourceList) {
       Observation observation = (Observation) base;
-      de.samply.fhirtransfair.resources.CheckResources checkResources =
-          new de.samply.fhirtransfair.resources.CheckResources();
+      de.samply.transfair.resources.CheckResources checkResources =
+          new de.samply.transfair.resources.CheckResources();
 
       if (Objects.equals(this.sourceFormat, "bbmri.de")) {
         if (checkResources.checkBbmriCauseOfDeath(observation)) {
@@ -224,8 +223,8 @@ public class TransferController {
     for (IBaseResource base : resourceList) {
       Condition c = (Condition) base;
 
-      de.samply.fhirtransfair.resources.CheckResources checkResources =
-          new de.samply.fhirtransfair.resources.CheckResources();
+      de.samply.transfair.resources.CheckResources checkResources =
+          new de.samply.transfair.resources.CheckResources();
 
       if (checkResources.checkMiiCauseOfDeath(c) && Objects.equals(this.sourceFormat, "mii")) {
         CauseOfDeath causeOfDeath = new CauseOfDeath();
@@ -244,8 +243,8 @@ public class TransferController {
         continue;
       }
 
-      de.samply.fhirtransfair.resources.Condition condition =
-          new de.samply.fhirtransfair.resources.Condition();
+      de.samply.transfair.resources.Condition condition =
+          new de.samply.transfair.resources.Condition();
 
       if (Objects.equals(this.sourceFormat, "bbmri.de")) {
         condition.fromBbmri(c);

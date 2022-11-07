@@ -1,7 +1,6 @@
-package de.samply.fhirtransfair.resources;
+package de.samply.transfair.resources;
 
 import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.Range;
 
 public class Organization extends ConvertClass<org.hl7.fhir.r4.model.Organization, org.hl7.fhir.r4.model.Organization> {
 

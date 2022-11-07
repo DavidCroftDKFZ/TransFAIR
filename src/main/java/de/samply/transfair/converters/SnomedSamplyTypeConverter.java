@@ -1,4 +1,4 @@
-package de.samply.fhirtransfair.converters;
+package de.samply.transfair.converters;
 
 import java.util.Objects;
 
