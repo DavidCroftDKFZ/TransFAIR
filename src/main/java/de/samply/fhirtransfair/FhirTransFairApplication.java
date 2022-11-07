@@ -42,25 +42,7 @@ public class FhirTransFairApplication {
   public static void main(String[] args) {
     SpringApplication.run(FhirTransFairApplication.class, args);
 
-    /*
-    DefaultHttpClient client = new DefaultHttpClient();
-
-    String url = "http://as-biobank03.klinikum.rwth-aachen.de:8080/fhir";
-
-    HttpGet get = new HttpGet(url);
-    ResponseHandler<String> handler = new BasicResponseHandler();
-    try {
-      String resp = client.execute(get, handler);
-      System.out.println(resp);
-      System.out.println("Response was printed!");
-    }catch(Exception e){
-      e.printStackTrace();
-    }
-
-     */
-
     APIController controller = new APIController();
-    controller.testcheck();
   }
 
 

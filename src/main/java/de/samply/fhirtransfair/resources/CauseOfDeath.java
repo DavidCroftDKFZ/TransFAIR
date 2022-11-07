@@ -74,10 +74,8 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
     codingLoinc.getCodingFirstRep().setCode("79378-6");
 
     if(!bbmriID.isEmpty() && miiID.isEmpty()) {
-      this.bbmriID = miiID;
-    }
-
-    if(miiPatientID.isEmpty() && !bbmriPatientID.isEmpty()) {
+       this.miiID = this.bbmriID;
+    } else if(miiPatientID.isEmpty() && !bbmriPatientID.isEmpty()) {
       this.bbmriPatientID = miiPatientID;
     }
 
