@@ -78,12 +78,14 @@ public class TransferController {
     resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     // Load the subsequent pages
+    /*
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
       resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
       log.info("Fetching next page of Specimen");
 
     }
+    */
     log.info("Loaded " + resourceList.size() + " Specimen Resources from source");
 
     return resourceList;

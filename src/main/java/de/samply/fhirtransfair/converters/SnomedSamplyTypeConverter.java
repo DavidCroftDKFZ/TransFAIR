@@ -1,5 +1,7 @@
 package de.samply.fhirtransfair.converters;
 
+import java.util.Objects;
+
 public class SnomedSamplyTypeConverter {
 
   public static String fromMiiToBbmri(String snomedType) {
@@ -33,6 +35,10 @@ public class SnomedSamplyTypeConverter {
   }
 
   public static String fromBbmriToMii(String BbmriType) {
+    String default_snomedcode = "123038009";
+    if(Objects.equals(BbmriType, null)){
+      return default_snomedcode;
+    }
     return switch (BbmriType) {
       case "whole-blood" -> "119297000";
       case "bone-marrow" -> "119359002";
@@ -58,7 +64,7 @@ public class SnomedSamplyTypeConverter {
       case "g-dna" -> "18470003"; //Check
       case "rna" -> "441673008";
       case "liquid-other" -> "33463005";
-      default -> "123038009";
+      default -> default_snomedcode;
     };
   }
 }

@@ -202,8 +202,9 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
 
     specimen.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().setCode(this.fastingStatus);
 
-    specimen.getCollection().setExtension(List.of(TemperatureConverter.fromBbrmiToMii(this.storageTemperature)));
-
+    if(! Objects.equals(this.storageTemperature, null)) {
+      specimen.getCollection().setExtension(List.of(TemperatureConverter.fromBbrmiToMii(this.storageTemperature)));
+    }
     return specimen;
   }
 }
