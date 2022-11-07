@@ -1,4 +1,4 @@
-package de.samply.fhirtransfair.resources;
+package de.samply.transfair.resources;
 
 public abstract class ConvertClass<T1,T2> {
 

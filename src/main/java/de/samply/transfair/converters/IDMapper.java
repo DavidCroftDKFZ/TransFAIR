@@ -1,14 +1,11 @@
-package de.samply.fhirtransfair.converters;
+package de.samply.transfair.converters;
 
-import de.samply.fhirtransfair.converters.IDMapping.CSV_Mapping;
-import de.samply.fhirtransfair.converters.IDMapping.ID_Mapping;
-import de.samply.fhirtransfair.converters.IDMapping.Identity_Mapping;
+import de.samply.transfair.converters.IDMapping.CSV_Mapping;
+import de.samply.transfair.converters.IDMapping.ID_Mapping;
+import de.samply.transfair.converters.IDMapping.Identity_Mapping;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 /**
  * This class holds the different ID's and can map to the opposite project.

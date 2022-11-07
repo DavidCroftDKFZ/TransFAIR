@@ -1,7 +1,7 @@
-package de.samply.fhirtransfair.resources;
+package de.samply.transfair.resources;
 
-import de.samply.fhirtransfair.converters.IDMapper;
-import de.samply.fhirtransfair.converters.Resource_Type;
+import de.samply.transfair.converters.IDMapper;
+import de.samply.transfair.converters.Resource_Type;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- Test classes responsible for the {@link de.samply.fhirtransfair.converters.IDMapper}
+ Test classes responsible for the {@link de.samply.transfair.converters.IDMapper}
  */
 @SpringBootTest
 @TestPropertySource(properties = "FHIRTRANSFAIR_MAPPER_SETTING=csvmapping")

@@ -1,7 +1,7 @@
-package de.samply.fhirtransfair.resources;
+package de.samply.transfair.resources;
 
-import de.samply.fhirtransfair.converters.SnomedSamplyTypeConverter;
-import de.samply.fhirtransfair.converters.TemperatureConverter;
+import de.samply.transfair.converters.SnomedSamplyTypeConverter;
+import de.samply.transfair.converters.TemperatureConverter;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;

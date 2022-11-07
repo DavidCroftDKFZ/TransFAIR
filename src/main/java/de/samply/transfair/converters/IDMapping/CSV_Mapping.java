@@ -1,4 +1,4 @@
-package de.samply.fhirtransfair.converters.IDMapping;
+package de.samply.transfair.converters.IDMapping;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;

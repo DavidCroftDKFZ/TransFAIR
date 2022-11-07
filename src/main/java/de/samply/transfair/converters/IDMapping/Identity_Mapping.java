@@ -1,9 +1,8 @@
-package de.samply.fhirtransfair.converters.IDMapping;
+package de.samply.transfair.converters.IDMapping;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Mapper that maps every ID to itself and ignores any domain arguments. It is also impossible to add any mappings. Respective methods just do nothing.

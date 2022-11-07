@@ -1,4 +1,4 @@
-package de.samply.fhirtransfair.converters;
+package de.samply.transfair.converters;
 
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Extension;

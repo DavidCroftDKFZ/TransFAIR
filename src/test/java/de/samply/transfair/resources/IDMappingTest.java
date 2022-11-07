@@ -1,13 +1,10 @@
-package de.samply.fhirtransfair.resources;
+package de.samply.transfair.resources;
 
 import com.opencsv.exceptions.CsvMalformedLineException;
-import de.samply.fhirtransfair.converters.IDMapper;
-import de.samply.fhirtransfair.converters.IDMapping.CSV_Mapping;
-import de.samply.fhirtransfair.converters.IDMapping.ID_Mapping;
-import de.samply.fhirtransfair.converters.IDMapping.Identity_Mapping;
-import de.samply.fhirtransfair.converters.Resource_Type;
+import de.samply.transfair.converters.IDMapping.CSV_Mapping;
+import de.samply.transfair.converters.IDMapping.ID_Mapping;
+import de.samply.transfair.converters.IDMapping.Identity_Mapping;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
 import java.io.FileWriter;

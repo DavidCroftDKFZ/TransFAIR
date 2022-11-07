@@ -1,4 +1,4 @@
-package de.samply.fhirtransfair.resources;
+package de.samply.transfair.resources;
 
 import java.util.Objects;
 import org.hl7.fhir.r4.model.Condition;

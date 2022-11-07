@@ -1,8 +1,7 @@
-package de.samply.fhirtransfair.resources;
+package de.samply.transfair.resources;
 
 import java.util.Date;
 import java.util.Objects;
-import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Reference;
 
