@@ -6,6 +6,8 @@ logging:
       springframework: DEBUG
 
 app:
+  csvmapping:
+    filepath: ./test_mapping.csv
   source:
     format: "bbmri.de"
     loadFromFhirServer: true
