@@ -61,7 +61,12 @@ public class TransferController {
   private boolean saveToFileSystem;
 
 
+  TransferController() {
+    ctx.getRestfulClientFactory().setSocketTimeout(300 * 1000);
+  }
+
   private FhirContext ctx = FhirContext.forR4();
+
 
   private List<IBaseResource> fetchSpecimenResources(IGenericClient client) {
 
@@ -266,11 +271,11 @@ public class TransferController {
     HashSet<String> patientRefs = new HashSet<>();
     List<IBaseResource> specimens;
 
-    List<ConvertClass> resources = new ArrayList<>();
-
     if (loadFromFhirServer) {
       log.info("Start collecting Resources from FHIR server " + sourceFhirserver);
       IGenericClient sourceClient = ctx.newRestfulGenericClient(sourceFhirserver);
+
+      log.info("FHIR Server connected");
 
       specimens = fetchSpecimenResources(sourceClient);
 
