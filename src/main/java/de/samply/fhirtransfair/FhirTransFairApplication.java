@@ -28,12 +28,6 @@ import de.samply.fhirtransfair.Controller.APIController;
 @SpringBootApplication
 public class FhirTransFairApplication {
 
-  @Value("http://localhost:8080/fhir")
-  private static String bbmriFhirStore;
-
-  @Value("http://localhost:8081/fhir")
-  private String miiFhirStore;
-
   /**
    * Starts the program.
    *
@@ -41,8 +35,6 @@ public class FhirTransFairApplication {
    */
   public static void main(String[] args) {
     SpringApplication.run(FhirTransFairApplication.class, args);
-
-    APIController controller = new APIController();
   }
 
 

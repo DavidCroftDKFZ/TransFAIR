@@ -18,10 +18,10 @@ import javax.annotation.PostConstruct;
 public class IDMapper {
 
     private ID_Mapping id_mapping;
-    @Value("${FHIRTRANSFAIR_MAPPER_SETTING}")
+    @Value("${app.mapper.setting}")
     private String mapper_setting;
 
-    @Value("${FHIRTRANSFAIR_CSVMAPPING_PATH}")
+    @Value("${app.csv.path}")
     private String csv_mappings_path;
 
     //TODO: Autowired does not work from test...
