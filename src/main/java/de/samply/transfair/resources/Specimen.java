@@ -11,7 +11,8 @@ import org.hl7.fhir.r4.model.Range;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Type;
 
-public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.hl7.fhir.r4.model.Specimen> {
+public class Specimen
+    extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.hl7.fhir.r4.model.Specimen> {
 
   // Shared
   Date collectedDate;
@@ -93,18 +94,14 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
     this.miiSampleType = resource.getType().getCodingFirstRep().getCode();
     this.collectedDate = resource.getCollection().getCollectedDateTimeType().getValue();
 
-    if (Objects.equals(resource
-        .getCollection()
-        .getBodySite()
-        .getCodingFirstRep()
-        .getSystem(), "http://snomed.info/sct")) {
+    if (Objects.equals(
+        resource.getCollection().getBodySite().getCodingFirstRep().getSystem(),
+        "http://snomed.info/sct")) {
       this.miiBodySiteSnomedCt =
           resource.getCollection().getBodySite().getCodingFirstRep().getCode();
-    } else if (Objects.equals(resource
-        .getCollection()
-        .getBodySite()
-        .getCodingFirstRep()
-        .getSystem(), "http://terminology.hl7.org/CodeSystem/icd-o-3")) {
+    } else if (Objects.equals(
+        resource.getCollection().getBodySite().getCodingFirstRep().getSystem(),
+        "http://terminology.hl7.org/CodeSystem/icd-o-3")) {
       this.miiBodySiteIcd = resource.getCollection().getBodySite().getCodingFirstRep().getCode();
     }
 
@@ -112,8 +109,8 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
         resource.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().getCode();
 
     for (Extension extension : resource.getProcessingFirstRep().getExtension()) {
-      if (Objects.equals(extension
-              .getUrl(),
+      if (Objects.equals(
+          extension.getUrl(),
           "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen")) {
         Range r = (Range) extension.getValue();
         this.miiStoargeTemperatureHigh = Long.valueOf(r.getHigh().getUnit());
@@ -125,25 +122,24 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
   @Override
   public org.hl7.fhir.r4.model.Specimen toBbmri() {
 
-    if(this.hasParent)
-      return null;
+    if (this.hasParent) return null;
 
     org.hl7.fhir.r4.model.Specimen specimen = new org.hl7.fhir.r4.model.Specimen();
 
-    if(bbmriId.isEmpty() && !miiId.isEmpty()) {
+    if (bbmriId.isEmpty() && !miiId.isEmpty()) {
       // Todo: Add mapping from Patientfilter
       this.bbmriId = miiId;
     }
 
     specimen.setId(bbmriId);
 
-    if(bbmriSubject.isEmpty() && !miiSubject.isEmpty()) {
+    if (bbmriSubject.isEmpty() && !miiSubject.isEmpty()) {
       this.bbmriSubject = miiSubject;
     }
 
     specimen.getSubject().setReference(bbmriSubject);
 
-    if(Objects.equals(bbmrisampleType,null) && !Objects.equals(miiSampleType,null)) {
+    if (Objects.equals(bbmrisampleType, null) && !Objects.equals(miiSampleType, null)) {
       this.bbmrisampleType = SnomedSamplyTypeConverter.fromMiiToBbmri(miiSampleType);
     }
 
@@ -153,10 +149,10 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
 
     specimen.getCollection().getCollectedDateTimeType().setValue(this.collectedDate);
 
-    if(Objects.nonNull(miiBodySiteIcd)) {
+    if (Objects.nonNull(miiBodySiteIcd)) {
       this.bbmriBodySite = miiBodySiteIcd;
     } else if (Objects.nonNull(miiBodySiteSnomedCt)) {
-      //Todo: Cast from Snomed CT to ICD-0-3
+      // Todo: Cast from Snomed CT to ICD-0-3
       this.bbmriBodySite = miiBodySiteSnomedCt;
     }
 
@@ -165,10 +161,21 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
     bodySiteCode.getCodingFirstRep().setSystem("urn:oid:1.3.6.1.4.1.19376.1.3.11.36");
     specimen.getCollection().setBodySite(bodySiteCode);
 
-    specimen.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().setCode(this.fastingStatus);
+    specimen
+        .getCollection()
+        .getFastingStatusCodeableConcept()
+        .getCodingFirstRep()
+        .setCode(this.fastingStatus);
 
-    specimen.addExtension(TemperatureConverter.fromMiiToBbmri(this.miiStoargeTemperatureHigh,
-       this.miiStoargeTemperaturelow));
+    if(!Objects.equals(storageTemperature, null)) {
+      Extension extension = new Extension();
+      extension.setUrl("https://fhir.bbmri.de/StructureDefinition/StorageTemperature");
+      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode(storageTemperature));
+    } else {
+      specimen.addExtension(
+          TemperatureConverter.fromMiiToBbmri(
+              this.miiStoargeTemperatureHigh, this.miiStoargeTemperaturelow));
+    }
 
     return specimen;
   }
@@ -177,20 +184,20 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
   public org.hl7.fhir.r4.model.Specimen toMii() {
     org.hl7.fhir.r4.model.Specimen specimen = new org.hl7.fhir.r4.model.Specimen();
 
-    if(!bbmriId.isEmpty() && miiId.isEmpty()) {
+    if (!bbmriId.isEmpty() && miiId.isEmpty()) {
       // Todo: Add mapping from Patientfilter
       this.miiId = bbmriId;
     }
 
     specimen.setId(miiId);
 
-    if(!bbmriSubject.isEmpty() && miiSubject.isEmpty()) {
+    if (!bbmriSubject.isEmpty() && miiSubject.isEmpty()) {
       this.miiSubject = bbmriSubject;
     }
 
     specimen.getSubject().setReference(miiSubject);
 
-    if(Objects.equals(miiSampleType,null)) {
+    if (Objects.equals(miiSampleType, null)) {
       this.miiSampleType = SnomedSamplyTypeConverter.fromBbmriToMii(bbmrisampleType);
     }
 
@@ -200,10 +207,16 @@ public class Specimen extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.h
 
     specimen.getCollection().getCollectedDateTimeType().setValue(this.collectedDate);
 
-    specimen.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().setCode(this.fastingStatus);
+    specimen
+        .getCollection()
+        .getFastingStatusCodeableConcept()
+        .getCodingFirstRep()
+        .setCode(this.fastingStatus);
 
-    if(! Objects.equals(this.storageTemperature, null)) {
-      specimen.getCollection().setExtension(List.of(TemperatureConverter.fromBbrmiToMii(this.storageTemperature)));
+    if (!Objects.equals(this.storageTemperature, null)) {
+      specimen
+          .getCollection()
+          .setExtension(List.of(TemperatureConverter.fromBbrmiToMii(this.storageTemperature)));
     }
     return specimen;
   }

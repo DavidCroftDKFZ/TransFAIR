@@ -7,17 +7,17 @@ logging:
 
 app:
   csvmapping:
-    filepath: ./test_mapping.csv
+    filepath: ${CSV_FILE}
   source:
-    format: "bbmri.de"
-    loadFromFhirServer: true
-    fhirserver: "http://localhost:8080/fhir"
-    loadFromFileSystem: false
+    format: ${SOURCE_FORMAT}
+    loadFromFhirServer: ${SOURCE_LOAD_FHIR}
+    fhirserver: ${SOURCE_FHIR_SERVER}
+    loadFromFileSystem: ${SOURCE_LOAD_FILES}
   target:
-    format: "mii"
-    saveToFhirServer: false
-    fhirServer: "http://localhost:8081/fhir"
-    saveToFileSystem: true
+    format: ${TARGET_FORMAT}
+    saveToFhirServer: ${TARGET_POST_FHIR}
+    fhirServer: ${TARGET_FHIR_SERVER}
+    saveToFileSystem: ${TARGET_SAVE_FILES}
   mapper:
     setting: ""
   csv:

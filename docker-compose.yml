@@ -1,35 +1,18 @@
 version: "3.7"
 
 services:
-  fhir-transfair:
-    build: .
-    ports:
-      - 8082:8080
-
-  blaze-bbmri:
-    image: "samply/blaze:develop"
+  transfair:
+    container_name: transfair
+    image: samply/transfair
     environment:
-      BASE_URL: "http://localhost:8080"
-      JAVA_TOOL_OPTIONS: "-Xmx4g"
-      LOG_LEVEL: "debug"
-      ENFORCE_REFERENTIAL_INTEGRITY: "false"
-    volumes:
-      - "bbmri-blaze-data:/app/data"
+      CSV_FILE: ""
+      SOURCE_FORMAT: "bbmri.de"
+      SOURCE_LOAD_FHIR: "true"
+      SOURCE_FHIR_SERVER: "http://host.docker.internal:8080/fhir"
+      SOURCE_LOAD_FILES: "false"
+      TARGET_FORMAT: "bbmri.de"
+      TARGET_POST_FHIR: "true"
+      TARGET_FHIR_SERVER: "http://host.docker.internal:8083/fhir"
+      TARGET_SAVE_FILES: "false"
     ports:
-      - 8080:8080
-
-  blaze-mii:
-    image: "samply/blaze:develop"
-    environment:
-      BASE_URL: "http://localhost:8081"
-      JAVA_TOOL_OPTIONS: "-Xmx4g"
-      LOG_LEVEL: "debug"
-      ENFORCE_REFERENTIAL_INTEGRITY: "false"
-    volumes:
-      - "mii-blaze-data:/app/data"
-    ports:
-      - 8081:8080
-
-volumes:
-  mii-blaze-data:
-  bbmri-blaze-data:
+      - "8070:8070"

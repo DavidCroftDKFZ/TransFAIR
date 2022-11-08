@@ -1,6 +1,7 @@
 package de.samply.transfair.resources;
 
 import java.util.List;
+import java.util.Objects;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Condition;
@@ -44,15 +45,15 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
     codingFirstRep.setSystem("http://loinc.org");
     codingFirstRep.setDisplay("Primary cause of death");
 
-    if(bbmriID.isEmpty() && !miiID.isEmpty()) {
+    if (bbmriID.isEmpty() && !miiID.isEmpty()) {
       this.bbmriID = miiID;
     }
 
-    if(!miiPatientID.isEmpty() && bbmriPatientID.isEmpty()) {
+    if (!miiPatientID.isEmpty() && bbmriPatientID.isEmpty()) {
       this.bbmriPatientID = miiPatientID;
     }
 
-    if(bbmriCauseOfDeath.isEmpty() && !miiCauseOfDeath.isEmpty()) {
+    if (bbmriCauseOfDeath.isEmpty() && !miiCauseOfDeath.isEmpty()) {
       this.bbmriCauseOfDeath = miiCauseOfDeath;
     }
 
@@ -73,13 +74,13 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
     codingLoinc.getCodingFirstRep().setSystem("http://loinc.org");
     codingLoinc.getCodingFirstRep().setCode("79378-6");
 
-    if(!bbmriID.isEmpty() && miiID.isEmpty()) {
-       this.miiID = this.bbmriID;
-    } else if(miiPatientID.isEmpty() && !bbmriPatientID.isEmpty()) {
+    if (!bbmriID.isEmpty() && miiID.isEmpty()) {
+      this.miiID = this.bbmriID;
+    } else if (miiPatientID.isEmpty() && !bbmriPatientID.isEmpty()) {
       this.bbmriPatientID = miiPatientID;
     }
 
-    if(!bbmriCauseOfDeath.isEmpty() && miiCauseOfDeath.isEmpty()) {
+    if(Objects.equals(bbmriCauseOfDeath,null) && !Objects.equals(miiCauseOfDeath, null)) {
       this.bbmriCauseOfDeath = miiCauseOfDeath;
     }
 
@@ -87,7 +88,7 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
     codingSnomedCt.getCodingFirstRep().setSystem("http://snomed.info/sct");
     codingSnomedCt.getCodingFirstRep().setCode("16100001");
 
-    condition.setCategory(List.of(codingLoinc,codingSnomedCt));
+    condition.setCategory(List.of(codingLoinc, codingSnomedCt));
 
     CodeableConcept codeableConceptCause = new CodeableConcept();
     codeableConceptCause.getCodingFirstRep().setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm");

@@ -4,7 +4,8 @@ import java.util.Date;
 import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.Enumerations.AdministrativeGenderEnumFactory;
 
-public class Patient extends ConvertClass<org.hl7.fhir.r4.model.Patient, org.hl7.fhir.r4.model.Patient> {
+public class Patient
+    extends ConvertClass<org.hl7.fhir.r4.model.Patient, org.hl7.fhir.r4.model.Patient> {
 
   // MII data
   String miiId = "";
@@ -48,7 +49,7 @@ public class Patient extends ConvertClass<org.hl7.fhir.r4.model.Patient, org.hl7
     patient.setGender(new AdministrativeGenderEnumFactory().fromCode(this.gender));
     patient.setBirthDate(brithDate);
 
-    if(bbmriId.isEmpty() && !miiId.isEmpty()) {
+    if (bbmriId.isEmpty() && !miiId.isEmpty()) {
       // Todo: Add mapping from Patientfilter
       this.bbmriId = miiId;
     }
@@ -66,7 +67,7 @@ public class Patient extends ConvertClass<org.hl7.fhir.r4.model.Patient, org.hl7
   public org.hl7.fhir.r4.model.Patient toMii() {
     org.hl7.fhir.r4.model.Patient patient = new org.hl7.fhir.r4.model.Patient();
 
-    if(!bbmriId.isEmpty() && miiId.isEmpty()) {
+    if (!bbmriId.isEmpty() && miiId.isEmpty()) {
       // Todo: Add mapping from Patientfilter
       this.miiId = bbmriId;
     }

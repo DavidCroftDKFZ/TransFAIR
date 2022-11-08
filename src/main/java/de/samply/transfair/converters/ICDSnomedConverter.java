@@ -1,5 +1,3 @@
 package de.samply.transfair.converters;
 
-public class ICDSnomedConverter {
-
-}
+public class ICDSnomedConverter {}

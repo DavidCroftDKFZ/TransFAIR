@@ -2,7 +2,8 @@ package de.samply.transfair.resources;
 
 import org.hl7.fhir.r4.model.Extension;
 
-public class Organization extends ConvertClass<org.hl7.fhir.r4.model.Organization, org.hl7.fhir.r4.model.Organization> {
+public class Organization
+    extends ConvertClass<org.hl7.fhir.r4.model.Organization, org.hl7.fhir.r4.model.Organization> {
 
   String identifer;
   String bioBankDescription;
@@ -41,14 +42,10 @@ public class Organization extends ConvertClass<org.hl7.fhir.r4.model.Organizatio
   }
 
   @Override
-  public void fromBbmri(org.hl7.fhir.r4.model.Organization resource) {
-
-  }
+  public void fromBbmri(org.hl7.fhir.r4.model.Organization resource) {}
 
   @Override
-  public void fromMii(org.hl7.fhir.r4.model.Organization resource) {
-
-  }
+  public void fromMii(org.hl7.fhir.r4.model.Organization resource) {}
 
   @Override
   public org.hl7.fhir.r4.model.Organization toBbmri() {

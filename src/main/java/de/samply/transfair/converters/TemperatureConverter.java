@@ -9,7 +9,6 @@ public class TemperatureConverter {
 
   public static Extension fromBbrmiToMii(String BbmriTemp) {
     Extension extension = new Extension();
-
     extension.setUrl(
         "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen");
 

@@ -1,4 +1,4 @@
-package de.samply.transfair.Controller;
+package de.samply.transfair.controller;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
@@ -43,8 +43,8 @@ public class TransferController {
   @Value("${app.source.loadFromFileSystem}")
   private boolean loadFromFileSystem;
 
-  //@Value("${app.source.pathToFhirResources}")
-  //private boolean pathToFhirResources;
+  // @Value("${app.source.pathToFhirResources}")
+  // private boolean pathToFhirResources;
 
   // Variables for target
   @Value("${app.target.format}")
@@ -59,13 +59,11 @@ public class TransferController {
   @Value("${app.target.saveToFileSystem}")
   private boolean saveToFileSystem;
 
-
   TransferController() {
     ctx.getRestfulClientFactory().setSocketTimeout(300 * 1000);
   }
 
   private FhirContext ctx = FhirContext.forR4();
-
 
   private List<IBaseResource> fetchSpecimenResources(IGenericClient client) {
 
@@ -77,14 +75,12 @@ public class TransferController {
     resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     // Load the subsequent pages
-    /*
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
       resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
       log.info("Fetching next page of Specimen");
 
     }
-    */
     log.info("Loaded " + resourceList.size() + " Specimen Resources from source");
 
     return resourceList;
@@ -124,7 +120,7 @@ public class TransferController {
             .returnBundle(Bundle.class)
             .execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(ctx,bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
@@ -133,8 +129,7 @@ public class TransferController {
 
     for (IBaseResource base : resourceList) {
       Specimen specimen = (Specimen) base;
-      de.samply.transfair.resources.Specimen s =
-          new de.samply.transfair.resources.Specimen();
+      de.samply.transfair.resources.Specimen s = new de.samply.transfair.resources.Specimen();
       if (Objects.equals(this.sourceFormat, "bbmri.de")) {
         log.debug("Analysing Specimen " + patientId + " with format bbmri.de");
         s.fromBbmri(specimen);
@@ -167,7 +162,7 @@ public class TransferController {
             .returnBundle(Bundle.class)
             .execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(ctx,bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
@@ -192,7 +187,6 @@ public class TransferController {
           } else {
             resourceListOut.add(causeOfDeath.toMii());
             log.debug("Analysing Cause of Death " + patientId + " with format mii");
-
           }
         }
       }
@@ -213,7 +207,7 @@ public class TransferController {
             .returnBundle(Bundle.class)
             .execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(ctx,bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
@@ -238,7 +232,6 @@ public class TransferController {
         } else {
           resourceListOut.add(causeOfDeath.toMii());
           log.debug("Exporting Cause of Death " + patientId + " with format mii");
-
         }
         continue;
       }
@@ -259,7 +252,6 @@ public class TransferController {
       } else {
         resourceListOut.add(condition.toMii());
         log.debug("Exporting Condition " + patientId + " with format mii");
-
       }
     }
 
@@ -293,8 +285,8 @@ public class TransferController {
 
         patientResources.add(fetchPatientResource(sourceClient, p_id));
         patientResources.addAll(fetchPatientSpecimens(sourceClient, p_id));
-        patientResources.addAll(fetchPatientObservation(sourceClient, p_id));
-        patientResources.addAll(fetchPatientCondition(sourceClient, p_id));
+        // patientResources.addAll(fetchPatientObservation(sourceClient, p_id));
+       // patientResources.addAll(fetchPatientCondition(sourceClient, p_id));
 
         this.buildResources(patientResources);
 

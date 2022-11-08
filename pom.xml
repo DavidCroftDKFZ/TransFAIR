@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>de.samply</groupId>
-	<artifactId>fhir-transFAIR</artifactId>
+	<artifactId>transFAIR</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>fhir-transFAIR</name>
-	<description>fhir-transFAIR</description>
+	<name>transFAIR</name>
+	<description>transFAIR</description>
 	<properties>
 		<java.version>17</java.version>
 		<hapi.version>5.6.2</hapi.version>
