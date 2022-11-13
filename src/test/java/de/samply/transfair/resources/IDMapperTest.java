@@ -19,14 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  Test classes responsible for the {@link de.samply.transfair.converters.IDMapper}
  */
 @SpringBootTest
-@TestPropertySource(properties = "FHIRTRANSFAIR_MAPPER_SETTING=csvmapping")
-@TestPropertySource(properties = "FHIRTRANSFAIR_CSVMAPPING_PATH=./test_mapping.csv")
+@TestPropertySource(properties = "TRANSFAIR_MAPPER_SETTING=csvmapping")
+@TestPropertySource(properties = "TRANSFAIR_CSVMAPPING_PATH=./test_mapping.csv")
 public class IDMapperTest {
 
-    @Value("${FHIRTRANSFAIR_CSVMAPPING_PATH}")
+    @Value("${TRANSFAIR_CSVMAPPING_PATH}")
     private String csv_path_config;
 
-    @Value("${FHIRTRANSFAIR_MAPPER_SETTING}")
+    @Value("${TRANSFAIR_MAPPER_SETTING}")
     private String mapper_setting;
 
     private static final Logger log = LoggerFactory.getLogger(IDMapperTest.class);
