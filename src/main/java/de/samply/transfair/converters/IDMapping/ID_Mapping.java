@@ -13,29 +13,29 @@ import java.util.HashMap;
  */
 public abstract class ID_Mapping {
   // First key: src domain, second key tar domain, third key identifier
-  private final HashMap<String, HashMap<String, HashMap<String, String>>> mappings;
+  // Used as cache data structure for fetched mappings
+  private final HashMap<String, HashMap<String, HashMap<String, String>>> mappings_cache;
 
   /** Standard constructor. Prepares nested hashmaps to store mappings in. */
   public ID_Mapping() {
-    this.mappings = new HashMap<>();
+    this.mappings_cache = new HashMap<>();
   }
 
   /**
-   * Standard getter for field this.mappings
-   *
+   * Standard getter for field {this.mappings}
    * @return nested Hashmaps which store mappings
    */
-  public HashMap<String, HashMap<String, HashMap<String, String>>> getMappings() {
-    return this.mappings;
+  public HashMap<String, HashMap<String, HashMap<String, String>>> getMappings_cache() {
+    return this.mappings_cache;
   }
 
   /**
-   * Reads mappings from different sources depending on inherited class.
+   * Reads a single mapping from different sources depending on inherited class.
    *
    * @throws Exception Exceptions depend on implementation in inherited class. E.g. when reading
    *     from a file it can be IOException.
    */
-  public abstract void read_mappings() throws Exception;
+  public abstract String fetch_mapping(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) throws Exception;
 
   /**
    * Stores a single mapping between two IDs from two domains.
@@ -65,22 +65,22 @@ public abstract class ID_Mapping {
       throw new IllegalArgumentException("Empty ID is not allowed!");
     }
 
-    if (!this.mappings.containsKey(dom_a)) {
-      this.mappings.put(dom_a, new HashMap<>());
+    if (!this.mappings_cache.containsKey(dom_a)) {
+      this.mappings_cache.put(dom_a, new HashMap<>());
     }
-    if (!this.mappings.containsKey(dom_b)) {
-      this.mappings.put(dom_b, new HashMap<>());
-    }
-
-    if (!this.mappings.get(dom_a).containsKey(dom_b)) {
-      this.mappings.get(dom_a).put(dom_b, new HashMap<>());
-    }
-    if (!this.mappings.get(dom_b).containsKey(dom_a)) {
-      this.mappings.get(dom_b).put(dom_a, new HashMap<>());
+    if (!this.mappings_cache.containsKey(dom_b)) {
+      this.mappings_cache.put(dom_b, new HashMap<>());
     }
 
-    this.mappings.get(dom_a).get(dom_b).put(id_a, id_b);
-    this.mappings.get(dom_b).get(dom_a).put(id_b, id_a);
+    if (!this.mappings_cache.get(dom_a).containsKey(dom_b)) {
+      this.mappings_cache.get(dom_a).put(dom_b, new HashMap<>());
+    }
+    if (!this.mappings_cache.get(dom_b).containsKey(dom_a)) {
+      this.mappings_cache.get(dom_b).put(dom_a, new HashMap<>());
+    }
+
+    this.mappings_cache.get(dom_a).get(dom_b).put(id_a, id_b);
+    this.mappings_cache.get(dom_b).get(dom_a).put(id_b, id_a);
   }
 
   /**
@@ -129,6 +129,31 @@ public abstract class ID_Mapping {
   }
 
   /**
+   * Checks whether mapping from src_domain to tar_domain is set up in the cache
+   * @param src_domain name of src_domain
+   * @param tar_domain name of tar_domain
+   * @return Returns a boolean whether src_domain and tar_domain exist and mapping from src_domain to tar_domain is set up in the cache
+   */
+    public boolean exist_domains(@NotNull String src_domain, @NotNull String tar_domain){
+    return mappings_cache.containsKey(src_domain) && mappings_cache.get(src_domain).containsKey(tar_domain);
+  }
+
+  /**
+   * Checks whether a mapping of the id from the source domain to the target domain exists in the cache.
+   * @param id The id to be checked fo existing mapping from src_domain to tar_domain
+   * @param src_domain The domain tht should contain the id
+   * @param tar_domain The domain where it should be able to map id to
+   * @return Whether a mapping
+   * @throws IllegalArgumentException: Mapping from source to target domain is not within the cache
+   */
+  public boolean exists_mapping(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) {
+    if(!exist_domains(src_domain, tar_domain)){
+      return false;
+    }
+    return mappings_cache.get(src_domain).get(tar_domain).containsKey(id);
+  }
+
+  /**
    * Maps a single id from its original source domain to a target domain and returns it.
    *
    * @param id id that shall be mapped from source domain to target domain
@@ -137,22 +162,18 @@ public abstract class ID_Mapping {
    * @throws IllegalArgumentException if mapping does not exist
    * @return id from tar_domain which was mapped from input id
    */
-  public String map_id(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain)
-      throws IllegalArgumentException {
-    if (!mappings.containsKey(src_domain) || !mappings.get(src_domain).containsKey(tar_domain)) {
-      throw new IllegalArgumentException(
-          "Mapping from source domain '"
-              + src_domain
-              + "' to target domain '"
-              + tar_domain
-              + "' does not exist!");
+  public String map_id(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) throws Exception { //TODO: Specify exception type?
+    String tar_id;
+    if (!exists_mapping(id, src_domain, tar_domain)) { // If no mapping for the ud from src_domain to tar_domain exists, fetch the id and add it to the cache
+      try {
+        tar_id = this.fetch_mapping(id, src_domain, tar_domain);
+      }catch(Exception e){
+        throw new Exception("Unable to fetch id "+id+" from "+src_domain+" to "+tar_domain+" !", e);
+      }
+      set_mapping(src_domain, tar_domain, id, tar_id);
+      return tar_id;
     }
 
-    HashMap<String, String> src_to_tar = mappings.get(src_domain).get(tar_domain);
-    if (!src_to_tar.containsKey(id)) {
-      throw new IllegalArgumentException("ID '" + id + "' does not exist in mapping!");
-    }
-
-    return src_to_tar.get(id);
+    return mappings_cache.get(src_domain).get(tar_domain).get(id);
   }
 }

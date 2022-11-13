@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  Test classes responsible for the {@link de.samply.transfair.converters.IDMapper}
@@ -65,11 +66,17 @@ public class IDMapperTest {
         assertEquals(this.csv_path_config, idmapper.getCsv_mappings_path());
 
         // Test mapping MII->BBMRI
-        assertEquals(bbmri_patient_id, idmapper.toBbmri(mii_patient_id, Resource_Type.PATIENT));
-        assertEquals(bbmri_specimen_id, idmapper.toBbmri(mii_specimen_id, Resource_Type.SPECIMEN));
+        try {
+            assertEquals(bbmri_patient_id, idmapper.toBbmri(mii_patient_id, Resource_Type.PATIENT));
+            assertEquals(bbmri_specimen_id, idmapper.toBbmri(mii_specimen_id, Resource_Type.SPECIMEN));
 
-        //Test mapping BBMRI->MII
-        assertEquals(mii_patient_id, idmapper.toMii(bbmri_patient_id, Resource_Type.PATIENT));
-        assertEquals(mii_specimen_id, idmapper.toMii(bbmri_specimen_id, Resource_Type.SPECIMEN));
+            //Test mapping BBMRI->MII
+            assertEquals(mii_patient_id, idmapper.toMii(bbmri_patient_id, Resource_Type.PATIENT));
+            assertEquals(mii_specimen_id, idmapper.toMii(bbmri_specimen_id, Resource_Type.SPECIMEN));
+        }catch(Exception e){
+            System.out.println("Unexpected exception thrown!");
+            e.printStackTrace();
+            fail();
+        }
     }
 }

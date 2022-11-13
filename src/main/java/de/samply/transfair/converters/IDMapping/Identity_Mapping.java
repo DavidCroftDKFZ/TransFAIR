@@ -11,8 +11,11 @@ import java.util.ArrayList;
  * @author jdoerenberg
  */
 public class Identity_Mapping extends ID_Mapping {
-  /** Overrides parental class method to do nothing */
-  public void read_mappings() {}
+  /** Overrides parental class method to do return the id itself */
+  @Override
+  public String fetch_mapping(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) {
+    return id;
+  }
 
   /**
    * Returns the id itself
@@ -20,7 +23,7 @@ public class Identity_Mapping extends ID_Mapping {
    * @param id id that is returned
    * @param src_domain has no effect
    * @param tar_domain has no effect
-   * @return
+   * @return id itself
    */
   @Override
   public String map_id(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) {

@@ -1,6 +1,5 @@
 package de.samply.transfair.resources;
 
-import com.opencsv.exceptions.CsvMalformedLineException;
 import de.samply.transfair.converters.IDMapping.CSV_Mapping;
 import de.samply.transfair.converters.IDMapping.ID_Mapping;
 import de.samply.transfair.converters.IDMapping.Identity_Mapping;
@@ -57,11 +56,11 @@ public class IDMappingTest {
     });
     assertTrue(exception.getMessage().contains("ID lists must have same length! First list has length "+too_short.length+" and second list has length "+IDs_B.length));
 
-    String thesame = "TheSame";
+    String theSame = "TheSame";
     exception = assertThrows(IllegalArgumentException.class, () -> {
-      mapping.set_mapping(thesame, thesame, IDs_A[0], IDs_B[0]); // Should throw IllegalArgumentException, because domain names are equal
+      mapping.set_mapping(theSame, theSame, IDs_A[0], IDs_B[0]); // Should throw IllegalArgumentException, because domain names are equal
     });
-    assertTrue(exception.getMessage().contains("Equal domain names not allowed! Both domain names are '"+thesame+"'"));
+    assertTrue(exception.getMessage().contains("Equal domain names not allowed! Both domain names are '"+theSame+"'"));
 
     exception = assertThrows(IllegalArgumentException.class, () -> {
       mapping.set_mapping("", dom_B, IDs_A[0], IDs_B[0]); // Should throw IllegalArgumentException, because one domain name is empty
@@ -75,14 +74,14 @@ public class IDMappingTest {
 
     //Add single mapping and test whether it is stored correctly
     mapping.set_mapping(dom_A, dom_B, IDs_A[0], IDs_B[0]);
-    assertTrue(mapping.getMappings().containsKey(dom_A));
-    assertTrue(mapping.getMappings().get(dom_A).containsKey(dom_B));
-    HashMap<String, String> A_to_B = mapping.getMappings().get(dom_A).get(dom_B); //
+    assertTrue(mapping.getMappings_cache().containsKey(dom_A));
+    assertTrue(mapping.getMappings_cache().get(dom_A).containsKey(dom_B));
+    HashMap<String, String> A_to_B = mapping.getMappings_cache().get(dom_A).get(dom_B); //
     assertEquals(IDs_B[0], A_to_B.get(IDs_A[0]));
 
-    assertTrue(mapping.getMappings().containsKey(dom_B));
-    assertTrue(mapping.getMappings().get(dom_B).containsKey(dom_A));
-    HashMap<String, String> B_to_A = mapping.getMappings().get(dom_B).get(dom_A);
+    assertTrue(mapping.getMappings_cache().containsKey(dom_B));
+    assertTrue(mapping.getMappings_cache().get(dom_B).containsKey(dom_A));
+    HashMap<String, String> B_to_A = mapping.getMappings_cache().get(dom_B).get(dom_A);
     assertEquals(IDs_A[0], B_to_A.get(IDs_B[0]));
 
     // Add multiple mappings batch-wise and test whether they are stored correctly
@@ -97,7 +96,7 @@ public class IDMappingTest {
   }
 
   /**
-   * Test map_id function of class {@link ID_Mapping} by using instance of inherited class {@link CSV_Mapping}
+   * Test map_id function of class {@link ID_Mapping} when reading from cache. Instance of inherited class {@link CSV_Mapping} is used.
    */
   @Test
   void mapID() {
@@ -108,21 +107,23 @@ public class IDMappingTest {
 
     // Test exceptions
     String non_existing_domain = "non_existing_domain";
-    Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-      mapping.map_id(IDs_A[idx], non_existing_domain, dom_B); // Should throw IllegalArgumentException, because mapping between these domains does not exist
+    Exception exception = assertThrows(Exception.class, () -> {
+      mapping.map_id(IDs_A[idx], non_existing_domain, dom_B); // Should throw Exception, because mapping between these domains does not exist
     });
-    assertTrue(exception.getMessage().contains("Mapping from source domain '" + non_existing_domain + "' to target domain '" + dom_B + "' does not exist!"));
 
     String non_existing_id = "Non_existing_ID";
-    exception = assertThrows(IllegalArgumentException.class, () -> {
-      mapping.map_id(non_existing_id, dom_A, dom_B); // Should throw IllegalArgumentException, because ID does not exist in source domain
+    exception = assertThrows(Exception.class, () -> {
+      mapping.map_id(non_existing_id, dom_A, dom_B); // Should throw Exception, because ID does not exist in source domain
     });
-    assertTrue(exception.getMessage().contains("ID '" + non_existing_id + "' does not exist in mapping!"));
 
     // Test whether correct mapping is returned in both directions
-    assertEquals(IDs_B[idx], mapping.map_id(IDs_A[idx], dom_A, dom_B));
-    assertEquals(IDs_A[idx], mapping.map_id(IDs_B[idx], dom_B, dom_A));
-
+    try {
+      assertEquals(IDs_B[idx], mapping.map_id(IDs_A[idx], dom_A, dom_B));
+      assertEquals(IDs_A[idx], mapping.map_id(IDs_B[idx], dom_B, dom_A));
+    }catch(Exception e){ //Should usually not happen
+      System.out.println("Unexpected exception thrown!");
+      fail();
+    }
   }
 
   /**
@@ -166,65 +167,77 @@ public class IDMappingTest {
     CSV_Mapping csv_mapping = new CSV_Mapping();
 
     // Test exceptions
-    assertThrows(IOException.class, () -> {
+    assertThrows(Exception.class, () -> { //TODO: Assert based on second exception in stack and based on message of second exception?
       csv_mapping.setFilepath("./Non_existing_file.csv");
-      csv_mapping.read_mappings(); // Should throw IOException, because file can not be read
+      csv_mapping.map_id(IDs_A[0], dom_A, dom_B); // Should throw IOException, because file can not be read
     });
 
-    assertThrows(CsvMalformedLineException.class, () -> {
+    assertThrows(Exception.class, () -> { //TODO: Assert based on second exception in stack and based on message of second exception?
       csv_mapping.setFilepath(filepath_broken);
-      csv_mapping.read_mappings(); // Should throw CsvMalformedLineException, because file is not a proper csv
+      csv_mapping.map_id(IDs_A[0], dom_A, dom_B); // Should throw CsvMalformedLineException, because file is not a proper csv
     });
 
-    try {
-      csv_mapping.setFilepath(this.csv_path_config);
-      csv_mapping.read_mappings();
-    } catch (Exception e) {
-      fail(); //This should not happen
-    }
-
-    // Test if mappings have been read correctly
+    // Test if mappings are read correctly
     // Use modified this.IDs_A and this.IDs_B (see top of method)
+    csv_mapping.setFilepath(csv_path_config); //TODO: Is this really the correct filename?
 
     //Index 0: Mapping between all three
-    assertEquals(IDs_B[0], csv_mapping.map_id(IDs_A[0], dom_A, dom_B)); //A->B
-    assertEquals(IDs_A[0], csv_mapping.map_id(IDs_B[0], dom_B, dom_A)); //B->A
-    assertEquals(IDs_C[0], csv_mapping.map_id(IDs_A[0], dom_A, dom_C)); //A->C
-    assertEquals(IDs_A[0], csv_mapping.map_id(IDs_C[0], dom_C, dom_A)); //C->A
-    assertEquals(IDs_C[0], csv_mapping.map_id(IDs_B[0], dom_B, dom_C)); //B->C
-    assertEquals(IDs_B[0], csv_mapping.map_id(IDs_C[0], dom_C, dom_B)); //C->B
+    try {
+      assertEquals(IDs_B[0], csv_mapping.map_id(IDs_A[0], dom_A, dom_B)); //A->B
+      assertEquals(IDs_A[0], csv_mapping.map_id(IDs_B[0], dom_B, dom_A)); //B->A
+      assertEquals(IDs_C[0], csv_mapping.map_id(IDs_A[0], dom_A, dom_C)); //A->C
+      assertEquals(IDs_A[0], csv_mapping.map_id(IDs_C[0], dom_C, dom_A)); //C->A
+      assertEquals(IDs_C[0], csv_mapping.map_id(IDs_B[0], dom_B, dom_C)); //B->C
+      assertEquals(IDs_B[0], csv_mapping.map_id(IDs_C[0], dom_C, dom_B)); //C->B
+    }catch(Exception e){ //Should usually not happen
+      System.out.println("Unexpected exception thrown!");
+      e.printStackTrace();
+      fail();
+    }
 
     //Index 1: Mapping between domain A and domain B
-    assertEquals(IDs_B[1], csv_mapping.map_id(IDs_A[1], dom_A, dom_B)); //A->B
-    assertEquals(IDs_A[1], csv_mapping.map_id(IDs_B[1], dom_B, dom_A)); //B->A
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_A[1], dom_A, dom_C)); //A->C
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_C[1], dom_C, dom_A)); //C->A
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_B[1], dom_B, dom_C)); //B->C
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_C[1], dom_C, dom_B)); //C->B
+    try{
+      assertEquals(IDs_B[1], csv_mapping.map_id(IDs_A[1], dom_A, dom_B)); //A->B
+      assertEquals(IDs_A[1], csv_mapping.map_id(IDs_B[1], dom_B, dom_A)); //B->A
+    }catch(Exception e){ //Should usually not happen
+      System.out.println("Unexpected exception thrown!");
+      e.printStackTrace();
+      fail();
+    }
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_A[1], dom_A, dom_C)); //A->C //TODO: Specify exception type?
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_C[1], dom_C, dom_A)); //C->A
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_B[1], dom_B, dom_C)); //B->C
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_C[1], dom_C, dom_B)); //C->B
 
     //Index 2: Mapping between domain B and domain C
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_A[2], dom_A, dom_B)); //A->B
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_B[2], dom_B, dom_A)); //B->A
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_A[2], dom_A, dom_C)); //A->C
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_C[2], dom_C, dom_A)); //C->A
-    assertEquals(IDs_C[2], csv_mapping.map_id(IDs_B[2], dom_B, dom_C)); //B->C
-    assertEquals(IDs_B[2], csv_mapping.map_id(IDs_C[2], dom_C, dom_B)); //C->B
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_A[2], dom_A, dom_B)); //A->B
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_B[2], dom_B, dom_A)); //B->A
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_A[2], dom_A, dom_C)); //A->C
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_C[2], dom_C, dom_A)); //C->A
+    try{
+      assertEquals(IDs_C[2], csv_mapping.map_id(IDs_B[2], dom_B, dom_C)); //B->C
+      assertEquals(IDs_B[2], csv_mapping.map_id(IDs_C[2], dom_C, dom_B)); //C->B
+    }catch(Exception e){ //Should usually not happen
+      System.out.println("Unexpected exception thrown!");
+      e.printStackTrace();
+      fail();
+    }
 
     //Index 3: No mapping as all three empty
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_A[3], dom_A, dom_B)); //A->B
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_B[3], dom_B, dom_A)); //B->A
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_A[3], dom_A, dom_C)); //A->C
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_C[3], dom_C, dom_A)); //C->A
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_B[3], dom_B, dom_C)); //B->C
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_C[3], dom_C, dom_B)); //C->B
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_A[3], dom_A, dom_B)); //A->B
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_B[3], dom_B, dom_A)); //B->A
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_A[3], dom_A, dom_C)); //A->C
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_C[3], dom_C, dom_A)); //C->A
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_B[3], dom_B, dom_C)); //B->C
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_C[3], dom_C, dom_B)); //C->B
 
     //Index 4: No mapping, as there is just ID in domain C
     // Domain A does not have this index //A->B
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_B[4], dom_B, dom_A)); //B->A
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_B[4], dom_B, dom_A)); //B->A
     // Domain A does not have this index //A->C
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_C[4], dom_C, dom_A)); //C->A
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_B[4], dom_B, dom_C)); //B->C
-    assertThrows(IllegalArgumentException.class, () -> csv_mapping.map_id(IDs_C[4], dom_C, dom_B)); //C->B
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_C[4], dom_C, dom_A)); //C->A
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_B[4], dom_B, dom_C)); //B->C
+    assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_C[4], dom_C, dom_B)); //C->B
   }
 
   /**
