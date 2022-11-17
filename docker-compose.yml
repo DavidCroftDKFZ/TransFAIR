@@ -10,6 +10,8 @@ services:
       SOURCE_LOAD_FHIR: "true"
       SOURCE_FHIR_SERVER: "http://host.docker.internal:8080/fhir"
       SOURCE_LOAD_FILES: "false"
+      RESOURCE_FILTER: "Specimen,Condition,Observation"
+      START_RESOURCE: "Specimen"
       TARGET_FORMAT: "bbmri.de"
       TARGET_POST_FHIR: "true"
       TARGET_FHIR_SERVER: "http://host.docker.internal:8083/fhir"

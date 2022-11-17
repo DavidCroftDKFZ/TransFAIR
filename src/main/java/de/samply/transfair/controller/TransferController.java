@@ -7,6 +7,7 @@ import de.samply.transfair.resources.CauseOfDeath;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -43,6 +44,14 @@ public class TransferController {
   @Value("${app.source.loadFromFileSystem}")
   private boolean loadFromFileSystem;
 
+  @Value("${app.source.resourceFilter}")
+  private String resources_filter;
+
+  @Value("${app.source.startResource}")
+  private String startResource;
+
+  private List<String> resources;
+
   // @Value("${app.source.pathToFhirResources}")
   // private boolean pathToFhirResources;
 
@@ -61,6 +70,7 @@ public class TransferController {
 
   TransferController() {
     ctx.getRestfulClientFactory().setSocketTimeout(300 * 1000);
+    this.resources = Arrays.stream(resources_filter.split(",")).toList();
   }
 
   private FhirContext ctx = FhirContext.forR4();
@@ -82,6 +92,27 @@ public class TransferController {
 
     }
     log.info("Loaded " + resourceList.size() + " Specimen Resources from source");
+
+    return resourceList;
+  }
+
+  private List<IBaseResource> fetchPatientResources(IGenericClient client) {
+
+    List<IBaseResource> resourceList = new ArrayList<>();
+
+    // Search
+    Bundle bundle =
+        client.search().forResource(Patient.class).returnBundle(Bundle.class).execute();
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+
+    // Load the subsequent pages
+    while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
+      bundle = client.loadPage().next(bundle).execute();
+      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+      log.info("Fetching next page of Specimen");
+
+    }
+    log.info("Loaded " + resourceList.size() + " Patient Resources from source");
 
     return resourceList;
   }
@@ -262,7 +293,7 @@ public class TransferController {
     log.info("Collecting Resources from Source in " + sourceFormat + " format");
 
     HashSet<String> patientRefs = new HashSet<>();
-    List<IBaseResource> specimens;
+
 
     if (loadFromFhirServer) {
       log.info("Start collecting Resources from FHIR server " + sourceFhirserver);
@@ -270,11 +301,20 @@ public class TransferController {
 
       log.info("FHIR Server connected");
 
-      specimens = fetchSpecimenResources(sourceClient);
+      if(Objects.equals(startResource, "Specimen")) {
+        List<IBaseResource> specimens;
+        specimens = fetchSpecimenResources(sourceClient);
 
-      for (IBaseResource specimen : specimens) {
-        Specimen s = (Specimen) specimen;
-        patientRefs.add(s.getSubject().getReference());
+        for (IBaseResource specimen : specimens) {
+          Specimen s = (Specimen) specimen;
+          patientRefs.add(s.getSubject().getReference());
+        }
+      } else {
+        List<IBaseResource> patients = fetchPatientResources(sourceClient);
+        for (IBaseResource patient : patients) {
+          Patient p = (Patient) patient;
+          patientRefs.add(p.getId());
+        }
       }
 
       log.info("Loaded all Patient ID's");
@@ -283,14 +323,20 @@ public class TransferController {
         List<IBaseResource> patientResources = new ArrayList<>();
         log.debug("Loading data for patient " + p_id);
 
-        patientResources.add(fetchPatientResource(sourceClient, p_id));
-        patientResources.addAll(fetchPatientSpecimens(sourceClient, p_id));
-        // patientResources.addAll(fetchPatientObservation(sourceClient, p_id));
-       // patientResources.addAll(fetchPatientCondition(sourceClient, p_id));
+        if(resources.contains("Patient")) {
+          patientResources.add(fetchPatientResource(sourceClient, p_id));
+        }
+        if(resources.contains("Specimen")) {
+          patientResources.addAll(fetchPatientSpecimens(sourceClient, p_id));
+        }
+        if(resources.contains("Observation")) {
+          patientResources.addAll(fetchPatientObservation(sourceClient, p_id));
+        }
+        if(resources.contains("Condition")) {
+          patientResources.addAll(fetchPatientCondition(sourceClient, p_id));
+        }
 
         this.buildResources(patientResources);
-
-        if (this.saveFromFhirServer) {}
       }
 
     } else if (this.loadFromFileSystem) {

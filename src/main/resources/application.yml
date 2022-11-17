@@ -13,6 +13,8 @@ app:
     loadFromFhirServer: ${SOURCE_LOAD_FHIR}
     fhirserver: ${SOURCE_FHIR_SERVER}
     loadFromFileSystem: ${SOURCE_LOAD_FILES}
+    resourceFilter: ${RESOURCE_FILTER}
+    startResource: ${START_RESOURCE}
   target:
     format: ${TARGET_FORMAT}
     saveToFhirServer: ${TARGET_POST_FHIR}
