@@ -21,7 +21,7 @@ public class ApiController {
   }
 
   @GetMapping("/sync")
-  public String sync() {
+  public String sync() throws Exception {
     this.transferController.transfer();
 
     return "ok";

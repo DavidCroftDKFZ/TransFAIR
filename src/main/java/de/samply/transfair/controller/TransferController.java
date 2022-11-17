@@ -3,6 +3,8 @@ package de.samply.transfair.controller;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.util.BundleUtil;
+import de.samply.transfair.converters.IDMapper;
+import de.samply.transfair.converters.Resource_Type;
 import de.samply.transfair.resources.CauseOfDeath;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,6 +25,7 @@ import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.Specimen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -49,6 +52,9 @@ public class TransferController {
 
   @Value("${app.source.startResource}")
   private String startResource;
+
+  @Autowired
+  IDMapper idMapper;
 
   private List<String> resources;
 
@@ -117,7 +123,7 @@ public class TransferController {
     return resourceList;
   }
 
-  private Patient fetchPatientResource(IGenericClient client, String patientId) {
+  private Patient fetchPatientResource(IGenericClient client, String patientId) throws Exception {
     Patient p = client.read().resource(Patient.class).withId(patientId).execute();
 
     de.samply.transfair.resources.Patient ap = new de.samply.transfair.resources.Patient();
@@ -132,9 +138,16 @@ public class TransferController {
 
     if (Objects.equals(this.targetFormat, "bbmri.de")) {
       log.debug("Analysing patient " + patientId + " with format bbmri.de");
+
+      if(!Objects.equals(this.sourceFormat, this.targetFormat)) {
+        ap.setBbmriId(idMapper.toBbmri(ap.getMiiId(), Resource_Type.PATIENT));
+      }
       return ap.toBbmri();
     } else {
       log.debug("Analysing patient " + patientId + " with format mii");
+      if(!Objects.equals(this.sourceFormat, this.targetFormat)) {
+        ap.setMiiId(idMapper.toMii(ap.getBbmriId(), Resource_Type.PATIENT));
+      }
       return ap.toMii();
     }
   }
@@ -289,7 +302,7 @@ public class TransferController {
     return resourceListOut;
   }
 
-  public void transfer() {
+  public void transfer() throws Exception {
     log.info("Collecting Resources from Source in " + sourceFormat + " format");
 
     HashSet<String> patientRefs = new HashSet<>();

@@ -17,6 +17,22 @@ public class Patient
   Date patientDeceasedDateTime;
   String gender;
 
+  public String getMiiId() {
+    return miiId;
+  }
+
+  public String getBbmriId() {
+    return bbmriId;
+  }
+
+  public void setMiiId(String id) {
+    this.miiId = id;
+  }
+
+  public void setBbmriId(String id) {
+    this.bbmriId = id;
+  }
+
   @Override
   public void fromBbmri(org.hl7.fhir.r4.model.Patient resource) {
     this.bbmriId = resource.getId();
