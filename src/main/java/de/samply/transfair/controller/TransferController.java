@@ -23,6 +23,8 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.HTTPVerb;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.Organization;
+import org.hl7.fhir.r4.model.OrganizationAffiliation;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.Specimen;
@@ -237,6 +239,44 @@ public class TransferController {
     return specimens;
   }
 
+  private List<IBaseResource> fetchOrganizations(IGenericClient client) {
+    List<IBaseResource> resourceList = new ArrayList<>();
+
+    Bundle bundle =
+        client
+            .search()
+            .forResource(Organization.class)
+            .returnBundle(Bundle.class)
+            .execute();
+
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+
+    while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
+      bundle = client.loadPage().next(bundle).execute();
+      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+    }
+      return resourceList;
+  }
+
+  private List<IBaseResource> fetchOrganizationAffiliation(IGenericClient client) {
+    List<IBaseResource> resourceList = new ArrayList<>();
+
+    Bundle bundle =
+        client
+            .search()
+            .forResource(OrganizationAffiliation.class)
+            .returnBundle(Bundle.class)
+            .execute();
+
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+
+    while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
+      bundle = client.loadPage().next(bundle).execute();
+      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+    }
+    return resourceList;
+  }
+
   private List<IBaseResource> fetchPatientObservation(IGenericClient client, String patientId) {
     List<IBaseResource> resourceList = new ArrayList<>();
     List<IBaseResource> resourceListOut = new ArrayList<>();
@@ -356,6 +396,9 @@ public class TransferController {
       HashSet<String> patientRefs = getSpecimenPatients(sourceClient);
 
       log.info("Loaded all Patient ID's");
+
+      this.buildResources(this.fetchOrganizations(sourceClient));
+      this.buildResources(this.fetchOrganizationAffiliation(sourceClient));
 
       for (String p_id : patientRefs) {
         List<IBaseResource> patientResources = new ArrayList<>();
