@@ -4,6 +4,7 @@ import de.samply.transfair.converters.IDMapping.CSV_Mapping;
 import de.samply.transfair.converters.IDMapping.ID_Mapping;
 import de.samply.transfair.converters.IDMapping.Identity_Mapping;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +24,7 @@ public class IDMapper {
 
     //TODO: Autowired does not work from test...
     //@Autowired
-    private Logger log;
+    private static final Logger log = LoggerFactory.getLogger(IDMapper.class);
 
     public IDMapper(){
         //TODO: injections do not work in test...

@@ -5,11 +5,14 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.util.BundleUtil;
 import de.samply.transfair.converters.IDMapper;
 import de.samply.transfair.converters.Resource_Type;
+import de.samply.transfair.models.Modes;
+import de.samply.transfair.models.ProfileFormats;
 import de.samply.transfair.resources.CauseOfDeath;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -35,8 +38,9 @@ public class TransferController {
   private static final Logger log = LoggerFactory.getLogger(TransferController.class);
 
   // Variables for Source
-  @Value("${app.source.format}")
-  private String sourceFormat;
+  private Modes mode;
+
+  private ProfileFormats sourceFormat;
 
   @Value("${app.source.loadFromFhirServer}")
   private boolean loadFromFhirServer;
@@ -47,9 +51,6 @@ public class TransferController {
   @Value("${app.source.loadFromFileSystem}")
   private boolean loadFromFileSystem;
 
-  @Value("${app.source.resourceFilter}")
-  private String resources_filter;
-
   @Value("${app.source.startResource}")
   private String startResource;
 
@@ -58,12 +59,9 @@ public class TransferController {
 
   private List<String> resources;
 
-  // @Value("${app.source.pathToFhirResources}")
-  // private boolean pathToFhirResources;
 
   // Variables for target
-  @Value("${app.target.format}")
-  private String targetFormat;
+  private ProfileFormats targetFormat;
 
   @Value("${app.target.saveToFhirServer}")
   private boolean saveFromFhirServer;
@@ -74,12 +72,36 @@ public class TransferController {
   @Value("${app.target.saveToFileSystem}")
   private boolean saveToFileSystem;
 
-  TransferController() {
+  TransferController(  @Value("${app.mode}") String operationMode, @Value("${app.source.resourceFilter}") String resources_filter) throws Exception {
     ctx.getRestfulClientFactory().setSocketTimeout(300 * 1000);
     this.resources = Arrays.stream(resources_filter.split(",")).toList();
+
+    switch (operationMode) {
+      case "BBMRI2BBMRI" -> {
+        this.mode = Modes.BBMRI2BBRMI;
+        this.sourceFormat = ProfileFormats.BBMRI;
+        this.targetFormat = ProfileFormats.BBMRI;
+      }
+      case "BBMRI2MII" -> {
+        this.mode = Modes.BBMRI2MII;
+        this.sourceFormat = ProfileFormats.BBMRI;
+        this.targetFormat = ProfileFormats.MII;
+      }
+      case "MII2BBRMI" -> {
+        this.mode = Modes.MII2BBMRI;
+        this.sourceFormat = ProfileFormats.MII;
+        this.targetFormat = ProfileFormats.BBMRI;
+      }
+      case "BBMRI2DKTK" -> {
+        this.mode = Modes.BBMRI2DKTK;
+        this.sourceFormat = ProfileFormats.BBMRI;
+        this.targetFormat = ProfileFormats.DKTK;
+      }
+      default -> throw new IllegalStateException("Unexpected value: " + operationMode);
+    }
   }
 
-  private FhirContext ctx = FhirContext.forR4();
+  private final FhirContext ctx = FhirContext.forR4();
 
   private List<IBaseResource> fetchSpecimenResources(IGenericClient client) {
 
@@ -100,6 +122,14 @@ public class TransferController {
     log.info("Loaded " + resourceList.size() + " Specimen Resources from source");
 
     return resourceList;
+  }
+
+  private HashSet<String> fetchPatientIds(IGenericClient client) {
+    if(Objects.equals(startResource, "Specimen")) {
+       return this.getSpecimenPatients(client);
+    } else {
+      return this.getPatientRefs(client);
+    }
   }
 
   private List<IBaseResource> fetchPatientResources(IGenericClient client) {
@@ -123,12 +153,10 @@ public class TransferController {
     return resourceList;
   }
 
-  private Patient fetchPatientResource(IGenericClient client, String patientId) throws Exception {
-    Patient p = client.read().resource(Patient.class).withId(patientId).execute();
-
+  private Patient convertPatientResource(Patient p, String patientId) throws Exception {
     de.samply.transfair.resources.Patient ap = new de.samply.transfair.resources.Patient();
 
-    if (Objects.equals(this.sourceFormat, "bbmri.de")) {
+    if (Objects.equals(this.sourceFormat, ProfileFormats.BBMRI)) {
       log.debug("Analysing patient " + patientId + " with format bbmri.de");
       ap.fromBbmri(p);
     } else {
@@ -136,7 +164,7 @@ public class TransferController {
       ap.fromMii(p);
     }
 
-    if (Objects.equals(this.targetFormat, "bbmri.de")) {
+    if (Objects.equals(this.targetFormat, ProfileFormats.BBMRI)) {
       log.debug("Analysing patient " + patientId + " with format bbmri.de");
 
       if(!Objects.equals(this.sourceFormat, this.targetFormat)) {
@@ -146,15 +174,44 @@ public class TransferController {
     } else {
       log.debug("Analysing patient " + patientId + " with format mii");
       if(!Objects.equals(this.sourceFormat, this.targetFormat)) {
-        ap.setMiiId(idMapper.toMii(ap.getBbmriId(), Resource_Type.PATIENT));
+       // ap.setMiiId(idMapper.toMii(ap.getBbmriId(), Resource_Type.PATIENT));
+        ap.setMiiId(ap.getBbmriId());
       }
       return ap.toMii();
     }
   }
 
+  private Patient fetchPatientResource(IGenericClient client, String patientId) {
+    return client.read().resource(Patient.class).withId(patientId).execute();
+  }
+
+  private List<Specimen> convertSpecimenResouces(List<Specimen> resourceList) {
+    List<Specimen> resourceListOut = new ArrayList<>();
+
+    for (Specimen specimen : resourceList) {
+      de.samply.transfair.resources.Specimen s = new de.samply.transfair.resources.Specimen();
+      if (Objects.equals(this.sourceFormat, "bbmri.de")) {
+        log.debug("Analysing Specimen " + specimen.getId() + " with format bbmri.de");
+        s.fromBbmri(specimen);
+      } else {
+        log.debug("Analysing Specimen " + specimen.getId() + " with format mii");
+        s.fromMii(specimen);
+      }
+
+      if (Objects.equals(this.targetFormat, "bbmri.de")) {
+        log.debug("Analysing Specimen " + specimen.getId() + " with format bbmri.de");
+        resourceListOut.add(s.toBbmri());
+      } else {
+        log.debug("Analysing Specimen " + specimen.getId() + " with format mii");
+        resourceListOut.add(s.toMii());
+      }
+    }
+
+    return resourceListOut;
+  }
+
   private List<Specimen> fetchPatientSpecimens(IGenericClient client, String patientId) {
     List<IBaseResource> resourceList = new ArrayList<>();
-    List<Specimen> resourceListOut = new ArrayList<>();
 
     Bundle bundle =
         client
@@ -171,27 +228,13 @@ public class TransferController {
       resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
     }
 
-    for (IBaseResource base : resourceList) {
-      Specimen specimen = (Specimen) base;
-      de.samply.transfair.resources.Specimen s = new de.samply.transfair.resources.Specimen();
-      if (Objects.equals(this.sourceFormat, "bbmri.de")) {
-        log.debug("Analysing Specimen " + patientId + " with format bbmri.de");
-        s.fromBbmri(specimen);
-      } else {
-        log.debug("Analysing Specimen " + patientId + " with format mii");
-        s.fromMii(specimen);
-      }
+    List<Specimen> specimens = new ArrayList<>();
 
-      if (Objects.equals(this.targetFormat, "bbmri.de")) {
-        log.debug("Analysing Specimen " + patientId + " with format bbmri.de");
-        resourceListOut.add(s.toBbmri());
-      } else {
-        log.debug("Analysing Specimen " + patientId + " with format mii");
-        resourceListOut.add(s.toMii());
-      }
+    for (IBaseResource resource : resourceList) {
+      specimens.add((Specimen) resource);
     }
 
-    return resourceListOut;
+    return specimens;
   }
 
   private List<IBaseResource> fetchPatientObservation(IGenericClient client, String patientId) {
@@ -302,33 +345,15 @@ public class TransferController {
     return resourceListOut;
   }
 
-  public void transfer() throws Exception {
-    log.info("Collecting Resources from Source in " + sourceFormat + " format");
-
-    HashSet<String> patientRefs = new HashSet<>();
-
-
+  private void bbmri2bbmri() throws Exception {
+    log.info("Running TransFAIR in BBMRI2BBMRI mode");
     if (loadFromFhirServer) {
       log.info("Start collecting Resources from FHIR server " + sourceFhirserver);
       IGenericClient sourceClient = ctx.newRestfulGenericClient(sourceFhirserver);
 
-      log.info("FHIR Server connected");
+      //TODO: Collect Organization and Collection
 
-      if(Objects.equals(startResource, "Specimen")) {
-        List<IBaseResource> specimens;
-        specimens = fetchSpecimenResources(sourceClient);
-
-        for (IBaseResource specimen : specimens) {
-          Specimen s = (Specimen) specimen;
-          patientRefs.add(s.getSubject().getReference());
-        }
-      } else {
-        List<IBaseResource> patients = fetchPatientResources(sourceClient);
-        for (IBaseResource patient : patients) {
-          Patient p = (Patient) patient;
-          patientRefs.add(p.getId());
-        }
-      }
+      HashSet<String> patientRefs = getSpecimenPatients(sourceClient);
 
       log.info("Loaded all Patient ID's");
 
@@ -352,12 +377,96 @@ public class TransferController {
         this.buildResources(patientResources);
       }
 
-    } else if (this.loadFromFileSystem) {
-      log.info("Unsupported");
     } else {
-      log.error("Please provide either a FHIR Server or files in fhir format");
+      log.info("Not supported currently, please stand by");
     }
   }
+
+  private void bbmri2mii() throws Exception {
+
+    if (loadFromFhirServer) {
+      log.info("Start collecting Resources from FHIR server " + sourceFhirserver);
+      IGenericClient sourceClient = ctx.newRestfulGenericClient(sourceFhirserver);
+
+      HashSet<String> patientIds = fetchPatientIds(sourceClient);
+
+      log.info("Loaded all " + patientIds.size() + " Patients");
+
+      for (String p_id : patientIds) {
+        List<IBaseResource> patientResources = new ArrayList<>();
+        log.debug("Loading data for patient " + p_id);
+
+        if(resources.contains("Patient")) {
+          patientResources.add(convertPatientResource(fetchPatientResource(sourceClient, p_id), p_id));
+        }
+        if(resources.contains("Specimen")) {
+          patientResources.addAll(convertSpecimenResouces(fetchPatientSpecimens(sourceClient, p_id)));
+        }
+        if(resources.contains("Observation")) {
+          patientResources.addAll(fetchPatientObservation(sourceClient, p_id));
+        }
+        if(resources.contains("Condition")) {
+          patientResources.addAll(fetchPatientCondition(sourceClient, p_id));
+        }
+
+        this.buildResources(patientResources);
+      }
+    } else {
+      log.info("Not ready currently");
+    }
+  }
+
+  private void mii2bbmri() {
+
+  }
+
+  private void bbmri2dktk() {
+
+  }
+
+  private HashSet<String> getSpecimenPatients(IGenericClient sourceClient) {
+    List<IBaseResource> specimens = fetchSpecimenResources(sourceClient);
+    HashSet<String> patientRefs = new HashSet<>();
+    for (IBaseResource specimen : specimens) {
+      Specimen s = (Specimen) specimen;
+      patientRefs.add(s.getSubject().getReference());
+    }
+    return patientRefs;
+  }
+
+  private HashSet<String> getPatientRefs(IGenericClient sourceClient) {
+    List<IBaseResource> patients = fetchPatientResources(sourceClient);
+    HashSet<String> patientRefs = new HashSet<>();
+
+    for (IBaseResource patient : patients) {
+      Patient p = (Patient) patient;
+      patientRefs.add(p.getId());
+    }
+    return patientRefs;
+    }
+
+  public void transfer() throws Exception {
+    log.info("Running TransFAIR in " + mode + " mode");
+    long startTime = System.currentTimeMillis();
+
+    switch (mode) {
+      case BBMRI2BBRMI -> {
+        this.bbmri2bbmri();
+      }
+      case BBMRI2MII -> {
+        this.bbmri2mii();
+      }
+      case MII2BBMRI -> {
+        this.mii2bbmri();
+      }
+      case BBMRI2DKTK -> {
+        this.bbmri2dktk();
+      }
+      default -> throw new IllegalStateException("Unexpected value");
+    }
+    log.info("Finished syncing " + mode + " in " + (System.currentTimeMillis() - startTime) + " mil sec");
+    }
+
 
   public void buildResources(List<IBaseResource> resources) {
     Bundle bundleOut = new Bundle();

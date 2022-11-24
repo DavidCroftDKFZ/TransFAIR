@@ -6,13 +6,13 @@ services:
     image: samply/transfair
     environment:
       CSV_FILE: ""
-      SOURCE_FORMAT: "bbmri.de"
       SOURCE_LOAD_FHIR: "true"
       SOURCE_FHIR_SERVER: "http://host.docker.internal:8080/fhir"
       SOURCE_LOAD_FILES: "false"
+      ##Modes BBMRI2BBMRI, BBMRI2MII, MII2BBMRI, BBMRI2DKTK
+      MODE: "BBMRI2BBMRI"
       RESOURCE_FILTER: "Specimen,Condition,Observation"
       START_RESOURCE: "Specimen"
-      TARGET_FORMAT: "bbmri.de"
       TARGET_POST_FHIR: "true"
       TARGET_FHIR_SERVER: "http://host.docker.internal:8083/fhir"
       TARGET_SAVE_FILES: "false"
