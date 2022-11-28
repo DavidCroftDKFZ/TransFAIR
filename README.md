@@ -9,6 +9,10 @@ this tool provides certain data integration tasks like:
 
 These Tasks are occurring currently in the interaction between German Biobanks and Data Integraton Centers(DIC).
 
+Support for ETL process
+Customizable ETL Process
+
+ADT2FHIR 
 
 ## Usage
 
@@ -19,17 +23,22 @@ docker-compose up
 
 ### Modes
 
+
+#### FHIR
+
+Name | Data source | Data target
+
 The tool supports multiple operation modes, converting or transferring.
 
-#### BBMRI2BBMRI(Bridge)
+##### BBMRI2BBMRI(Bridge)
 
 This mode transfers all data related to the bbmri.de profiles
 
-#### BBMIR2MII
+##### BBMIR2MII
 
 This mode transfers data from bbmri.de to MII KDS profiles.
 
-#### MII2BBRMI
+##### MII2BBRMI
 
 This mode transfers data form MII KDS to bbmri.de
 
@@ -50,8 +59,8 @@ This mode transfers data form MII KDS to bbmri.de
 
 ## Pseudonymization
 
-Not every store has the same ID's therefore pseudonymization is needed. 
-If needed the tool supports diffrent pseudonymization tools, like a plain csv file, Mianzelliste or GPAS.
+Not every store has the same ID's, therefore pseudonymization is needed. 
+If needed, the tool supports different pseudonymization tools, like a plain csv file, Mianzelliste or GPAS.
 
 ## TODOs
 

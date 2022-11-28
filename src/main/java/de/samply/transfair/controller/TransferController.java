@@ -12,7 +12,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -74,32 +73,18 @@ public class TransferController {
   @Value("${app.target.saveToFileSystem}")
   private boolean saveToFileSystem;
 
-  TransferController(  @Value("${app.mode}") String operationMode, @Value("${app.source.resourceFilter}") String resources_filter) throws Exception {
-    ctx.getRestfulClientFactory().setSocketTimeout(300 * 1000);
-    this.resources = Arrays.stream(resources_filter.split(",")).toList();
+  @Value("${app.source.resourceFilter}")
+  String resources_filter;
 
-    switch (operationMode) {
-      case "BBMRI2BBMRI" -> {
-        this.mode = Modes.BBMRI2BBRMI;
-        this.sourceFormat = ProfileFormats.BBMRI;
-        this.targetFormat = ProfileFormats.BBMRI;
-      }
-      case "BBMRI2MII" -> {
-        this.mode = Modes.BBMRI2MII;
-        this.sourceFormat = ProfileFormats.BBMRI;
-        this.targetFormat = ProfileFormats.MII;
-      }
-      case "MII2BBRMI" -> {
-        this.mode = Modes.MII2BBMRI;
-        this.sourceFormat = ProfileFormats.MII;
-        this.targetFormat = ProfileFormats.BBMRI;
-      }
-      case "BBMRI2DKTK" -> {
-        this.mode = Modes.BBMRI2DKTK;
-        this.sourceFormat = ProfileFormats.BBMRI;
-        this.targetFormat = ProfileFormats.DKTK;
-      }
-      default -> throw new IllegalStateException("Unexpected value: " + operationMode);
+  TransferController() throws Exception {
+    ctx.getRestfulClientFactory().setSocketTimeout(300 * 1000);
+  }
+
+  private void setup() {
+    if(resources_filter.isEmpty()) {
+      this.resources = List.of("Patient","Specimen","Condition","Observation");
+    } else {
+      this.resources = Arrays.stream(resources_filter.split(",")).toList();
     }
   }
 
@@ -396,8 +381,13 @@ public class TransferController {
     return resourceList;
   }
 
-  private void bbmri2bbmri() throws Exception {
+  public void bbmri2bbmri() throws Exception {
     log.info("Running TransFAIR in BBMRI2BBMRI mode");
+
+    this.mode = Modes.BBMRI2BBRMI;
+    this.sourceFormat = ProfileFormats.BBMRI;
+    this.targetFormat = ProfileFormats.BBMRI;
+
     if (loadFromFhirServer) {
       log.info("Start collecting Resources from FHIR server " + sourceFhirserver);
       IGenericClient sourceClient = ctx.newRestfulGenericClient(sourceFhirserver);
@@ -436,7 +426,10 @@ public class TransferController {
     }
   }
 
-  private void bbmri2mii() throws Exception {
+  public void bbmri2mii() throws Exception {
+    this.mode = Modes.BBMRI2MII;
+    this.sourceFormat = ProfileFormats.BBMRI;
+    this.targetFormat = ProfileFormats.MII;
 
     if (loadFromFhirServer) {
       log.info("Start collecting Resources from FHIR server " + sourceFhirserver);
@@ -470,12 +463,47 @@ public class TransferController {
     }
   }
 
-  private void mii2bbmri() {
+  public void mii2bbmri() throws Exception {
+    this.mode = Modes.MII2BBMRI;
+    this.sourceFormat = ProfileFormats.MII;
+    this.targetFormat = ProfileFormats.BBMRI;
 
+    if (loadFromFhirServer) {
+      log.info("Start collecting Resources from FHIR server " + sourceFhirserver);
+      IGenericClient sourceClient = ctx.newRestfulGenericClient(sourceFhirserver);
+
+      HashSet<String> patientIds = fetchPatientIds(sourceClient);
+
+      log.info("Loaded all " + patientIds.size() + " Patients");
+
+      for (String p_id : patientIds) {
+        List<IBaseResource> patientResources = new ArrayList<>();
+        log.debug("Loading data for patient " + p_id);
+
+        if(resources.contains("Patient")) {
+          patientResources.add(convertPatientResource(fetchPatientResource(sourceClient, p_id), p_id));
+        }
+        if(resources.contains("Specimen")) {
+          patientResources.addAll(convertSpecimenResouces(fetchPatientSpecimens(sourceClient, p_id)));
+        }
+        if(resources.contains("Observation")) {
+          patientResources.addAll(convertObservations(fetchPatientObservation(sourceClient, p_id)));
+        }
+        if(resources.contains("Condition")) {
+          patientResources.addAll(convertConditions(fetchPatientCondition(sourceClient, p_id)));
+        }
+
+        this.buildResources(patientResources);
+      }
+    } else {
+      log.info("Not ready currently");
+    }
   }
 
-  private void bbmri2dktk() {
-
+  public void bbmri2dktk() {
+    this.mode = Modes.BBMRI2DKTK;
+    this.sourceFormat = ProfileFormats.BBMRI;
+    this.targetFormat = ProfileFormats.DKTK;
   }
 
   private HashSet<String> getSpecimenPatients(IGenericClient sourceClient) {
@@ -498,29 +526,6 @@ public class TransferController {
     }
     return patientRefs;
     }
-
-  public void transfer() throws Exception {
-    log.info("Running TransFAIR in " + mode + " mode");
-    long startTime = System.currentTimeMillis();
-
-    switch (mode) {
-      case BBMRI2BBRMI -> {
-        this.bbmri2bbmri();
-      }
-      case BBMRI2MII -> {
-        this.bbmri2mii();
-      }
-      case MII2BBMRI -> {
-        this.mii2bbmri();
-      }
-      case BBMRI2DKTK -> {
-        this.bbmri2dktk();
-      }
-      default -> throw new IllegalStateException("Unexpected value");
-    }
-    log.info("Finished syncing " + mode + " in " + (System.currentTimeMillis() - startTime) + " mil sec");
-    }
-
 
   public void buildResources(List<IBaseResource> resources) {
     Bundle bundleOut = new Bundle();

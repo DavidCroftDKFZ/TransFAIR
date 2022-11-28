@@ -6,7 +6,6 @@ logging:
       springframework: DEBUG
 
 app:
-  mode: ${MODE}
   csvmapping:
     filepath: ${CSV_FILE}
   source:
