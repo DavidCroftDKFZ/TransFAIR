@@ -40,7 +40,6 @@ public class ApiController {
   public String bbmri2mii() throws Exception {
     log.info("Running TransFAIR in BBMRI2MII mode");
     long startTime = System.currentTimeMillis();
-    TransferController transferController = new TransferController();
     transferController.bbmri2mii();
     long endTime = System.currentTimeMillis() - startTime;
     log.info("Finished syncing BBMRI2MII in " + endTime + " mil sec");
@@ -51,7 +50,6 @@ public class ApiController {
   public String mii2bbmri() throws Exception {
     log.info("Running TransFAIR in MII2BBMRI mode");
     long startTime = System.currentTimeMillis();
-    TransferController transferController = new TransferController();
     transferController.mii2bbmri();
     long endTime = System.currentTimeMillis() - startTime;
     log.info("Finished syncing MII2BBMRI in " + endTime + " mil sec");

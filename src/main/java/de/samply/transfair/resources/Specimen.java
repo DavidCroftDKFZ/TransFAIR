@@ -2,10 +2,12 @@ package de.samply.transfair.resources;
 
 import de.samply.transfair.converters.SnomedSamplyTypeConverter;
 import de.samply.transfair.converters.TemperatureConverter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Range;
@@ -29,7 +31,9 @@ public class Specimen
   String bbmriBodySite;
 
   String storageTemperature;
-  String diagnosisICD10;
+  String diagnosisICD10Gm;
+  String diagnosisICD10Who;
+
   String collectionRef;
 
   // MII data
@@ -41,6 +45,8 @@ public class Specimen
 
   String miiBodySiteIcd;
   String miiBodySiteSnomedCt;
+
+  String miiConditionRef;
 
   Long miiStoargeTemperatureHigh;
   Long miiStoargeTemperaturelow;
@@ -69,7 +75,14 @@ public class Specimen
             e.getUrl(), "https://fhir.bbmri.de/StructureDefinition/SampleDiagnosis")) {
           Type t = e.getValue();
           CodeableConcept codeableConcept = (CodeableConcept) t;
-          this.diagnosisICD10 = codeableConcept.getCodingFirstRep().getCode();
+          for(Coding codeableConcept1 : codeableConcept.getCoding()) {
+            switch (codeableConcept1.getSystem()) {
+              case "http://hl7.org/fhir/sid/icd-10":
+                this.diagnosisICD10Who = codeableConcept.getCodingFirstRep().getCode();
+              case "http://fhir.de/CodeSystem/dimdi/icd-10-gm":
+                this.diagnosisICD10Gm = codeableConcept.getCodingFirstRep().getCode();
+            }
+          }
         } else if (Objects.equals(
             e.getUrl(), "https://fhir.bbmri.de/StructureDefinition/Custodian")) {
           Type t = e.getValue();
@@ -116,6 +129,9 @@ public class Specimen
         Range r = (Range) extension.getValue();
         this.miiStoargeTemperatureHigh = Long.valueOf(r.getHigh().getUnit());
         this.miiStoargeTemperaturelow = Long.valueOf(r.getLow().getUnit());
+      } else if(Objects.equals(
+          extension.getUrl(), "https://simplifier.net/medizininformatikinitiative-modulbiobank/files/fsh-generated/resources/structuredefinition-diagnose.json")){
+        this.miiConditionRef = extension.getValue().toString();
       }
     }
   }
@@ -178,6 +194,20 @@ public class Specimen
       specimen.addExtension(
           TemperatureConverter.fromMiiToBbmri(
               this.miiStoargeTemperatureHigh, this.miiStoargeTemperaturelow));
+    }
+
+    if(Objects.nonNull(this.diagnosisICD10Gm) || Objects.nonNull(this.diagnosisICD10Who)) {
+      Extension extension = new Extension();
+      extension.setUrl("https://fhir.bbmri.de/StructureDefinition/SampleDiagnosis");
+      CodeableConcept codeableConcept = new CodeableConcept();
+      List<Coding> diagnosis = new ArrayList<>();
+      if(Objects.nonNull(this.diagnosisICD10Gm)) {
+        diagnosis.add(new Coding().setSystem("http://fhir.de/CodeSystem/dimdi/icd-10-gm").setCode(this.diagnosisICD10Gm));
+      }
+      if(Objects.nonNull(this.diagnosisICD10Who)) {
+        diagnosis.add(new Coding().setSystem("http://hl7.org/fhir/sid/icd-10").setCode(this.diagnosisICD10Gm));
+      }
+      extension.setValue(codeableConcept.setCoding(diagnosis));
     }
 
     return specimen;

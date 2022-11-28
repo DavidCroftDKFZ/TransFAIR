@@ -435,6 +435,7 @@ public class TransferController {
     this.mode = Modes.BBMRI2MII;
     this.sourceFormat = ProfileFormats.BBMRI;
     this.targetFormat = ProfileFormats.MII;
+    this.setup();
 
     if (loadFromFhirServer) {
       log.info("Start collecting Resources from FHIR server " + sourceFhirserver);
@@ -464,7 +465,7 @@ public class TransferController {
         }
 
         this.buildResources(patientResources);
-        log.info("Exported Resources " + counter + "/" + patientIds.size());
+        log.info("Exported Resources " + counter++ + "/" + patientIds.size());
       }
     } else {
       log.info("Not ready currently");
@@ -475,6 +476,7 @@ public class TransferController {
     this.mode = Modes.MII2BBMRI;
     this.sourceFormat = ProfileFormats.MII;
     this.targetFormat = ProfileFormats.BBMRI;
+    this.setup();
 
     if (loadFromFhirServer) {
       log.info("Start collecting Resources from FHIR server " + sourceFhirserver);
@@ -483,6 +485,8 @@ public class TransferController {
       HashSet<String> patientIds = fetchPatientIds(sourceClient);
 
       log.info("Loaded all " + patientIds.size() + " Patients");
+
+      int counter = 1;
 
       for (String p_id : patientIds) {
         List<IBaseResource> patientResources = new ArrayList<>();
@@ -502,6 +506,7 @@ public class TransferController {
         }
 
         this.buildResources(patientResources);
+        log.info("Exported Resources " + counter++ + "/" + patientIds.size());
       }
     } else {
       log.info("Not ready currently");
