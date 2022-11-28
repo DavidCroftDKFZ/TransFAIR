@@ -383,6 +383,7 @@ public class TransferController {
 
   public void bbmri2bbmri() throws Exception {
     log.info("Running TransFAIR in BBMRI2BBMRI mode");
+    this.setup();
 
     this.mode = Modes.BBMRI2BBRMI;
     this.sourceFormat = ProfileFormats.BBMRI;
@@ -400,6 +401,8 @@ public class TransferController {
 
       this.buildResources(this.fetchOrganizations(sourceClient));
       this.buildResources(this.fetchOrganizationAffiliation(sourceClient));
+
+      int counter = 1;
 
       for (String p_id : patientRefs) {
         List<IBaseResource> patientResources = new ArrayList<>();
@@ -419,6 +422,8 @@ public class TransferController {
         }
 
         this.buildResources(patientResources);
+        log.info("Exported Resources " + counter++ + "/" + patientRefs.size());
+
       }
 
     } else {
@@ -439,6 +444,8 @@ public class TransferController {
 
       log.info("Loaded all " + patientIds.size() + " Patients");
 
+      int counter = 1;
+
       for (String p_id : patientIds) {
         List<IBaseResource> patientResources = new ArrayList<>();
         log.debug("Loading data for patient " + p_id);
@@ -457,6 +464,7 @@ public class TransferController {
         }
 
         this.buildResources(patientResources);
+        log.info("Exported Resources " + counter + "/" + patientIds.size());
       }
     } else {
       log.info("Not ready currently");
@@ -557,8 +565,6 @@ public class TransferController {
 
     IGenericClient clientTarget = ctx.newRestfulGenericClient(this.targetFhirServer);
     clientTarget.transaction().withBundle(bundle).execute();
-    log.info("Post transformed patient");
-
     return true;
   }
 
@@ -569,9 +575,8 @@ public class TransferController {
       FileWriter myWriter = new FileWriter(bundle.getId() + ".json");
       myWriter.write(output);
       myWriter.close();
-      System.out.println("Successfully wrote output to file.");
     } catch (IOException e) {
-      System.out.println("An error occurred while writing output to file.");
+      log.error("An error occurred while writing output to file.");
       e.printStackTrace();
     }
 

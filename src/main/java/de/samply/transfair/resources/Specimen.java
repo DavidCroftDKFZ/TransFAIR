@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Range;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Type;
@@ -125,6 +126,8 @@ public class Specimen
     if (this.hasParent) return null;
 
     org.hl7.fhir.r4.model.Specimen specimen = new org.hl7.fhir.r4.model.Specimen();
+    specimen.setMeta(new Meta().addProfile("https://fhir.bbmri.de/StructureDefinition/Specimen"));
+
 
     if (bbmriId.isEmpty() && !miiId.isEmpty()) {
       // Todo: Add mapping from Patientfilter
@@ -183,6 +186,8 @@ public class Specimen
   @Override
   public org.hl7.fhir.r4.model.Specimen toMii() {
     org.hl7.fhir.r4.model.Specimen specimen = new org.hl7.fhir.r4.model.Specimen();
+    specimen.setMeta(new Meta().addProfile("https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Specimen"));
+
 
     if (!bbmriId.isEmpty() && miiId.isEmpty()) {
       // Todo: Add mapping from Patientfilter

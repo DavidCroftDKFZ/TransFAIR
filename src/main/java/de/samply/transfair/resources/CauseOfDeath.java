@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Condition;
+import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Reference;
 
@@ -40,6 +41,8 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
 
   public org.hl7.fhir.r4.model.Observation toBbmri() {
     org.hl7.fhir.r4.model.Observation observation = new org.hl7.fhir.r4.model.Observation();
+    observation.setMeta(new Meta().addProfile("https://fhir.bbmri.de/StructureDefinition/CauseOfDeath"));
+
     Coding codingFirstRep = observation.getCode().getCodingFirstRep();
     codingFirstRep.setCode("68343-3");
     codingFirstRep.setSystem("http://loinc.org");
@@ -70,6 +73,8 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
 
   public org.hl7.fhir.r4.model.Condition toMii() {
     org.hl7.fhir.r4.model.Condition condition = new org.hl7.fhir.r4.model.Condition();
+    condition.setMeta(new Meta().addProfile("https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Todesursache"));
+
     CodeableConcept codingLoinc = new CodeableConcept();
     codingLoinc.getCodingFirstRep().setSystem("http://loinc.org");
     codingLoinc.getCodingFirstRep().setCode("79378-6");
