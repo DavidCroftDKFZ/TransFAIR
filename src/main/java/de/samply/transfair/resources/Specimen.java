@@ -127,8 +127,8 @@ public class Specimen
           extension.getUrl(),
           "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen")) {
         Range r = (Range) extension.getValue();
-        this.miiStoargeTemperatureHigh = Long.valueOf(r.getHigh().getUnit());
-        this.miiStoargeTemperaturelow = Long.valueOf(r.getLow().getUnit());
+        this.miiStoargeTemperatureHigh = r.getHigh().getValue().longValue();
+        this.miiStoargeTemperaturelow = r.getLow().getValue().longValue();
       } else if(Objects.equals(
           extension.getUrl(), "https://simplifier.net/medizininformatikinitiative-modulbiobank/files/fsh-generated/resources/structuredefinition-diagnose.json")){
         this.miiConditionRef = extension.getValue().toString();

@@ -3,6 +3,7 @@ package de.samply.transfair.converters;
 import de.samply.transfair.converters.IDMapping.CSV_Mapping;
 import de.samply.transfair.converters.IDMapping.ID_Mapping;
 import de.samply.transfair.converters.IDMapping.Identity_Mapping;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +33,7 @@ public class IDMapper {
         this.csv_mappings_path = "./test_mapping.csv";
     }
 
-    //@PostConstruct
+    @PostConstruct
     public void setup(){ //TODO: Should be called automatically after object was created i.e. after value injection. @PostConstruct causes NullpointerException in .to... methods
         switch (this.mapper_setting) {
             case "csvmapping" -> {
