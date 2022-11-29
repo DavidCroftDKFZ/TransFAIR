@@ -31,3 +31,25 @@ build/
 
 ### VS Code ###
 .vscode/
+
+###Eclipse###
+*target*
+*.jar
+*.war
+*.ear
+*.class
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+local.properties
+.classpath
+.settings/
+
+###MacOS###
+.DS_Store
+
