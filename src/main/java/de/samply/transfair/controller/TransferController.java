@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import org.hl7.fhir.instance.model.api.IBase;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
@@ -96,14 +97,14 @@ public class TransferController {
 
     // Search
     Bundle bundle =
-        client.search().forResource(Specimen.class).returnBundle(Bundle.class).execute();
+        client.search().forResource(Specimen.class).returnBundle(Bundle.class).count(500).execute();
     resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     // Load the subsequent pages
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
       resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
-      log.info("Fetching next page of Specimen");
+      log.debug("Fetching next page of Specimen");
 
     }
     log.info("Loaded " + resourceList.size() + " Specimen Resources from source");
@@ -119,23 +120,21 @@ public class TransferController {
     }
   }
 
-  private List<IBaseResource> fetchPatientResources(IGenericClient client) {
-
-    List<IBaseResource> resourceList = new ArrayList<>();
-
+  private <T extends IBaseResource> List<T> fetchResources(Class<T> resourceType, IGenericClient client) {
     // Search
     Bundle bundle =
-        client.search().forResource(Patient.class).returnBundle(Bundle.class).execute();
-    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+        client.search().forResource(resourceType).returnBundle(Bundle.class).count(500).execute();
+    List<T> resourceList = new ArrayList<>(
+        BundleUtil.toListOfResourcesOfType(ctx, bundle, resourceType));
 
     // Load the subsequent pages
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
-      log.info("Fetching next page of Specimen");
+      resourceList.addAll(BundleUtil.toListOfResourcesOfType(ctx, bundle, resourceType));
+      log.debug("Fetching next page of " + resourceType.getName());
 
     }
-    log.info("Loaded " + resourceList.size() + " Patient Resources from source");
+    log.info("Loaded " + resourceList.size() + " " + resourceType.getName() + " Resources from source");
 
     return resourceList;
   }
@@ -143,7 +142,7 @@ public class TransferController {
   private Patient convertPatientResource(Patient p, String patientId) throws Exception {
     de.samply.transfair.resources.Patient ap = new de.samply.transfair.resources.Patient();
 
-    if (Objects.equals(this.sourceFormat, ProfileFormats.BBMRI)) {
+    if (this.sourceFormat == ProfileFormats.BBMRI) {
       log.debug("Analysing patient " + patientId + " with format bbmri.de");
       ap.fromBbmri(p);
     } else {
@@ -151,18 +150,17 @@ public class TransferController {
       ap.fromMii(p);
     }
 
-    if (Objects.equals(this.targetFormat, ProfileFormats.BBMRI)) {
+    if (this.targetFormat == ProfileFormats.BBMRI) {
       log.debug("Analysing patient " + patientId + " with format bbmri.de");
 
-      if(!Objects.equals(this.sourceFormat, this.targetFormat)) {
+      if(this.sourceFormat != this.targetFormat) {
         ap.setBbmriId(idMapper.toBbmri(ap.getMiiId(), Resource_Type.PATIENT));
       }
       return ap.toBbmri();
     } else {
       log.debug("Analysing patient " + patientId + " with format mii");
       if(!Objects.equals(this.sourceFormat, this.targetFormat)) {
-       // ap.setMiiId(idMapper.toMii(ap.getBbmriId(), Resource_Type.PATIENT));
-        ap.setMiiId(ap.getBbmriId());
+       ap.setMiiId(idMapper.toMii(ap.getBbmriId(), Resource_Type.PATIENT));
       }
       return ap.toMii();
     }
@@ -177,7 +175,7 @@ public class TransferController {
 
     for (Specimen specimen : resourceList) {
       de.samply.transfair.resources.Specimen s = new de.samply.transfair.resources.Specimen();
-      if (Objects.equals(this.sourceFormat, "bbmri.de")) {
+      if (this.sourceFormat == ProfileFormats.BBMRI) {
         log.debug("Analysing Specimen " + specimen.getId() + " with format bbmri.de");
         s.fromBbmri(specimen);
       } else {
@@ -185,7 +183,7 @@ public class TransferController {
         s.fromMii(specimen);
       }
 
-      if (Objects.equals(this.targetFormat, "bbmri.de")) {
+      if (this.targetFormat == ProfileFormats.BBMRI) {
         log.debug("Analysing Specimen " + specimen.getId() + " with format bbmri.de");
         resourceListOut.add(s.toBbmri());
       } else {
@@ -270,13 +268,13 @@ public class TransferController {
       de.samply.transfair.resources.CheckResources checkResources =
           new de.samply.transfair.resources.CheckResources();
 
-      if (Objects.equals(this.sourceFormat, "bbmri.de")) {
+      if (this.sourceFormat == ProfileFormats.BBMRI) {
         if (checkResources.checkBbmriCauseOfDeath(observation)) {
           CauseOfDeath causeOfDeath = new CauseOfDeath();
           causeOfDeath.fromBbmri(observation);
           log.debug("Analysing Cause of Death " + observation.getId() + " with format bbmri");
 
-          if (Objects.equals(this.targetFormat, "bbmri.de")) {
+          if (this.targetFormat == ProfileFormats.BBMRI) {
             resourceListOut.add(causeOfDeath.toBbmri());
             log.debug("Analysing Cause of Death " + observation.getId() + " with format bbmri");
 
@@ -322,12 +320,12 @@ public class TransferController {
       de.samply.transfair.resources.CheckResources checkResources =
           new de.samply.transfair.resources.CheckResources();
 
-      if (checkResources.checkMiiCauseOfDeath(condition) && Objects.equals(this.sourceFormat, "mii")) {
+      if (checkResources.checkMiiCauseOfDeath(condition) && this.sourceFormat == ProfileFormats.MII) {
         CauseOfDeath causeOfDeath = new CauseOfDeath();
         causeOfDeath.fromMii(condition);
         log.debug("Analysing Cause of Death " + condition.getId() + " with format mii");
 
-        if (Objects.equals(this.targetFormat, "bbmri.de")) {
+       if(this.targetFormat == ProfileFormats.BBMRI) {
           resourceListOut.add(causeOfDeath.toBbmri());
           log.debug("Exporting Cause of Death " + condition.getId() + " with format bbmri");
 
@@ -341,13 +339,13 @@ public class TransferController {
       de.samply.transfair.resources.Condition conditionConverter =
           new de.samply.transfair.resources.Condition();
 
-      if (Objects.equals(this.sourceFormat, "bbmri.de")) {
+      if (this.sourceFormat == ProfileFormats.BBMRI) {
         conditionConverter.fromBbmri(condition);
       } else {
         conditionConverter.fromMii(condition);
       }
 
-      if (Objects.equals(this.targetFormat, "bbmri.de")) {
+      if (this.targetFormat == ProfileFormats.BBMRI) {
         resourceListOut.add(conditionConverter.toBbmri());
         log.debug("Exporting Condition " + condition.getId() + " with format bbmri");
 
@@ -530,12 +528,11 @@ public class TransferController {
   }
 
   private HashSet<String> getPatientRefs(IGenericClient sourceClient) {
-    List<IBaseResource> patients = fetchPatientResources(sourceClient);
+    List<Patient> patients = fetchResources(Patient.class, sourceClient);
     HashSet<String> patientRefs = new HashSet<>();
 
     for (IBaseResource patient : patients) {
-      Patient p = (Patient) patient;
-      patientRefs.add(p.getId());
+      patientRefs.add(patient.getIdElement().getValue());
     }
     return patientRefs;
     }
