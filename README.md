@@ -21,24 +21,33 @@ After setting up the environment just run
 docker-compose up
 ```
 
-### Modes
-
+### API
 
 #### FHIR
-
-Name | Data source | Data target
 
 The tool supports multiple operation modes, converting or transferring.
 
 ##### BBMRI2BBMRI(Bridge)
 
+```
+/v1/fhir/bbmri2bbmri
+```
+
 This mode transfers all data related to the bbmri.de profiles
 
 ##### BBMIR2MII
 
+```
+/v1/fhir/bbmri2mii
+```
+
 This mode transfers data from bbmri.de to MII KDS profiles.
 
 ##### MII2BBRMI
+
+```
+/v1/fhir/mii2bbmri
+```
 
 This mode transfers data form MII KDS to bbmri.de
 

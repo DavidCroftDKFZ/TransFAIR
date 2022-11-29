@@ -75,7 +75,7 @@ public class Specimen
             e.getUrl(), "https://fhir.bbmri.de/StructureDefinition/SampleDiagnosis")) {
           Type t = e.getValue();
           CodeableConcept codeableConcept = (CodeableConcept) t;
-          for(Coding codeableConcept1 : codeableConcept.getCoding()) {
+          for (Coding codeableConcept1 : codeableConcept.getCoding()) {
             switch (codeableConcept1.getSystem()) {
               case "http://hl7.org/fhir/sid/icd-10":
                 this.diagnosisICD10Who = codeableConcept.getCodingFirstRep().getCode();
@@ -129,8 +129,9 @@ public class Specimen
         Range r = (Range) extension.getValue();
         this.miiStoargeTemperatureHigh = r.getHigh().getValue().longValue();
         this.miiStoargeTemperaturelow = r.getLow().getValue().longValue();
-      } else if(Objects.equals(
-          extension.getUrl(), "https://simplifier.net/medizininformatikinitiative-modulbiobank/files/fsh-generated/resources/structuredefinition-diagnose.json")){
+      } else if (Objects.equals(
+          extension.getUrl(),
+          "https://simplifier.net/medizininformatikinitiative-modulbiobank/files/fsh-generated/resources/structuredefinition-diagnose.json")) {
         this.miiConditionRef = extension.getValue().toString();
       }
     }
@@ -143,7 +144,6 @@ public class Specimen
 
     org.hl7.fhir.r4.model.Specimen specimen = new org.hl7.fhir.r4.model.Specimen();
     specimen.setMeta(new Meta().addProfile("https://fhir.bbmri.de/StructureDefinition/Specimen"));
-
 
     if (bbmriId.isEmpty() && !miiId.isEmpty()) {
       // Todo: Add mapping from Patientfilter
@@ -186,7 +186,7 @@ public class Specimen
         .getCodingFirstRep()
         .setCode(this.fastingStatus);
 
-    if(!Objects.equals(storageTemperature, null)) {
+    if (!Objects.equals(storageTemperature, null)) {
       Extension extension = new Extension();
       extension.setUrl("https://fhir.bbmri.de/StructureDefinition/StorageTemperature");
       extension.setValue(new CodeableConcept().getCodingFirstRep().setCode(storageTemperature));
@@ -196,16 +196,22 @@ public class Specimen
               this.miiStoargeTemperatureHigh, this.miiStoargeTemperaturelow));
     }
 
-    if(Objects.nonNull(this.diagnosisICD10Gm) || Objects.nonNull(this.diagnosisICD10Who)) {
+    if (Objects.nonNull(this.diagnosisICD10Gm) || Objects.nonNull(this.diagnosisICD10Who)) {
       Extension extension = new Extension();
       extension.setUrl("https://fhir.bbmri.de/StructureDefinition/SampleDiagnosis");
       CodeableConcept codeableConcept = new CodeableConcept();
       List<Coding> diagnosis = new ArrayList<>();
-      if(Objects.nonNull(this.diagnosisICD10Gm)) {
-        diagnosis.add(new Coding().setSystem("http://fhir.de/CodeSystem/dimdi/icd-10-gm").setCode(this.diagnosisICD10Gm));
+      if (Objects.nonNull(this.diagnosisICD10Gm)) {
+        diagnosis.add(
+            new Coding()
+                .setSystem("http://fhir.de/CodeSystem/dimdi/icd-10-gm")
+                .setCode(this.diagnosisICD10Gm));
       }
-      if(Objects.nonNull(this.diagnosisICD10Who)) {
-        diagnosis.add(new Coding().setSystem("http://hl7.org/fhir/sid/icd-10").setCode(this.diagnosisICD10Gm));
+      if (Objects.nonNull(this.diagnosisICD10Who)) {
+        diagnosis.add(
+            new Coding()
+                .setSystem("http://hl7.org/fhir/sid/icd-10")
+                .setCode(this.diagnosisICD10Gm));
       }
       extension.setValue(codeableConcept.setCoding(diagnosis));
     }
@@ -216,8 +222,10 @@ public class Specimen
   @Override
   public org.hl7.fhir.r4.model.Specimen toMii() {
     org.hl7.fhir.r4.model.Specimen specimen = new org.hl7.fhir.r4.model.Specimen();
-    specimen.setMeta(new Meta().addProfile("https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Specimen"));
-
+    specimen.setMeta(
+        new Meta()
+            .addProfile(
+                "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Specimen"));
 
     if (!bbmriId.isEmpty() && miiId.isEmpty()) {
       // Todo: Add mapping from Patientfilter

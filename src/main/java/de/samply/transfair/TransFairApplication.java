@@ -15,6 +15,4 @@ public class TransFairApplication {
   public static void main(String[] args) {
     SpringApplication.run(TransFairApplication.class, args);
   }
-
-
 }

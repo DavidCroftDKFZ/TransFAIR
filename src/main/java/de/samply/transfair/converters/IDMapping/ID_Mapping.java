@@ -23,6 +23,7 @@ public abstract class ID_Mapping {
 
   /**
    * Standard getter for field {this.mappings}
+   *
    * @return nested Hashmaps which store mappings
    */
   public HashMap<String, HashMap<String, HashMap<String, String>>> getMappings_cache() {
@@ -35,7 +36,8 @@ public abstract class ID_Mapping {
    * @throws Exception Exceptions depend on implementation in inherited class. E.g. when reading
    *     from a file it can be IOException.
    */
-  public abstract String fetch_mapping(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) throws Exception;
+  public abstract String fetch_mapping(
+      @NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) throws Exception;
 
   /**
    * Stores a single mapping between two IDs from two domains.
@@ -130,24 +132,30 @@ public abstract class ID_Mapping {
 
   /**
    * Checks whether mapping from src_domain to tar_domain is set up in the cache
+   *
    * @param src_domain name of src_domain
    * @param tar_domain name of tar_domain
-   * @return Returns a boolean whether src_domain and tar_domain exist and mapping from src_domain to tar_domain is set up in the cache
+   * @return Returns a boolean whether src_domain and tar_domain exist and mapping from src_domain
+   *     to tar_domain is set up in the cache
    */
-    public boolean exist_domains(@NotNull String src_domain, @NotNull String tar_domain){
-    return mappings_cache.containsKey(src_domain) && mappings_cache.get(src_domain).containsKey(tar_domain);
+  public boolean exist_domains(@NotNull String src_domain, @NotNull String tar_domain) {
+    return mappings_cache.containsKey(src_domain)
+        && mappings_cache.get(src_domain).containsKey(tar_domain);
   }
 
   /**
-   * Checks whether a mapping of the id from the source domain to the target domain exists in the cache.
+   * Checks whether a mapping of the id from the source domain to the target domain exists in the
+   * cache.
+   *
    * @param id The id to be checked fo existing mapping from src_domain to tar_domain
    * @param src_domain The domain tht should contain the id
    * @param tar_domain The domain where it should be able to map id to
    * @return Whether a mapping
    * @throws IllegalArgumentException: Mapping from source to target domain is not within the cache
    */
-  public boolean exists_mapping(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) {
-    if(!exist_domains(src_domain, tar_domain)){
+  public boolean exists_mapping(
+      @NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) {
+    if (!exist_domains(src_domain, tar_domain)) {
       return false;
     }
     return mappings_cache.get(src_domain).get(tar_domain).containsKey(id);
@@ -162,13 +170,19 @@ public abstract class ID_Mapping {
    * @throws IllegalArgumentException if mapping does not exist
    * @return id from tar_domain which was mapped from input id
    */
-  public String map_id(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) throws Exception { //TODO: Specify exception type?
+  public String map_id(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain)
+      throws Exception { // TODO: Specify exception type?
     String tar_id;
-    if (!exists_mapping(id, src_domain, tar_domain)) { // If no mapping for the ud from src_domain to tar_domain exists, fetch the id and add it to the cache
+    if (!exists_mapping(
+        id,
+        src_domain,
+        tar_domain)) { // If no mapping for the ud from src_domain to tar_domain exists, fetch the
+                       // id and add it to the cache
       try {
         tar_id = this.fetch_mapping(id, src_domain, tar_domain);
-      }catch(Exception e){
-        throw new Exception("Unable to fetch id "+id+" from "+src_domain+" to "+tar_domain+" !", e);
+      } catch (Exception e) {
+        throw new Exception(
+            "Unable to fetch id " + id + " from " + src_domain + " to " + tar_domain + " !", e);
       }
       set_mapping(src_domain, tar_domain, id, tar_id);
       return tar_id;

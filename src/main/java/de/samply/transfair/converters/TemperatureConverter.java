@@ -13,18 +13,18 @@ public class TemperatureConverter {
         "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen");
 
     switch (BbmriTemp) {
-      case "temperature2to10" ->
-          extension.setValue(new Range().setHigh(new Quantity(10)).setLow(new Quantity(2)));
-      case "temperature-18to-35" ->
-          extension.setValue(new Range().setHigh(new Quantity(-18)).setLow(new Quantity(-35)));
-      case "temperature-60to-85" ->
-          extension.setValue(new Range().setHigh(new Quantity(-60)).setLow(new Quantity(-85)));
-      case "temperatureGN" ->
-          extension.setValue(new Range().setHigh(new Quantity(-195)).setLow(new Quantity(-160)));
+      case "temperature2to10" -> extension.setValue(
+          new Range().setHigh(new Quantity(10)).setLow(new Quantity(2)));
+      case "temperature-18to-35" -> extension.setValue(
+          new Range().setHigh(new Quantity(-18)).setLow(new Quantity(-35)));
+      case "temperature-60to-85" -> extension.setValue(
+          new Range().setHigh(new Quantity(-60)).setLow(new Quantity(-85)));
+      case "temperatureGN" -> extension.setValue(
+          new Range().setHigh(new Quantity(-195)).setLow(new Quantity(-160)));
       case "temperatureLN" -> extension.setValue(
           new Range().setHigh(new Quantity(-196)).setLow(new Quantity(-209)));
-      case "temperatureRoom" ->
-          extension.setValue(new Range().setHigh(new Quantity(30)).setLow(new Quantity(11)));
+      case "temperatureRoom" -> extension.setValue(
+          new Range().setHigh(new Quantity(30)).setLow(new Quantity(11)));
       case "temperatureOther" -> extension.setValue(new Range());
     }
 

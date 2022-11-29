@@ -13,8 +13,7 @@ public class ApiController {
 
   private static final Logger log = LoggerFactory.getLogger(ApiController.class);
 
-  @Autowired
-  TransferController transferController;
+  @Autowired TransferController transferController;
 
   @GetMapping("/")
   public String overview() {
@@ -26,6 +25,7 @@ public class ApiController {
     return "ok";
   }
 
+  /** Rest Endpoint for transferring bbmri.de data from one fhir store to another. */
   @GetMapping("/v1/fhir/bbmri2bbmri")
   public String bbmri2bbmri() throws Exception {
     log.info("Running TransFAIR in BBMRI2BBMRI mode");
@@ -36,6 +36,7 @@ public class ApiController {
     return "Status: ok; Time: " + endTime;
   }
 
+  /** Rest Endpoint for converting bbmri.de to mii profiles and transfer it to another fhir sever */
   @GetMapping("/v1/fhir/bbmri2mii")
   public String bbmri2mii() throws Exception {
     log.info("Running TransFAIR in BBMRI2MII mode");
@@ -46,6 +47,7 @@ public class ApiController {
     return "Status: ok; Time: " + endTime;
   }
 
+  /** Rest Endpoint for converting mii to bbmri.de profiles and transfer it to another fhir sever */
   @GetMapping("/v1/fhir/mii2bbmri")
   public String mii2bbmri() throws Exception {
     log.info("Running TransFAIR in MII2BBMRI mode");
@@ -56,6 +58,7 @@ public class ApiController {
     return "Status: ok; Time: " + endTime;
   }
 
+  /** Rest Endpoint for extracting bbmri.de specimens transfer it to a ccp fhir server */
   @GetMapping("/v1/fhir/bbmri2dktk")
   public String bbmri2dktk() throws Exception {
     log.info("Running TransFAIR in BBMRI2DKTK mode");

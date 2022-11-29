@@ -74,7 +74,10 @@ public class Condition
   @Override
   public org.hl7.fhir.r4.model.Condition toMii() {
     org.hl7.fhir.r4.model.Condition condition = new org.hl7.fhir.r4.model.Condition();
-    condition.setMeta(new Meta().addProfile("https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Diagnose"));
+    condition.setMeta(
+        new Meta()
+            .addProfile(
+                "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Diagnose"));
 
     if (miiId.isEmpty() && !bbmriId.isEmpty()) {
       this.miiId = bbmriId;

@@ -63,7 +63,8 @@ public class Patient
   @Override
   public org.hl7.fhir.r4.model.Patient toBbmri() {
     org.hl7.fhir.r4.model.Patient patient = new org.hl7.fhir.r4.model.Patient();
-    patient.setMeta(new Meta().addProfile("https://fhir.simplifier.net/bbmri.de/StructureDefinition/Patient"));
+    patient.setMeta(
+        new Meta().addProfile("https://fhir.simplifier.net/bbmri.de/StructureDefinition/Patient"));
 
     patient.setGender(new AdministrativeGenderEnumFactory().fromCode(this.gender));
     patient.setBirthDate(brithDate);
@@ -85,8 +86,10 @@ public class Patient
   @Override
   public org.hl7.fhir.r4.model.Patient toMii() {
     org.hl7.fhir.r4.model.Patient patient = new org.hl7.fhir.r4.model.Patient();
-    patient.setMeta(new Meta().addProfile("https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Patient"));
-
+    patient.setMeta(
+        new Meta()
+            .addProfile(
+                "https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Patient"));
 
     if (!bbmriId.isEmpty() && miiId.isEmpty()) {
       // Todo: Add mapping from Patientfilter

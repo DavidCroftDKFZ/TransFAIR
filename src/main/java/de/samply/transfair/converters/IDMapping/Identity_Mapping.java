@@ -13,7 +13,8 @@ import java.util.ArrayList;
 public class Identity_Mapping extends ID_Mapping {
   /** Overrides parental class method to do return the id itself */
   @Override
-  public String fetch_mapping(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) {
+  public String fetch_mapping(
+      @NotNull String id, @NotNull String src_domain, @NotNull String tar_domain) {
     return id;
   }
 

@@ -27,7 +27,7 @@ public class SnomedSamplyTypeConverter {
       case "119376003" -> "tissue-other";
       case "258566005" -> "dna";
       case "726740008" -> "cf-dna";
-      case "18470003" -> "g-dna"; //Check
+      case "18470003" -> "g-dna"; // Check
       case "441673008" -> "rna";
       case "33463005" -> "liquid-other";
       default -> "derivative-other";
@@ -36,7 +36,7 @@ public class SnomedSamplyTypeConverter {
 
   public static String fromBbmriToMii(String BbmriType) {
     String default_snomedcode = "123038009";
-    if(Objects.equals(BbmriType, null)){
+    if (Objects.equals(BbmriType, null)) {
       return default_snomedcode;
     }
     return switch (BbmriType) {
@@ -56,12 +56,18 @@ public class SnomedSamplyTypeConverter {
       case "stool-faeces" -> "119339001";
       case "urine" -> "122575003";
       case "swab" -> "257261003";
-      case "tissue-ffpe", "tumor-tissue-ffpe", "normal-tissue-ffpe", "other-tissue-ffpe" -> "441652008";
-      case "tissue-frozen", "tumor-tissue-frozen", "normal-tissue-frozen", "other-tissue-frozen" -> "16214131000119104";
+      case "tissue-ffpe",
+          "tumor-tissue-ffpe",
+          "normal-tissue-ffpe",
+          "other-tissue-ffpe" -> "441652008";
+      case "tissue-frozen",
+          "tumor-tissue-frozen",
+          "normal-tissue-frozen",
+          "other-tissue-frozen" -> "16214131000119104";
       case "tissue-other" -> "119376003";
       case "dna" -> "258566005";
       case "cf-dna" -> "726740008";
-      case "g-dna" -> "18470003"; //Check
+      case "g-dna" -> "18470003"; // Check
       case "rna" -> "441673008";
       case "liquid-other" -> "33463005";
       default -> default_snomedcode;

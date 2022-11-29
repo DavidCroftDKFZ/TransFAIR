@@ -9,5 +9,4 @@ public class ICD10Converter {
   public String gm2who(String icd10Code) {
     return icd10Code;
   }
-
 }

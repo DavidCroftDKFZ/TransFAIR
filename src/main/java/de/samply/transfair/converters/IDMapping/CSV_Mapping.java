@@ -66,28 +66,37 @@ public class CSV_Mapping extends ID_Mapping {
    * @throws CsvException in case file at this.filepath is not a proper csv file
    */
   @Override
-  public String fetch_mapping(@NotNull String id, @NotNull String src_domain, @NotNull String tar_domain)
+  public String fetch_mapping(
+      @NotNull String id, @NotNull String src_domain, @NotNull String tar_domain)
       throws IOException, CsvException, Exception {
-    CSVReader reader = new CSVReader(new FileReader(filepath)); //Potential IOException
+    CSVReader reader = new CSVReader(new FileReader(filepath)); // Potential IOException
     String[] row;
 
     // Get indicex of rows containing source domain and targe domain
     String[] domains = reader.readNext();
     int src_idx = -1;
     int tar_idx = -1;
-    for(int i=0; i<domains.length; i++){
-      if(domains[i].equals(src_domain)) src_idx = i;
-      if(domains[i].equals(tar_domain)) tar_idx = i;
+    for (int i = 0; i < domains.length; i++) {
+      if (domains[i].equals(src_domain)) src_idx = i;
+      if (domains[i].equals(tar_domain)) tar_idx = i;
     }
     // If one of the domains is not found, throw an exception
-    if(src_idx==-1) throw new Exception("Domain "+src_domain+" not found in csv file "+this.filepath);
-    if(tar_idx==-1) throw new Exception("Domain "+tar_domain+" not found in csv file "+this.filepath);
+    if (src_idx == -1)
+      throw new Exception("Domain " + src_domain + " not found in csv file " + this.filepath);
+    if (tar_idx == -1)
+      throw new Exception("Domain " + tar_domain + " not found in csv file " + this.filepath);
 
-    // Iterate over whole csv file and search for mapping between the domains where value of src_domain is argumentid
+    // Iterate over whole csv file and search for mapping between the domains where value of
+    // src_domain is argumentid
     while ((row = reader.readNext()) != null) {
-      if(row[src_idx].equals(id) && !row[tar_idx].equals("")) return row[tar_idx];
+      if (row[src_idx].equals(id) && !row[tar_idx].equals("")) return row[tar_idx];
     }
-    throw new Exception("No mapping from domain "+ src_domain+" to domain "+tar_domain+" found for id "+id);
+    throw new Exception(
+        "No mapping from domain "
+            + src_domain
+            + " to domain "
+            + tar_domain
+            + " found for id "
+            + id);
   }
-
 }

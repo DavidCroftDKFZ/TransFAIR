@@ -41,7 +41,8 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
 
   public org.hl7.fhir.r4.model.Observation toBbmri() {
     org.hl7.fhir.r4.model.Observation observation = new org.hl7.fhir.r4.model.Observation();
-    observation.setMeta(new Meta().addProfile("https://fhir.bbmri.de/StructureDefinition/CauseOfDeath"));
+    observation.setMeta(
+        new Meta().addProfile("https://fhir.bbmri.de/StructureDefinition/CauseOfDeath"));
 
     Coding codingFirstRep = observation.getCode().getCodingFirstRep();
     codingFirstRep.setCode("68343-3");
@@ -73,7 +74,10 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
 
   public org.hl7.fhir.r4.model.Condition toMii() {
     org.hl7.fhir.r4.model.Condition condition = new org.hl7.fhir.r4.model.Condition();
-    condition.setMeta(new Meta().addProfile("https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Todesursache"));
+    condition.setMeta(
+        new Meta()
+            .addProfile(
+                "https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Todesursache"));
 
     CodeableConcept codingLoinc = new CodeableConcept();
     codingLoinc.getCodingFirstRep().setSystem("http://loinc.org");
@@ -85,7 +89,7 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
       this.bbmriPatientID = miiPatientID;
     }
 
-    if(Objects.equals(bbmriCauseOfDeath,null) && !Objects.equals(miiCauseOfDeath, null)) {
+    if (Objects.equals(bbmriCauseOfDeath, null) && !Objects.equals(miiCauseOfDeath, null)) {
       this.bbmriCauseOfDeath = miiCauseOfDeath;
     }
 
