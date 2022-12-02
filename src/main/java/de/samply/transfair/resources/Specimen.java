@@ -1,5 +1,6 @@
 package de.samply.transfair.resources;
 
+import de.samply.transfair.converters.ICD10Converter;
 import de.samply.transfair.converters.SnomedSamplyTypeConverter;
 import de.samply.transfair.converters.TemperatureConverter;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class Specimen
   String bbmriBodySite;
 
   String storageTemperature;
-  String diagnosisICD10Gm;
+  private String diagnosisICD10Gm;
   String diagnosisICD10Who;
 
   String collectionRef;
@@ -46,7 +47,7 @@ public class Specimen
   String miiBodySiteIcd;
   String miiBodySiteSnomedCt;
 
-  String miiConditionRef;
+  private String miiConditionRef;
 
   Long miiStoargeTemperatureHigh;
   Long miiStoargeTemperaturelow;
@@ -80,7 +81,7 @@ public class Specimen
               case "http://hl7.org/fhir/sid/icd-10":
                 this.diagnosisICD10Who = codeableConcept.getCodingFirstRep().getCode();
               case "http://fhir.de/CodeSystem/dimdi/icd-10-gm":
-                this.diagnosisICD10Gm = codeableConcept.getCodingFirstRep().getCode();
+                this.setDiagnosisICD10Gm(codeableConcept.getCodingFirstRep().getCode());
             }
           }
         } else if (Objects.equals(
@@ -132,7 +133,7 @@ public class Specimen
       } else if (Objects.equals(
           extension.getUrl(),
           "https://simplifier.net/medizininformatikinitiative-modulbiobank/files/fsh-generated/resources/structuredefinition-diagnose.json")) {
-        this.miiConditionRef = extension.getValue().toString();
+        this.setMiiConditionRef(extension.getValue().toString());
       }
     }
   }
@@ -196,23 +197,25 @@ public class Specimen
               this.miiStoargeTemperatureHigh, this.miiStoargeTemperaturelow));
     }
 
-    if (Objects.nonNull(this.diagnosisICD10Gm) || Objects.nonNull(this.diagnosisICD10Who)) {
+    if (Objects.nonNull(this.getDiagnosisICD10Gm()) || Objects.nonNull(this.diagnosisICD10Who)) {
       Extension extension = new Extension();
       extension.setUrl("https://fhir.bbmri.de/StructureDefinition/SampleDiagnosis");
       CodeableConcept codeableConcept = new CodeableConcept();
       List<Coding> diagnosis = new ArrayList<>();
-      if (Objects.nonNull(this.diagnosisICD10Gm)) {
-        diagnosis.add(
-            new Coding()
-                .setSystem("http://fhir.de/CodeSystem/dimdi/icd-10-gm")
-                .setCode(this.diagnosisICD10Gm));
+      if (Objects.nonNull(this.getDiagnosisICD10Gm())) {
+        this.diagnosisICD10Who = ICD10Converter.gm2who(this.getDiagnosisICD10Gm());
       }
-      if (Objects.nonNull(this.diagnosisICD10Who)) {
-        diagnosis.add(
-            new Coding()
-                .setSystem("http://hl7.org/fhir/sid/icd-10")
-                .setCode(this.diagnosisICD10Gm));
+      else {
+        this.setDiagnosisICD10Gm(ICD10Converter.who2gm(this.diagnosisICD10Who));
       }
+      diagnosis.add(
+          new Coding()
+              .setSystem("http://fhir.de/CodeSystem/dimdi/icd-10-gm")
+              .setCode(this.getDiagnosisICD10Gm()));
+      diagnosis.add(
+          new Coding()
+              .setSystem("http://hl7.org/fhir/sid/icd-10")
+              .setCode(this.getDiagnosisICD10Gm()));
       extension.setValue(codeableConcept.setCoding(diagnosis));
     }
 
@@ -262,5 +265,21 @@ public class Specimen
           .setExtension(List.of(TemperatureConverter.fromBbrmiToMii(this.storageTemperature)));
     }
     return specimen;
+  }
+
+  public void setMiiConditionRef(String miiConditionRef) {
+    this.miiConditionRef = miiConditionRef;
+  }
+
+  public String getMiiConditionRef() {
+    return miiConditionRef;
+  }
+
+  public String getDiagnosisICD10Gm() {
+    return diagnosisICD10Gm;
+  }
+
+  public void setDiagnosisICD10Gm(String diagnosisICD10Gm) {
+    this.diagnosisICD10Gm = diagnosisICD10Gm;
   }
 }

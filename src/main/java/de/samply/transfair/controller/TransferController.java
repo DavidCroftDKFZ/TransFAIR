@@ -5,7 +5,6 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.util.BundleUtil;
 import de.samply.transfair.converters.IDMapper;
 import de.samply.transfair.converters.Resource_Type;
-import de.samply.transfair.models.Modes;
 import de.samply.transfair.models.ProfileFormats;
 import de.samply.transfair.resources.CauseOfDeath;
 import java.io.FileWriter;
@@ -15,11 +14,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+import javax.annotation.PostConstruct;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.HTTPVerb;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Organization;
@@ -33,13 +35,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/** This class has most of the transformation and converting logic. */
 @Component
 public class TransferController {
 
   private static final Logger log = LoggerFactory.getLogger(TransferController.class);
 
   // Variables for Source
-  private Modes mode;
 
   private ProfileFormats sourceFormat;
 
@@ -78,6 +80,7 @@ public class TransferController {
     ctx.getRestfulClientFactory().setSocketTimeout(300 * 1000);
   }
 
+  @PostConstruct
   private void setup() {
     if (resourcesFilter.isEmpty()) {
       this.resources = List.of("Patient", "Specimen", "Condition", "Observation");
@@ -167,26 +170,51 @@ public class TransferController {
     return client.read().resource(Patient.class).withId(patientId).execute();
   }
 
-  private List<Specimen> convertSpecimenResouces(List<Specimen> resourceList) {
+  private List<Specimen> convertBbmriSpecimenResources(List<Specimen> resourceList) {
     List<Specimen> resourceListOut = new ArrayList<>();
 
     for (Specimen specimen : resourceList) {
-      de.samply.transfair.resources.Specimen s = new de.samply.transfair.resources.Specimen();
-      if (this.sourceFormat == ProfileFormats.BBMRI) {
-        log.debug("Analysing Specimen " + specimen.getId() + " with format bbmri.de");
-        s.fromBbmri(specimen);
-      } else {
-        log.debug("Analysing Specimen " + specimen.getId() + " with format mii");
-        s.fromMii(specimen);
+      de.samply.transfair.resources.Specimen transferSpecimen =
+          new de.samply.transfair.resources.Specimen();
+      log.debug("Analysing Specimen " + specimen.getId() + " with format bbmri.de");
+      transferSpecimen.fromBbmri(specimen);
+
+      log.debug("Analysing Specimen " + specimen.getId() + " with format bbmri.de");
+      resourceListOut.add(transferSpecimen.toBbmri());
+    }
+
+    return resourceListOut;
+  }
+
+  private List<Specimen> convertMiiSpecimenResources(
+      List<Specimen> resourceList, List<IBaseResource> conditions) {
+    List<Specimen> resourceListOut = new ArrayList<>();
+
+    for (Specimen specimen : resourceList) {
+      de.samply.transfair.resources.Specimen transferSpecimen =
+          new de.samply.transfair.resources.Specimen();
+      transferSpecimen.fromMii(specimen);
+
+      String code = transferSpecimen.getDiagnosisICD10Gm();
+
+      for (IBaseResource baseResource : conditions) {
+        Condition condition = (Condition) baseResource;
+        Optional<Coding> filteredCondition =
+            condition.getCode().getCoding().stream()
+                .filter(
+                    c -> {
+                      return Objects.equals(
+                              c.getSystem(), "http://fhir.de/StructureDefinition/CodingICD10GM")
+                          && Objects.equals(c.getCode(), code);
+                    })
+                .findFirst();
+        if (filteredCondition.isPresent()) {
+          transferSpecimen.setMiiConditionRef(condition.getId());
+        }
       }
 
-      if (this.targetFormat == ProfileFormats.BBMRI) {
-        log.debug("Analysing Specimen " + specimen.getId() + " with format bbmri.de");
-        resourceListOut.add(s.toBbmri());
-      } else {
-        log.debug("Analysing Specimen " + specimen.getId() + " with format mii");
-        resourceListOut.add(s.toMii());
-      }
+      log.debug("Analysing Specimen " + specimen.getId() + " with format mii");
+      resourceListOut.add(transferSpecimen.toMii());
     }
 
     return resourceListOut;
@@ -376,7 +404,6 @@ public class TransferController {
     log.info("Running TransFAIR in BBMRI2BBMRI mode");
     this.setup();
 
-    this.mode = Modes.BBMRI2BBRMI;
     this.sourceFormat = ProfileFormats.BBMRI;
     this.targetFormat = ProfileFormats.BBMRI;
 
@@ -386,8 +413,6 @@ public class TransferController {
 
       // TODO: Collect Organization and Collection
 
-      HashSet<String> patientRefs = getSpecimenPatients(sourceClient);
-
       log.info("Loaded all Patient ID's");
 
       this.buildResources(this.fetchOrganizations(sourceClient));
@@ -395,21 +420,23 @@ public class TransferController {
 
       int counter = 1;
 
-      for (String p_id : patientRefs) {
+      HashSet<String> patientRefs = getSpecimenPatients(sourceClient);
+
+      for (String pid : patientRefs) {
         List<IBaseResource> patientResources = new ArrayList<>();
-        log.debug("Loading data for patient " + p_id);
+        log.debug("Loading data for patient " + pid);
 
         if (resources.contains("Patient")) {
-          patientResources.add(fetchPatientResource(sourceClient, p_id));
+          patientResources.add(fetchPatientResource(sourceClient, pid));
         }
         if (resources.contains("Specimen")) {
-          patientResources.addAll(fetchPatientSpecimens(sourceClient, p_id));
+          patientResources.addAll(fetchPatientSpecimens(sourceClient, pid));
         }
         if (resources.contains("Observation")) {
-          patientResources.addAll(fetchPatientObservation(sourceClient, p_id));
+          patientResources.addAll(fetchPatientObservation(sourceClient, pid));
         }
         if (resources.contains("Condition")) {
-          patientResources.addAll(fetchPatientCondition(sourceClient, p_id));
+          patientResources.addAll(fetchPatientCondition(sourceClient, pid));
         }
 
         this.buildResources(patientResources);
@@ -422,7 +449,6 @@ public class TransferController {
   }
 
   public void bbmri2mii() throws Exception {
-    this.mode = Modes.BBMRI2MII;
     this.sourceFormat = ProfileFormats.BBMRI;
     this.targetFormat = ProfileFormats.MII;
     this.setup();
@@ -437,23 +463,25 @@ public class TransferController {
 
       int counter = 1;
 
-      for (String p_id : patientIds) {
+      for (String pid : patientIds) {
         List<IBaseResource> patientResources = new ArrayList<>();
-        log.debug("Loading data for patient " + p_id);
+        log.debug("Loading data for patient " + pid);
 
         if (resources.contains("Patient")) {
           patientResources.add(
-              convertPatientResource(fetchPatientResource(sourceClient, p_id), p_id));
+              convertPatientResource(fetchPatientResource(sourceClient, pid), pid));
+        }
+        List<IBaseResource> conditions = null;
+        if (resources.contains("Condition")) {
+          conditions.addAll(convertConditions(fetchPatientCondition(sourceClient, pid)));
+          patientResources.addAll(conditions);
         }
         if (resources.contains("Specimen")) {
           patientResources.addAll(
-              convertSpecimenResouces(fetchPatientSpecimens(sourceClient, p_id)));
+              convertMiiSpecimenResources(fetchPatientSpecimens(sourceClient, pid), conditions));
         }
         if (resources.contains("Observation")) {
-          patientResources.addAll(convertObservations(fetchPatientObservation(sourceClient, p_id)));
-        }
-        if (resources.contains("Condition")) {
-          patientResources.addAll(convertConditions(fetchPatientCondition(sourceClient, p_id)));
+          patientResources.addAll(convertObservations(fetchPatientObservation(sourceClient, pid)));
         }
 
         this.buildResources(patientResources);
@@ -465,7 +493,6 @@ public class TransferController {
   }
 
   public void mii2bbmri() throws Exception {
-    this.mode = Modes.MII2BBMRI;
     this.sourceFormat = ProfileFormats.MII;
     this.targetFormat = ProfileFormats.BBMRI;
     this.setup();
@@ -480,23 +507,23 @@ public class TransferController {
 
       int counter = 1;
 
-      for (String pId : patientIds) {
+      for (String pid : patientIds) {
         List<IBaseResource> patientResources = new ArrayList<>();
-        log.debug("Loading data for patient " + pId);
+        log.debug("Loading data for patient " + pid);
 
         if (resources.contains("Patient")) {
           patientResources.add(
-              convertPatientResource(fetchPatientResource(sourceClient, pId), pId));
+              convertPatientResource(fetchPatientResource(sourceClient, pid), pid));
         }
         if (resources.contains("Specimen")) {
           patientResources.addAll(
-              convertSpecimenResouces(fetchPatientSpecimens(sourceClient, pId)));
+              convertBbmriSpecimenResources(fetchPatientSpecimens(sourceClient, pid)));
         }
         if (resources.contains("Observation")) {
-          patientResources.addAll(convertObservations(fetchPatientObservation(sourceClient, pId)));
+          patientResources.addAll(convertObservations(fetchPatientObservation(sourceClient, pid)));
         }
         if (resources.contains("Condition")) {
-          patientResources.addAll(convertConditions(fetchPatientCondition(sourceClient, pId)));
+          patientResources.addAll(convertConditions(fetchPatientCondition(sourceClient, pid)));
         }
 
         this.buildResources(patientResources);
@@ -508,7 +535,6 @@ public class TransferController {
   }
 
   public void bbmri2dktk() {
-    this.mode = Modes.BBMRI2DKTK;
     this.sourceFormat = ProfileFormats.BBMRI;
     this.targetFormat = ProfileFormats.DKTK;
   }

@@ -1,6 +1,5 @@
 package de.samply.transfair.controller;
 
-import de.samply.transfair.models.Modes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
