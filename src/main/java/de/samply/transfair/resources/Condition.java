@@ -1,18 +1,26 @@
 package de.samply.transfair.resources;
 
+import de.samply.transfair.controller.TransferController;
 import java.util.Date;
 import java.util.Objects;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Condition
     extends ConvertClass<org.hl7.fhir.r4.model.Condition, org.hl7.fhir.r4.model.Condition> {
+
+  private static final Logger log = LoggerFactory.getLogger(TransferController.class);
+
 
   String bbmriId = "";
   String bbmriSubject;
   Date onset;
   String diagnosisICD10WHO;
+  String diagnosisSnomed;
+
   String diagnosisICD10GM;
   String diagnosisICD9;
 
@@ -41,8 +49,22 @@ public class Condition
 
   @Override
   public void fromMii(org.hl7.fhir.r4.model.Condition resource) {
-
     this.miiId = resource.getId();
+
+    for(Coding coding: resource.getCode().getCoding()) {
+      if(Objects.equals(coding.getSystem(), "http://fhir.de/CodeSystem/bfarm/icd-10-gm")) {
+        this.diagnosisICD10GM = coding.getCode();
+        continue;
+      }
+
+      if(Objects.equals(coding.getSystem(), "http://snomed.info/sct")) {
+        this.diagnosisSnomed = coding.getCode();
+        continue;
+      }
+      log.debug("Not supported");
+    }
+
+    this.onset = resource.getOnsetDateTimeType().getValue();
   }
 
   @Override
