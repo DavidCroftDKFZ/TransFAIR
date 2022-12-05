@@ -3,6 +3,7 @@ package de.samply.transfair.controller;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.util.BundleUtil;
+import de.samply.transfair.Configuration;
 import de.samply.transfair.converters.IDMapper;
 import de.samply.transfair.converters.Resource_Type;
 import de.samply.transfair.models.ProfileFormats;
@@ -10,13 +11,11 @@ import de.samply.transfair.resources.CauseOfDeath;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import javax.annotation.PostConstruct;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
@@ -32,7 +31,6 @@ import org.hl7.fhir.r4.model.Specimen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /** This class has most of the transformation and converting logic. */
@@ -45,48 +43,17 @@ public class TransferController {
 
   private ProfileFormats sourceFormat;
 
-  @Value("${app.source.loadFromFhirServer}")
-  private boolean loadFromFhirServer;
-
-  @Value("${app.source.fhirserver}")
-  private String sourceFhirserver;
-
-  @Value("${app.source.loadFromFileSystem}")
-  private boolean loadFromFileSystem;
-
-  @Value("${app.source.startResource}")
-  private String startResource;
+  private ProfileFormats targetFormat;
 
   @Autowired IDMapper idMapper;
 
-  private List<String> resources;
+  @Autowired
+  Configuration configuration;
 
-  // Variables for target
-  private ProfileFormats targetFormat;
 
-  @Value("${app.target.saveToFhirServer}")
-  private boolean saveFromFhirServer;
-
-  @Value("${app.target.fhirServer}")
-  private String targetFhirServer;
-
-  @Value("${app.target.saveToFileSystem}")
-  private boolean saveToFileSystem;
-
-  @Value("${app.source.resourceFilter}")
-  String resourcesFilter;
 
   TransferController() throws Exception {
-    ctx.getRestfulClientFactory().setSocketTimeout(300 * 1000);
-  }
-
-  @PostConstruct
-  private void setup() {
-    if (resourcesFilter.isEmpty()) {
-      this.resources = List.of("Patient", "Specimen", "Condition", "Observation");
-    } else {
-      this.resources = Arrays.stream(resourcesFilter.split(",")).toList();
-    }
+    getCtx().getRestfulClientFactory().setSocketTimeout(300 * 1000);
   }
 
   private final FhirContext ctx = FhirContext.forR4();
@@ -98,12 +65,12 @@ public class TransferController {
     // Search
     Bundle bundle =
         client.search().forResource(Specimen.class).returnBundle(Bundle.class).count(500).execute();
-    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
 
     // Load the subsequent pages
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+      resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
       log.debug("Fetching next page of Specimen");
     }
     log.info("Loaded " + resourceList.size() + " Specimen Resources from source");
@@ -111,8 +78,8 @@ public class TransferController {
     return resourceList;
   }
 
-  private HashSet<String> fetchPatientIds(IGenericClient client) {
-    if (Objects.equals(startResource, "Specimen")) {
+  public HashSet<String> fetchPatientIds(IGenericClient client) {
+    if (Objects.equals(configuration.getStartResource(), "Specimen")) {
       return this.getSpecimenPatients(client);
     } else {
       return this.getPatientRefs(client);
@@ -125,12 +92,12 @@ public class TransferController {
     Bundle bundle =
         client.search().forResource(resourceType).returnBundle(Bundle.class).count(500).execute();
     List<T> resourceList =
-        new ArrayList<>(BundleUtil.toListOfResourcesOfType(ctx, bundle, resourceType));
+        new ArrayList<>(BundleUtil.toListOfResourcesOfType(getCtx(), bundle, resourceType));
 
     // Load the subsequent pages
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResourcesOfType(ctx, bundle, resourceType));
+      resourceList.addAll(BundleUtil.toListOfResourcesOfType(getCtx(), bundle, resourceType));
       log.debug("Fetching next page of " + resourceType.getName());
     }
     log.info(
@@ -139,7 +106,7 @@ public class TransferController {
     return resourceList;
   }
 
-  private Patient convertPatientResource(Patient p, String patientId) throws Exception {
+  public Patient convertPatientResource(Patient p, String patientId) throws Exception {
     de.samply.transfair.resources.Patient ap = new de.samply.transfair.resources.Patient();
 
     if (this.sourceFormat == ProfileFormats.BBMRI) {
@@ -166,11 +133,11 @@ public class TransferController {
     }
   }
 
-  private Patient fetchPatientResource(IGenericClient client, String patientId) {
+  public Patient fetchPatientResource(IGenericClient client, String patientId) {
     return client.read().resource(Patient.class).withId(patientId).execute();
   }
 
-  private List<Specimen> convertBbmriSpecimenResources(List<Specimen> resourceList) {
+  public List<Specimen> convertBbmriSpecimenResources(List<Specimen> resourceList) {
     List<Specimen> resourceListOut = new ArrayList<>();
 
     for (Specimen specimen : resourceList) {
@@ -186,7 +153,7 @@ public class TransferController {
     return resourceListOut;
   }
 
-  private List<Specimen> convertMiiSpecimenResources(
+  public List<Specimen> convertMiiSpecimenResources(
       List<Specimen> resourceList, List<IBaseResource> conditions) {
     List<Specimen> resourceListOut = new ArrayList<>();
 
@@ -220,7 +187,7 @@ public class TransferController {
     return resourceListOut;
   }
 
-  private List<Specimen> fetchPatientSpecimens(IGenericClient client, String patientId) {
+  public List<Specimen> fetchPatientSpecimens(IGenericClient client, String patientId) {
     List<IBaseResource> resourceList = new ArrayList<>();
 
     Bundle bundle =
@@ -231,11 +198,11 @@ public class TransferController {
             .returnBundle(Bundle.class)
             .execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+      resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
     }
 
     List<Specimen> specimens = new ArrayList<>();
@@ -247,22 +214,22 @@ public class TransferController {
     return specimens;
   }
 
-  private List<IBaseResource> fetchOrganizations(IGenericClient client) {
+  public List<IBaseResource> fetchOrganizations(IGenericClient client) {
     List<IBaseResource> resourceList = new ArrayList<>();
 
     Bundle bundle =
         client.search().forResource(Organization.class).returnBundle(Bundle.class).execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+      resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
     }
     return resourceList;
   }
 
-  private List<IBaseResource> fetchOrganizationAffiliation(IGenericClient client) {
+  public List<IBaseResource> fetchOrganizationAffiliation(IGenericClient client) {
     List<IBaseResource> resourceList = new ArrayList<>();
 
     Bundle bundle =
@@ -272,16 +239,16 @@ public class TransferController {
             .returnBundle(Bundle.class)
             .execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+      resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
     }
     return resourceList;
   }
 
-  private List<IBaseResource> convertObservations(List<IBaseResource> observations) {
+  public List<IBaseResource> convertObservations(List<IBaseResource> observations) {
     List<IBaseResource> resourceListOut = new ArrayList<>();
 
     for (IBaseResource base : observations) {
@@ -310,7 +277,7 @@ public class TransferController {
     return resourceListOut;
   }
 
-  private List<IBaseResource> fetchPatientObservation(IGenericClient client, String patientId) {
+  public List<IBaseResource> fetchPatientObservation(IGenericClient client, String patientId) {
     List<IBaseResource> resourceList = new ArrayList<>();
 
     Bundle bundle =
@@ -321,17 +288,17 @@ public class TransferController {
             .returnBundle(Bundle.class)
             .execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+      resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
     }
 
     return resourceList;
   }
 
-  private List<IBaseResource> convertConditions(List<IBaseResource> conditions) {
+  public List<IBaseResource> convertConditions(List<IBaseResource> conditions) {
     List<IBaseResource> resourceListOut = new ArrayList<>();
 
     for (IBaseResource base : conditions) {
@@ -379,7 +346,7 @@ public class TransferController {
     return resourceListOut;
   }
 
-  private List<IBaseResource> fetchPatientCondition(IGenericClient client, String patientId) {
+  public List<IBaseResource> fetchPatientCondition(IGenericClient client, String patientId) {
     List<IBaseResource> resourceList = new ArrayList<>();
 
     Bundle bundle =
@@ -390,156 +357,17 @@ public class TransferController {
             .returnBundle(Bundle.class)
             .execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+      resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
     }
 
     return resourceList;
   }
 
-  public void bbmri2bbmri() throws Exception {
-    log.info("Running TransFAIR in BBMRI2BBMRI mode");
-    this.setup();
-
-    this.sourceFormat = ProfileFormats.BBMRI;
-    this.targetFormat = ProfileFormats.BBMRI;
-
-    if (loadFromFhirServer) {
-      log.info("Start collecting Resources from FHIR server " + sourceFhirserver);
-      IGenericClient sourceClient = ctx.newRestfulGenericClient(sourceFhirserver);
-
-      // TODO: Collect Organization and Collection
-
-      log.info("Loaded all Patient ID's");
-
-      this.buildResources(this.fetchOrganizations(sourceClient));
-      this.buildResources(this.fetchOrganizationAffiliation(sourceClient));
-
-      int counter = 1;
-
-      HashSet<String> patientRefs = getSpecimenPatients(sourceClient);
-
-      for (String pid : patientRefs) {
-        List<IBaseResource> patientResources = new ArrayList<>();
-        log.debug("Loading data for patient " + pid);
-
-        if (resources.contains("Patient")) {
-          patientResources.add(fetchPatientResource(sourceClient, pid));
-        }
-        if (resources.contains("Specimen")) {
-          patientResources.addAll(fetchPatientSpecimens(sourceClient, pid));
-        }
-        if (resources.contains("Observation")) {
-          patientResources.addAll(fetchPatientObservation(sourceClient, pid));
-        }
-        if (resources.contains("Condition")) {
-          patientResources.addAll(fetchPatientCondition(sourceClient, pid));
-        }
-
-        this.buildResources(patientResources);
-        log.info("Exported Resources " + counter++ + "/" + patientRefs.size());
-      }
-
-    } else {
-      log.info("Not supported currently, please stand by");
-    }
-  }
-
-  public void bbmri2mii() throws Exception {
-    this.sourceFormat = ProfileFormats.BBMRI;
-    this.targetFormat = ProfileFormats.MII;
-    this.setup();
-
-    if (loadFromFhirServer) {
-      log.info("Start collecting Resources from FHIR server " + sourceFhirserver);
-      IGenericClient sourceClient = ctx.newRestfulGenericClient(sourceFhirserver);
-
-      HashSet<String> patientIds = fetchPatientIds(sourceClient);
-
-      log.info("Loaded all " + patientIds.size() + " Patients");
-
-      int counter = 1;
-
-      for (String pid : patientIds) {
-        List<IBaseResource> patientResources = new ArrayList<>();
-        log.debug("Loading data for patient " + pid);
-
-        if (resources.contains("Patient")) {
-          patientResources.add(
-              convertPatientResource(fetchPatientResource(sourceClient, pid), pid));
-        }
-        List<IBaseResource> conditions = null;
-        if (resources.contains("Condition")) {
-          conditions.addAll(convertConditions(fetchPatientCondition(sourceClient, pid)));
-          patientResources.addAll(conditions);
-        }
-        if (resources.contains("Specimen")) {
-          patientResources.addAll(
-              convertMiiSpecimenResources(fetchPatientSpecimens(sourceClient, pid), conditions));
-        }
-        if (resources.contains("Observation")) {
-          patientResources.addAll(convertObservations(fetchPatientObservation(sourceClient, pid)));
-        }
-
-        this.buildResources(patientResources);
-        log.info("Exported Resources " + counter++ + "/" + patientIds.size());
-      }
-    } else {
-      log.info("Not ready currently");
-    }
-  }
-
-  public void mii2bbmri() throws Exception {
-    this.sourceFormat = ProfileFormats.MII;
-    this.targetFormat = ProfileFormats.BBMRI;
-    this.setup();
-
-    if (loadFromFhirServer) {
-      log.info("Start collecting Resources from FHIR server " + sourceFhirserver);
-      IGenericClient sourceClient = ctx.newRestfulGenericClient(sourceFhirserver);
-
-      HashSet<String> patientIds = fetchPatientIds(sourceClient);
-
-      log.info("Loaded all " + patientIds.size() + " Patients");
-
-      int counter = 1;
-
-      for (String pid : patientIds) {
-        List<IBaseResource> patientResources = new ArrayList<>();
-        log.debug("Loading data for patient " + pid);
-
-        if (resources.contains("Patient")) {
-          patientResources.add(
-              convertPatientResource(fetchPatientResource(sourceClient, pid), pid));
-        }
-        if (resources.contains("Specimen")) {
-          patientResources.addAll(
-              convertBbmriSpecimenResources(fetchPatientSpecimens(sourceClient, pid)));
-        }
-        if (resources.contains("Observation")) {
-          patientResources.addAll(convertObservations(fetchPatientObservation(sourceClient, pid)));
-        }
-        if (resources.contains("Condition")) {
-          patientResources.addAll(convertConditions(fetchPatientCondition(sourceClient, pid)));
-        }
-
-        this.buildResources(patientResources);
-        log.info("Exported Resources " + counter++ + "/" + patientIds.size());
-      }
-    } else {
-      log.info("Not ready currently");
-    }
-  }
-
-  public void bbmri2dktk() {
-    this.sourceFormat = ProfileFormats.BBMRI;
-    this.targetFormat = ProfileFormats.DKTK;
-  }
-
-  private HashSet<String> getSpecimenPatients(IGenericClient sourceClient) {
+  public HashSet<String> getSpecimenPatients(IGenericClient sourceClient) {
     List<IBaseResource> specimens = fetchSpecimenResources(sourceClient);
     HashSet<String> patientRefs = new HashSet<>();
     for (IBaseResource specimen : specimens) {
@@ -580,25 +408,25 @@ public class TransferController {
       System.out.println(e.getMessage());
     }
 
-    if (this.saveToFileSystem) {
+    if (configuration.isSaveToFileSystem()) {
       exportToFileSystem(bundleOut);
     }
 
-    if (this.saveFromFhirServer) {
+    if (configuration.isSaveToFileSystem()) {
       exportToFhirServer(bundleOut);
     }
   }
 
   public boolean exportToFhirServer(Bundle bundle) {
 
-    IGenericClient clientTarget = ctx.newRestfulGenericClient(this.targetFhirServer);
+    IGenericClient clientTarget = getCtx().newRestfulGenericClient(configuration.getTargetFhirServer());
     clientTarget.transaction().withBundle(bundle).execute();
     return true;
   }
 
   public boolean exportToFileSystem(Bundle bundle) {
 
-    String output = ctx.newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
+    String output = getCtx().newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
     try {
       FileWriter myWriter = new FileWriter(bundle.getId() + ".json");
       myWriter.write(output);
@@ -609,5 +437,9 @@ public class TransferController {
     }
 
     return true;
+  }
+
+  public FhirContext getCtx() {
+    return ctx;
   }
 }

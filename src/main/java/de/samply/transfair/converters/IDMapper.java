@@ -18,10 +18,8 @@ public class IDMapper {
 
   private ID_Mapping id_mapping;
 
-  @Value("${app.mapper.setting}")
   private final String mapper_setting;
 
-  @Value("${app.csv.path}")
   private String csv_mappings_path;
 
   // TODO: Autowired does not work from test...
