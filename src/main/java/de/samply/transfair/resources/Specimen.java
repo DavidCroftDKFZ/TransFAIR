@@ -187,11 +187,13 @@ public class Specimen
         .getCodingFirstRep()
         .setCode(this.fastingStatus);
 
-    if (!Objects.equals(storageTemperature, null)) {
+    if (Objects.nonNull(storageTemperature)) {
       Extension extension = new Extension();
       extension.setUrl("https://fhir.bbmri.de/StructureDefinition/StorageTemperature");
       extension.setValue(new CodeableConcept().getCodingFirstRep().setCode(storageTemperature));
-    } else {
+    }
+
+    if(Objects.nonNull(this.miiStoargeTemperatureHigh) && Objects.nonNull(this.miiStoargeTemperaturelow)) {
       specimen.addExtension(
           TemperatureConverter.fromMiiToBbmri(
               this.miiStoargeTemperatureHigh, this.miiStoargeTemperaturelow));

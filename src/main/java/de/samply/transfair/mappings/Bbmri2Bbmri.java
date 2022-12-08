@@ -3,11 +3,12 @@ package de.samply.transfair.mappings;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import de.samply.transfair.Configuration;
 import de.samply.transfair.controller.TransferController;
-import de.samply.transfair.models.ProfileFormats;
+import de.samply.transfair.fhir.writers.FhirFileSaver;
+import de.samply.transfair.fhir.writers.FhirServerSaver;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Bbmri2Bbmri {
+public class Bbmri2Bbmri extends FhirMappings {
 
   private static final Logger log = LoggerFactory.getLogger(Bbmri2Bbmri.class);
 
@@ -23,36 +24,50 @@ public class Bbmri2Bbmri {
 
   @Autowired TransferController transferController;
 
-  ProfileFormats sourceFormat = ProfileFormats.BBMRI;
-  ProfileFormats targetFormat;
-
   private List<String> resources;
 
-  public void bbmri2bbmri() throws Exception {
+  public void transfer() {
     log.info("Running TransFAIR in BBMRI2BBMRI mode");
     if (!this.setup()) {
       log.info("Variables are not set, transfer not possible");
       return;
     }
+
+    String sourceFhirServer =
+        Objects.nonNull(overrideSourceFhirServer)
+            ? overrideSourceFhirServer
+            : configuration.getSourceFhirServer();
+    String targetFhirServer =
+        Objects.nonNull(overrideTargetFhirServer)
+            ? overrideTargetFhirServer
+            : configuration.getTargetFhirServer();
+
     log.info("Setup complete");
 
-    this.sourceFormat = ProfileFormats.BBMRI;
-    this.targetFormat = ProfileFormats.BBMRI;
-
-    log.info("Start collecting Resources from FHIR server " + configuration.getSourceFhirServer());
+    log.info("Start collecting Resources from FHIR server " + sourceFhirServer);
     IGenericClient sourceClient =
-        transferController.getCtx().newRestfulGenericClient(configuration.getSourceFhirServer());
+        transferController.getCtx().newRestfulGenericClient(sourceFhirServer);
+
+    if (configuration.isSaveToFileSystem()) {
+      this.fhirExportInterface = new FhirFileSaver(transferController.getCtx());
+    } else {
+      this.fhirExportInterface = new FhirServerSaver(transferController.getCtx(), targetFhirServer);
+    }
 
     // TODO: Collect Organization and Collection
 
-    log.info("Loaded all Patient ID's");
-
-    transferController.buildResources(transferController.fetchOrganizations(sourceClient));
-    transferController.buildResources(transferController.fetchOrganizationAffiliation(sourceClient));
+    this.fhirExportInterface.export(
+        transferController.buildResources(transferController.fetchOrganizations(sourceClient)));
+    this.fhirExportInterface.export(
+        transferController.buildResources(
+            transferController.fetchOrganizationAffiliation(sourceClient)));
 
     int counter = 1;
 
     HashSet<String> patientRefs = transferController.getSpecimenPatients(sourceClient);
+
+    log.info("Loaded " + patientRefs.size() + " Patients");
+
 
     for (String pid : patientRefs) {
       List<IBaseResource> patientResources = new ArrayList<>();
@@ -64,7 +79,7 @@ public class Bbmri2Bbmri {
 
       patientResources.addAll(transferController.fetchPatientCondition(sourceClient, pid));
 
-      transferController.buildResources(patientResources);
+      this.fhirExportInterface.export(transferController.buildResources(patientResources));
       log.info("Exported Resources " + counter++ + "/" + patientRefs.size());
     }
   }
@@ -74,9 +89,9 @@ public class Bbmri2Bbmri {
     if (configuration.getSourceFhirServer().isBlank()) {
       return false;
     }
-    if (!configuration.isSaveToFileSystem() || configuration.getTargetFhirServer().isBlank()) {
-      return false;
-    }
-    return true;
+    return configuration.isSaveToFileSystem()
+        || !configuration.getTargetFhirServer().isBlank()
+        || !this.overrideSourceFhirServer.isEmpty()
+        || !this.overrideTargetFhirServer.isEmpty();
   }
 }
