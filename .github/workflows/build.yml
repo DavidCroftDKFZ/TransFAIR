@@ -33,5 +33,5 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          tags: ghcr.io/samply/TransFAIR:${{ github.sha }}
+          tags: ghcr.io/samply/transfair:${{ github.sha }}
           push: true
