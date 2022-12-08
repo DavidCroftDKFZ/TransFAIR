@@ -3,7 +3,7 @@ version: "3.7"
 services:
   transfair:
     container_name: transfair
-    image: samply/transfair
+    image: ghcr.io/samply/transfair:1af3959f8a786018592d24a3aba6845299b419a7
     environment:
       RESOURCEFILTER: ${RESOURCE_FILTER}
       SOURCEFHIRSERVER: "http://source-blaze:8080/fhir"
