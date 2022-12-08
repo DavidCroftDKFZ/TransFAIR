@@ -1,0 +1,23 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    tags:
+      - '*.*.*'
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-image:
+    uses: samply/github-workflows/.github/workflows/docker-ci.yml@main
+    with:
+      image-name: 'samply/TransFAIR'
+      artifact-name: 'jar'
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
