@@ -5,19 +5,37 @@ on:
     branches:
       - main
       - develop
-    tags:
-      - '*.*.*'
   pull_request:
     branches:
       - main
       - develop
 
 jobs:
-  build-image:
-    uses: samply/github-workflows/.github/workflows/docker-ci.yml@main
-    with:
-      image-name: 'samply/TransFAIR'
-      artifact-name: 'jar'
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build with Maven
+        run: mvn -B package -DskipTests -Dmaven.javadoc.skip=true
+
+      - name: Login to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and push image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          tags: ghcr.io/samply/store-fhir-adapter:${{ github.sha }}
+          push: true
