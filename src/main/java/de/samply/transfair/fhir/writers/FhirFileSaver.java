@@ -11,7 +11,6 @@ public class FhirFileSaver extends FhirExportInterface {
 
   private static final Logger log = LoggerFactory.getLogger(FhirFileSaver.class);
 
-
   public FhirFileSaver(FhirContext context) {
     this.ctx = context;
   }

@@ -8,5 +8,4 @@ public abstract class FhirExportInterface {
   public abstract Boolean export(Bundle bundle);
 
   FhirContext ctx;
-
 }

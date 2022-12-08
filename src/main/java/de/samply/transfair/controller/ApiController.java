@@ -88,9 +88,6 @@ public class ApiController {
 
   @GetMapping("/v1/config")
   public String config() {
-    String header =
-        "<html><head> <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65\" crossorigin=\"anonymous\"></head><body><h1>Config</h1><table class=\"table\"><tr><th>Name</th><th>Value</th></tr>";
-    String footer = "</table></body></html>";
     String body = "";
     body =
         body
@@ -120,7 +117,9 @@ public class ApiController {
         body + "<tr><td>Start Resource</td><td>" + configuration.getStartResource() + " </td></tr>";
     body =
         body + "<tr><td>PSEUDO CSV File</td><td>" + configuration.getCsvFileName() + " </td></tr>";
-
+    String header =
+        "<html><head> <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65\" crossorigin=\"anonymous\"></head><body><h1>Config</h1><table class=\"table\"><tr><th>Name</th><th>Value</th></tr>";
+    String footer = "</table></body></html>";
     return header + body + footer;
   }
 }
