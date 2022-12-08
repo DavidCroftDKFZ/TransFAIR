@@ -206,7 +206,12 @@ public class Specimen
         this.diagnosisICD10Who = ICD10Converter.gm2who(this.getDiagnosisICD10Gm());
       }
       else {
-        this.setDiagnosisICD10Gm(ICD10Converter.who2gm(this.diagnosisICD10Who));
+        try {
+			this.setDiagnosisICD10Gm(ICD10Converter.who2gm(this.diagnosisICD10Who));
+		} catch (Exception e) {
+			// TODO remove try catch when fixed
+			e.printStackTrace();
+		}
       }
       diagnosis.add(
           new Coding()
