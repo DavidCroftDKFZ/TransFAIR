@@ -80,6 +80,9 @@ public class Condition
     if (Objects.equals(bbmriSubject, null) && Objects.nonNull(miiSubject)) {
       this.bbmriSubject = this.miiSubject;
     }
+
+    condition.setId(bbmriId);
+
     condition.setSubject(new Reference(bbmriSubject));
 
     condition.getOnsetDateTimeType().setValue(this.onset);

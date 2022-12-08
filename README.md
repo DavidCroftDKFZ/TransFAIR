@@ -21,13 +21,13 @@ After setting up the environment just run
 docker-compose up
 ```
 
-### API
+## API
 
-#### FHIR
+### FHIR
 
 The tool supports multiple operation modes, converting or transferring.
 
-##### BBMRI2BBMRI(Bridge)
+#### BBMRI2BBMRI(Bridge)
 
 ```
 /v1/fhir/bbmri2bbmri
@@ -35,7 +35,8 @@ The tool supports multiple operation modes, converting or transferring.
 
 This mode transfers all data related to the bbmri.de profiles
 
-##### BBMIR2MII
+
+#### BBMIR2MII
 
 ```
 /v1/fhir/bbmri2mii
@@ -43,7 +44,7 @@ This mode transfers all data related to the bbmri.de profiles
 
 This mode transfers data from bbmri.de to MII KDS profiles.
 
-##### MII2BBRMI
+#### MII2BBRMI
 
 ```
 /v1/fhir/mii2bbmri
@@ -51,20 +52,30 @@ This mode transfers data from bbmri.de to MII KDS profiles.
 
 This mode transfers data form MII KDS to bbmri.de
 
+#### Overrides
+
+There are some additional parameters you can set for the transfer
+
+Overrides the source fhir server
+```
+?source=<adr>
+```
+
+Overrides the target fhir server
+```
+?target=<addr>
+```
+
 ### Environment
 
-| Variables          | Description                                                             |
-|--------------------|-------------------------------------------------------------------------|
-| SOURCE_LOAD_FHIR   | (true/false) Loading data from FHIR server                              |
-| SOURCE_FHIR_SERVER | Address of the source fhir server                                       |
-| SOURCE_LOAD_FILES  | (true/false)    Loading data from filesystem                            |
-| MODE               | (BBMRI2BBMRI, BBMRI2MII, MII2BBMRI, BBMRI2DKTK) Modes(#Modes)           |
-| RESOURCE_FILTER    | The tool export only the specified resources. Empty means all resources |
-| START_RESOURCE     | (Patient/Specimen) Starts collection resources on the specified level   |
-| TARGET_POST_FHIR   | (true/false) Save the transferred data to a fhir server                 |
-| TARGET_FHIR_SERVER | Address of the targeted fhir server                                     |
-| TARGET_SAVE_FILES  | (true/false) Save the transferred data to filesystem                    |
-|                    |                                                                         |
+| Variables        | Description                                                                                     |
+|------------------|-------------------------------------------------------------------------------------------------|
+| SOURCEFHIRSERVER | Address of the source fhir server                                                               |
+| RESOURCEFILTER   | Exports only the specified resources. Empty exports all resources.                              |
+| STARTRESOURCE    | (Patient/Specimen) Starts collection resources on the specified level. Empty starts at Patient. |
+| TARGETFHIRSERVER | Address of the targeted fhir server                                                             |
+| SAVETOFILESYSTEM | (true/false) Save the transformed data to filesystem                                            |
+| PSEUDOCSVFILE    | Mapping-file for patient and sample identifiers                                                 |
 
 ## Pseudonymization
 

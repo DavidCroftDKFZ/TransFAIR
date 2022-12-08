@@ -5,14 +5,10 @@ services:
     container_name: transfair
     image: samply/transfair
     environment:
-      CSV_FILE: ""
-      SOURCE_LOAD_FHIR: "true"
-      SOURCE_FHIR_SERVER: "http://host.docker.internal:8080/fhir"
-      SOURCE_LOAD_FILES: "false"
-      RESOURCE_FILTER: "Specimen,Condition,Observation"
-      START_RESOURCE: "Specimen"
-      TARGET_POST_FHIR: "true"
-      TARGET_FHIR_SERVER: "http://host.docker.internal:8083/fhir"
-      TARGET_SAVE_FILES: "false"
+      RESOURCEFILTER: ${RESOURCE_FILTER}
+      SOURCEFHIRSERVER: ${SOURCE_FHIR_SERVER}
+      TARGETFHIRSERVER: ${TARGET_FHIR_SERVER}
+      STARTRESOURCE: ${START_RESOURCE}
+      SAVETOFILESYSTEM: ${SAVE_TO_FILESYSTEM}
     ports:
       - "8070:8070"

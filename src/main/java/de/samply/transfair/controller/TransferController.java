@@ -39,12 +39,6 @@ public class TransferController {
 
   private static final Logger log = LoggerFactory.getLogger(TransferController.class);
 
-  // Variables for Source
-
-  private ProfileFormats sourceFormat;
-
-  private ProfileFormats targetFormat;
-
   @Autowired IDMapper idMapper;
 
   @Autowired
@@ -106,10 +100,10 @@ public class TransferController {
     return resourceList;
   }
 
-  public Patient convertPatientResource(Patient p, String patientId) throws Exception {
+  public Patient convertPatientResource(Patient p, String patientId, ProfileFormats sourceFormat, ProfileFormats targetFormat) throws Exception {
     de.samply.transfair.resources.Patient ap = new de.samply.transfair.resources.Patient();
 
-    if (this.sourceFormat == ProfileFormats.BBMRI) {
+    if (sourceFormat == ProfileFormats.BBMRI) {
       log.debug("Analysing patient " + patientId + " with format bbmri.de");
       ap.fromBbmri(p);
     } else {
@@ -117,16 +111,17 @@ public class TransferController {
       ap.fromMii(p);
     }
 
-    if (this.targetFormat == ProfileFormats.BBMRI) {
+    if (targetFormat == ProfileFormats.BBMRI) {
       log.debug("Analysing patient " + patientId + " with format bbmri.de");
 
-      if (this.sourceFormat != this.targetFormat) {
-        ap.setBbmriId(idMapper.toBbmri(ap.getMiiId(), Resource_Type.PATIENT));
+      if (sourceFormat != targetFormat) {
+        ap.setBbmriId(ap.getMiiId());
+        //ap.setBbmriId(idMapper.toBbmri(ap.getMiiId(), Resource_Type.PATIENT));
       }
       return ap.toBbmri();
     } else {
       log.debug("Analysing patient " + patientId + " with format mii");
-      if (!Objects.equals(this.sourceFormat, this.targetFormat)) {
+      if (!Objects.equals(sourceFormat, targetFormat)) {
         ap.setMiiId(idMapper.toMii(ap.getBbmriId(), Resource_Type.PATIENT));
       }
       return ap.toMii();
@@ -164,21 +159,22 @@ public class TransferController {
 
       String code = transferSpecimen.getDiagnosisICD10Gm();
 
-      for (IBaseResource baseResource : conditions) {
-        Condition condition = (Condition) baseResource;
-        Optional<Coding> filteredCondition =
-            condition.getCode().getCoding().stream()
-                .filter(
-                    c -> {
-                      return Objects.equals(
-                              c.getSystem(), "http://fhir.de/StructureDefinition/CodingICD10GM")
-                          && Objects.equals(c.getCode(), code);
-                    })
-                .findFirst();
-        if (filteredCondition.isPresent()) {
-          transferSpecimen.setMiiConditionRef(condition.getId());
+      if (Objects.nonNull(conditions)) {
+        for (IBaseResource baseResource : conditions) {
+          Condition condition = (Condition) baseResource;
+          Optional<Coding> filteredCondition =
+              condition.getCode().getCoding().stream()
+                  .filter(
+                      c ->
+                          Objects.equals(
+                                  c.getSystem(), "http://fhir.de/StructureDefinition/CodingICD10GM")
+                              && Objects.equals(c.getCode(), code))
+                  .findFirst();
+          if (filteredCondition.isPresent()) {
+            transferSpecimen.setMiiConditionRef(condition.getId());
+          }
         }
-      }
+        }
 
       log.debug("Analysing Specimen " + specimen.getId() + " with format mii");
       resourceListOut.add(transferSpecimen.toMii());
@@ -248,7 +244,7 @@ public class TransferController {
     return resourceList;
   }
 
-  public List<IBaseResource> convertObservations(List<IBaseResource> observations) {
+  public List<IBaseResource> convertObservations(List<IBaseResource> observations, ProfileFormats sourceFormat, ProfileFormats targetFormat) {
     List<IBaseResource> resourceListOut = new ArrayList<>();
 
     for (IBaseResource base : observations) {
@@ -256,13 +252,13 @@ public class TransferController {
       de.samply.transfair.resources.CheckResources checkResources =
           new de.samply.transfair.resources.CheckResources();
 
-      if (this.sourceFormat == ProfileFormats.BBMRI) {
+      if (sourceFormat == ProfileFormats.BBMRI) {
         if (checkResources.checkBbmriCauseOfDeath(observation)) {
           CauseOfDeath causeOfDeath = new CauseOfDeath();
           causeOfDeath.fromBbmri(observation);
           log.debug("Analysing Cause of Death " + observation.getId() + " with format bbmri");
 
-          if (this.targetFormat == ProfileFormats.BBMRI) {
+          if (targetFormat == ProfileFormats.BBMRI) {
             resourceListOut.add(causeOfDeath.toBbmri());
             log.debug("Analysing Cause of Death " + observation.getId() + " with format bbmri");
 
@@ -298,7 +294,7 @@ public class TransferController {
     return resourceList;
   }
 
-  public List<IBaseResource> convertConditions(List<IBaseResource> conditions) {
+  public List<IBaseResource> convertConditions(List<IBaseResource> conditions, ProfileFormats sourceFormat, ProfileFormats targetFormat) {
     List<IBaseResource> resourceListOut = new ArrayList<>();
 
     for (IBaseResource base : conditions) {
@@ -308,12 +304,12 @@ public class TransferController {
           new de.samply.transfair.resources.CheckResources();
 
       if (checkResources.checkMiiCauseOfDeath(condition)
-          && this.sourceFormat == ProfileFormats.MII) {
+          && sourceFormat == ProfileFormats.MII) {
         CauseOfDeath causeOfDeath = new CauseOfDeath();
         causeOfDeath.fromMii(condition);
         log.debug("Analysing Cause of Death " + condition.getId() + " with format mii");
 
-        if (this.targetFormat == ProfileFormats.BBMRI) {
+        if (targetFormat == ProfileFormats.BBMRI) {
           resourceListOut.add(causeOfDeath.toBbmri());
           log.debug("Exporting Cause of Death " + condition.getId() + " with format bbmri");
 
@@ -327,13 +323,13 @@ public class TransferController {
       de.samply.transfair.resources.Condition conditionConverter =
           new de.samply.transfair.resources.Condition();
 
-      if (this.sourceFormat == ProfileFormats.BBMRI) {
+      if (sourceFormat == ProfileFormats.BBMRI) {
         conditionConverter.fromBbmri(condition);
       } else {
         conditionConverter.fromMii(condition);
       }
 
-      if (this.targetFormat == ProfileFormats.BBMRI) {
+      if (targetFormat == ProfileFormats.BBMRI) {
         resourceListOut.add(conditionConverter.toBbmri());
         log.debug("Exporting Condition " + condition.getId() + " with format bbmri");
 
@@ -387,7 +383,7 @@ public class TransferController {
     return patientRefs;
   }
 
-  public void buildResources(List<IBaseResource> resources) {
+  public Bundle buildResources(List<IBaseResource> resources) {
     Bundle bundleOut = new Bundle();
     bundleOut.setId(String.valueOf(UUID.randomUUID()));
     bundleOut.setType(Bundle.BundleType.TRANSACTION);
@@ -408,35 +404,7 @@ public class TransferController {
       System.out.println(e.getMessage());
     }
 
-    if (configuration.isSaveToFileSystem()) {
-      exportToFileSystem(bundleOut);
-    }
-
-    if (configuration.isSaveToFileSystem()) {
-      exportToFhirServer(bundleOut);
-    }
-  }
-
-  public boolean exportToFhirServer(Bundle bundle) {
-
-    IGenericClient clientTarget = getCtx().newRestfulGenericClient(configuration.getTargetFhirServer());
-    clientTarget.transaction().withBundle(bundle).execute();
-    return true;
-  }
-
-  public boolean exportToFileSystem(Bundle bundle) {
-
-    String output = getCtx().newJsonParser().setPrettyPrint(true).encodeResourceToString(bundle);
-    try {
-      FileWriter myWriter = new FileWriter(bundle.getId() + ".json");
-      myWriter.write(output);
-      myWriter.close();
-    } catch (IOException e) {
-      log.error("An error occurred while writing output to file.");
-      e.printStackTrace();
-    }
-
-    return true;
+    return bundleOut;
   }
 
   public FhirContext getCtx() {

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class Configuration {
 
-  @Value("${SOURCEFHIRSEVER}")
+  @Value("${SOURCEFHIRSERVER}")
   private String sourceFhirServer;
 
   @Value("${STARTRESOURCE}")
@@ -18,12 +18,6 @@ public class Configuration {
 
   @Value("${TARGETFHIRSERVER}")
   private String targetFhirServer;
-
-  @Value("${MIIFHIRSERVER}")
-  private String miiFhirServer;
-
-  @Value("${BBMRIFHIRSERVER}")
-  private String bbmriFhirServer;
 
   @Value("${SAVETOFILESYSTEM}")
   private boolean saveToFileSystem;
@@ -53,22 +47,6 @@ public class Configuration {
 
   public void setResourcesFilter(String resourcesFilter) {
     this.resourcesFilter = resourcesFilter;
-  }
-
-  public String getMiiFhirServer() {
-    return miiFhirServer;
-  }
-
-  public void setMiiFhirServer(String miiFhirServer) {
-    this.miiFhirServer = miiFhirServer;
-  }
-
-  public String getBbmriFhirServer() {
-    return bbmriFhirServer;
-  }
-
-  public void setBbmriFhirServer(String bbmriFhirServer) {
-    this.bbmriFhirServer = bbmriFhirServer;
   }
 
   public boolean isSaveToFileSystem() {
