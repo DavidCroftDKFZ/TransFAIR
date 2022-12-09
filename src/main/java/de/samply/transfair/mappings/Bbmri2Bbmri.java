@@ -3,6 +3,7 @@ package de.samply.transfair.mappings;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import de.samply.transfair.Configuration;
 import de.samply.transfair.controller.TransferController;
+import de.samply.transfair.fhir.clients.FhirClient;
 import de.samply.transfair.fhir.writers.FhirFileSaver;
 import de.samply.transfair.fhir.writers.FhirServerSaver;
 import java.util.ArrayList;
@@ -45,8 +46,14 @@ public class Bbmri2Bbmri extends FhirMappings {
     log.info("Setup complete");
 
     log.info("Start collecting Resources from FHIR server " + sourceFhirServer);
-    IGenericClient sourceClient =
-        transferController.getCtx().newRestfulGenericClient(sourceFhirServer);
+
+    FhirClient sourceClient = new FhirClient(transferController.getCtx(), sourceFhirServer);
+
+    if (Objects.nonNull(configuration.getSourceFhirServerUsername())
+        && Objects.nonNull(configuration.getSourceFhirServerPassword())) {
+      sourceClient.setBasicAuth(
+          configuration.getSourceFhirServerUsername(), configuration.getSourceFhirServerPassword());
+    }
 
     if (configuration.isSaveToFileSystem()) {
       this.fhirExportInterface = new FhirFileSaver(transferController.getCtx());
@@ -57,27 +64,26 @@ public class Bbmri2Bbmri extends FhirMappings {
     // TODO: Collect Organization and Collection
 
     this.fhirExportInterface.export(
-        transferController.buildResources(transferController.fetchOrganizations(sourceClient)));
+        transferController.buildResources(transferController.fetchOrganizations(sourceClient.getClient())));
     this.fhirExportInterface.export(
         transferController.buildResources(
-            transferController.fetchOrganizationAffiliation(sourceClient)));
+            transferController.fetchOrganizationAffiliation(sourceClient.getClient())));
 
     int counter = 1;
 
-    HashSet<String> patientRefs = transferController.getSpecimenPatients(sourceClient);
+    HashSet<String> patientRefs = transferController.getSpecimenPatients(sourceClient.getClient());
 
     log.info("Loaded " + patientRefs.size() + " Patients");
-
 
     for (String pid : patientRefs) {
       List<IBaseResource> patientResources = new ArrayList<>();
       log.debug("Loading data for patient " + pid);
 
-      patientResources.add(transferController.fetchPatientResource(sourceClient, pid));
-      patientResources.addAll(transferController.fetchPatientSpecimens(sourceClient, pid));
-      patientResources.addAll(transferController.fetchPatientObservation(sourceClient, pid));
+      patientResources.add(transferController.fetchPatientResource(sourceClient.getClient(), pid));
+      patientResources.addAll(transferController.fetchPatientSpecimens(sourceClient.getClient(), pid));
+      patientResources.addAll(transferController.fetchPatientObservation(sourceClient.getClient(), pid));
 
-      patientResources.addAll(transferController.fetchPatientCondition(sourceClient, pid));
+      patientResources.addAll(transferController.fetchPatientCondition(sourceClient.getClient(), pid));
 
       this.fhirExportInterface.export(transferController.buildResources(patientResources));
       log.info("Exported Resources " + counter++ + "/" + patientRefs.size());
