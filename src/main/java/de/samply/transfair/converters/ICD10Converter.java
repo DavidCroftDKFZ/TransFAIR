@@ -21,7 +21,7 @@ public class ICD10Converter {
 	  icd10gm2icd10who.put("B20.2","B20.2");
 	  icd10gm2icd10who.put("B20.3","B20.3");
 	  icd10gm2icd10who.put("B20.4","B20.4");
-	  icd10gm2icd10who.put("B205.","B205.");
+	  icd10gm2icd10who.put("B20.5","B20.5");
 	  icd10gm2icd10who.put("B20.6","B20.6");
 	  icd10gm2icd10who.put("B20.7","B20.7");
 	  icd10gm2icd10who.put("B20.8","B20.8");
@@ -1284,6 +1284,7 @@ public class ICD10Converter {
 	  icd10gm2icd10who.put("U84.8","U84.8");
 	  icd10gm2icd10who.put("U84.9","U84.9");
 	  icd10gm2icd10who.put("U85","U85");
+
 
 	  if (icd10gm2icd10who.containsKey(icd10Code)) {
 		  return icd10gm2icd10who.get(icd10Code);
