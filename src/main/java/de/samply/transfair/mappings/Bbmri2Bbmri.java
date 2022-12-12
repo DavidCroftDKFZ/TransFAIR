@@ -1,11 +1,9 @@
 package de.samply.transfair.mappings;
 
-import ca.uhn.fhir.rest.client.api.IGenericClient;
 import de.samply.transfair.Configuration;
 import de.samply.transfair.controller.TransferController;
+import de.samply.transfair.fhir.FhirComponent;
 import de.samply.transfair.fhir.clients.FhirClient;
-import de.samply.transfair.fhir.writers.FhirFileSaver;
-import de.samply.transfair.fhir.writers.FhirServerSaver;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +22,9 @@ public class Bbmri2Bbmri extends FhirMappings {
   @Autowired Configuration configuration;
 
   @Autowired TransferController transferController;
+
+  @Autowired
+  FhirComponent fhirComponent;
 
   private List<String> resources;
 
@@ -47,7 +48,8 @@ public class Bbmri2Bbmri extends FhirMappings {
 
     log.info("Start collecting Resources from FHIR server " + sourceFhirServer);
 
-    FhirClient sourceClient = new FhirClient(transferController.getCtx(), sourceFhirServer);
+    FhirClient sourceClient =
+        new FhirClient(fhirComponent.configuration.getCtx(), sourceFhirServer);
 
     if (Objects.nonNull(configuration.getSourceFhirServerUsername())
         && Objects.nonNull(configuration.getSourceFhirServerPassword())) {
@@ -55,11 +57,7 @@ public class Bbmri2Bbmri extends FhirMappings {
           configuration.getSourceFhirServerUsername(), configuration.getSourceFhirServerPassword());
     }
 
-    if (configuration.isSaveToFileSystem()) {
-      this.fhirExportInterface = new FhirFileSaver(transferController.getCtx());
-    } else {
-      this.fhirExportInterface = new FhirServerSaver(transferController.getCtx(), targetFhirServer);
-    }
+
 
     // TODO: Collect Organization and Collection
 

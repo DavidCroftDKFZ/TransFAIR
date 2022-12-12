@@ -1,10 +1,13 @@
 package de.samply.transfair;
 
+import ca.uhn.fhir.context.FhirContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Configuration {
+
+  private final FhirContext ctx = FhirContext.forR4();
 
   @Value("${SOURCEFHIRSERVER}")
   private String sourceFhirServer;
@@ -95,5 +98,9 @@ public class Configuration {
 
   public String getTargetFhirServerPassword() {
     return targetFhirServerPassword;
+  }
+
+  public FhirContext getCtx() {
+    return ctx;
   }
 }

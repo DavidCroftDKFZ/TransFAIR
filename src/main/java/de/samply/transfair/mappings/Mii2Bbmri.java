@@ -45,16 +45,17 @@ public class Mii2Bbmri extends FhirMappings {
 
 
     if (configuration.isSaveToFileSystem()) {
-      this.fhirExportInterface = new FhirFileSaver(transferController.getCtx());
+      this.fhirExportInterface = new FhirFileSaver(configuration.getCtx());
     } else {
-      this.fhirExportInterface = new FhirServerSaver(transferController.getCtx(), targetFhirServer);
+      this.fhirExportInterface = new FhirServerSaver(configuration.getCtx(), targetFhirServer);
     }
 
     log.info("Start collecting Resources from FHIR server " + sourceFhirServer);
     IGenericClient sourceClient =
-        transferController.getCtx().newRestfulGenericClient(sourceFhirServer);
+        configuration.getCtx().newRestfulGenericClient(sourceFhirServer);
 
-    HashSet<String> patientIds = transferController.fetchPatientIds(sourceClient);
+    HashSet<String> patientIds =
+        transferController.fetchPatientIds(sourceClient, configuration.getStartResource());
 
     log.info("Loaded " + patientIds.size() + " Patients");
 
