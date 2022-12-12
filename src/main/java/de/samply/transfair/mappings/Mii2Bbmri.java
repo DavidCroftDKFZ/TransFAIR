@@ -1,16 +1,13 @@
 package de.samply.transfair.mappings;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
-import de.samply.transfair.Configuration;
 import de.samply.transfair.controller.TransferController;
-import de.samply.transfair.fhir.writers.FhirFileSaver;
-import de.samply.transfair.fhir.writers.FhirServerSaver;
+import de.samply.transfair.fhir.FhirComponent;
 import de.samply.transfair.models.ProfileFormats;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +21,8 @@ public class Mii2Bbmri extends FhirMappings {
 
   @Autowired TransferController transferController;
 
-  @Autowired Configuration configuration;
+  @Autowired
+  FhirComponent fhirComponent;
 
   List<String> resources;
 
@@ -34,28 +32,11 @@ public class Mii2Bbmri extends FhirMappings {
   public void transfer() throws Exception {
     this.setup();
 
-    String sourceFhirServer =
-        Objects.nonNull(overrideSourceFhirServer)
-            ? overrideSourceFhirServer
-            : configuration.getSourceFhirServer();
-    String targetFhirServer =
-        Objects.nonNull(overrideTargetFhirServer)
-            ? overrideTargetFhirServer
-            : configuration.getTargetFhirServer();
-
-
-    if (configuration.isSaveToFileSystem()) {
-      this.fhirExportInterface = new FhirFileSaver(configuration.getCtx());
-    } else {
-      this.fhirExportInterface = new FhirServerSaver(configuration.getCtx(), targetFhirServer);
-    }
-
-    log.info("Start collecting Resources from FHIR server " + sourceFhirServer);
     IGenericClient sourceClient =
-        configuration.getCtx().newRestfulGenericClient(sourceFhirServer);
+        fhirComponent.getSourceFhirServer();
 
     HashSet<String> patientIds =
-        transferController.fetchPatientIds(sourceClient, configuration.getStartResource());
+        transferController.fetchPatientIds(sourceClient, fhirComponent.configuration.getStartResource());
 
     log.info("Loaded " + patientIds.size() + " Patients");
 
@@ -93,23 +74,23 @@ public class Mii2Bbmri extends FhirMappings {
                 this.targetFormat));
       }
 
-      this.fhirExportInterface.export(transferController.buildResources(patientResources));
+      fhirComponent.getFhirExportInterface().export(transferController.buildResources(patientResources));
       log.info("Exported Resources " + counter++ + "/" + patientIds.size());
     }
   }
 
   private Boolean setup() {
-    if (configuration.getSourceFhirServer().isBlank()) {
+    if (fhirComponent.configuration.getSourceFhirServer().isBlank()) {
       return false;
     }
 
-    if (configuration.getResourcesFilter().isEmpty()) {
+    if (fhirComponent.configuration.getResourcesFilter().isEmpty()) {
       this.resources = List.of("Patient", "Specimen", "Condition", "Observation");
     } else {
-      this.resources = Arrays.stream(configuration.getResourcesFilter().split(",")).toList();
+      this.resources = Arrays.stream(fhirComponent.configuration.getResourcesFilter().split(",")).toList();
     }
-    return configuration.isSaveToFileSystem()
-        || !configuration.getTargetFhirServer().isBlank()
+    return fhirComponent.configuration.isSaveToFileSystem()
+        || !fhirComponent.configuration.getTargetFhirServer().isBlank()
         || !this.overrideSourceFhirServer.isEmpty()
         || !this.overrideTargetFhirServer.isEmpty();
   }

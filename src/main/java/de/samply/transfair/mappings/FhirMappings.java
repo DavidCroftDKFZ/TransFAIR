@@ -13,6 +13,4 @@ public abstract class FhirMappings {
   public String overrideSourceFhirServer;
   public String overrideTargetFhirServer;
 
-  public FhirExportInterface fhirExportInterface;
-
 }
