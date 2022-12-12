@@ -18,8 +18,7 @@ public class FhirComponent {
 
   private static final Logger log = LoggerFactory.getLogger(FhirComponent.class);
 
-  @Autowired
-  public Configuration configuration;
+  @Autowired public Configuration configuration;
 
   public Map<String, String> overrideConfig;
 
@@ -35,12 +34,12 @@ public class FhirComponent {
   }
 
   public void setTargetServer(String server) {
-        overrideConfig.put("targetServer", server);
+    overrideConfig.put("targetServer", server);
   }
 
   public IGenericClient getSourceFhirServer() {
 
-    if(Objects.nonNull(sourceFhirServer)) {
+    if (Objects.nonNull(sourceFhirServer)) {
       return this.sourceFhirServer;
     }
 
@@ -49,8 +48,7 @@ public class FhirComponent {
             ? overrideConfig.get("sourceServer")
             : configuration.getSourceFhirServer();
 
-    FhirClient sourceClient =
-        new FhirClient(configuration.getCtx(), sourceFhirServer);
+    FhirClient sourceClient = new FhirClient(configuration.getCtx(), sourceFhirServer);
     if (Objects.nonNull(configuration.getSourceFhirServerUsername())
         && Objects.nonNull(configuration.getSourceFhirServerPassword())) {
       sourceClient.setBasicAuth(
@@ -60,8 +58,7 @@ public class FhirComponent {
     return sourceClient.getClient();
   }
 
-
-    public FhirExportInterface getFhirExportInterface() {
+  public FhirExportInterface getFhirExportInterface() {
     if (Objects.isNull(fhirExportInterface)) {
       String targetFhirServer =
           Objects.nonNull(overrideConfig.get("targetServer"))
@@ -73,7 +70,6 @@ public class FhirComponent {
       } else {
         this.fhirExportInterface = new FhirServerSaver(configuration.getCtx(), targetFhirServer);
         log.info("Start exporting resources to FHIR server " + sourceFhirServer);
-
       }
     }
 

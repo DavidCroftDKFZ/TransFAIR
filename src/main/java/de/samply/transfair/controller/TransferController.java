@@ -40,9 +40,7 @@ public class TransferController {
 
   FhirContext ctx;
 
-  TransferController() throws Exception {
-
-  }
+  TransferController()
 
   private List<IBaseResource> fetchSpecimenResources(IGenericClient client) {
 
@@ -92,7 +90,9 @@ public class TransferController {
     return resourceList;
   }
 
-  public Patient convertPatientResource(Patient p, String patientId, ProfileFormats sourceFormat, ProfileFormats targetFormat) throws Exception {
+  public Patient convertPatientResource(
+      Patient p, String patientId, ProfileFormats sourceFormat, ProfileFormats targetFormat)
+      throws Exception {
     de.samply.transfair.resources.Patient ap = new de.samply.transfair.resources.Patient();
 
     if (sourceFormat == ProfileFormats.BBMRI) {
@@ -108,7 +108,7 @@ public class TransferController {
 
       if (sourceFormat != targetFormat) {
         ap.setBbmriId(ap.getMiiId());
-        //ap.setBbmriId(idMapper.toBbmri(ap.getMiiId(), Resource_Type.PATIENT));
+        // ap.setBbmriId(idMapper.toBbmri(ap.getMiiId(), Resource_Type.PATIENT));
       }
       return ap.toBbmri();
     } else {
@@ -166,7 +166,7 @@ public class TransferController {
             transferSpecimen.setMiiConditionRef(condition.getId());
           }
         }
-        }
+      }
 
       log.debug("Analysing Specimen " + specimen.getId() + " with format mii");
       resourceListOut.add(transferSpecimen.toMii());
@@ -236,7 +236,8 @@ public class TransferController {
     return resourceList;
   }
 
-  public List<IBaseResource> convertObservations(List<IBaseResource> observations, ProfileFormats sourceFormat, ProfileFormats targetFormat) {
+  public List<IBaseResource> convertObservations(
+      List<IBaseResource> observations, ProfileFormats sourceFormat, ProfileFormats targetFormat) {
     List<IBaseResource> resourceListOut = new ArrayList<>();
 
     for (IBaseResource base : observations) {
@@ -286,7 +287,8 @@ public class TransferController {
     return resourceList;
   }
 
-  public List<IBaseResource> convertConditions(List<IBaseResource> conditions, ProfileFormats sourceFormat, ProfileFormats targetFormat) {
+  public List<IBaseResource> convertConditions(
+      List<IBaseResource> conditions, ProfileFormats sourceFormat, ProfileFormats targetFormat) {
     List<IBaseResource> resourceListOut = new ArrayList<>();
 
     for (IBaseResource base : conditions) {
@@ -295,8 +297,7 @@ public class TransferController {
       de.samply.transfair.resources.CheckResources checkResources =
           new de.samply.transfair.resources.CheckResources();
 
-      if (checkResources.checkMiiCauseOfDeath(condition)
-          && sourceFormat == ProfileFormats.MII) {
+      if (checkResources.checkMiiCauseOfDeath(condition) && sourceFormat == ProfileFormats.MII) {
         CauseOfDeath causeOfDeath = new CauseOfDeath();
         causeOfDeath.fromMii(condition);
         log.debug("Analysing Cause of Death " + condition.getId() + " with format mii");

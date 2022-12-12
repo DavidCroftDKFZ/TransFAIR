@@ -26,8 +26,7 @@ public class Bbmri2Mii extends FhirMappings {
 
   @Autowired TransferController transferController;
 
-  @Autowired
-  FhirComponent fhirComponent;
+  @Autowired FhirComponent fhirComponent;
 
   List<String> resources;
 
@@ -40,11 +39,11 @@ public class Bbmri2Mii extends FhirMappings {
 
     log.info("Setup complete");
 
-    IGenericClient sourceClient =
-        fhirComponent.getSourceFhirServer();
+    IGenericClient sourceClient = fhirComponent.getSourceFhirServer();
 
     HashSet<String> patientIds =
-        transferController.fetchPatientIds(sourceClient, fhirComponent.configuration.getStartResource());
+        transferController.fetchPatientIds(
+            sourceClient, fhirComponent.configuration.getStartResource());
 
     log.info("Loaded " + patientIds.size() + " Patients");
 
@@ -84,7 +83,9 @@ public class Bbmri2Mii extends FhirMappings {
                 this.targetFormat));
       }
 
-      fhirComponent.getFhirExportInterface().export(transferController.buildResources(patientResources));
+      fhirComponent
+          .getFhirExportInterface()
+          .export(transferController.buildResources(patientResources));
       log.info("Exported Resources " + counter++ + "/" + patientIds.size());
     }
   }
@@ -98,10 +99,12 @@ public class Bbmri2Mii extends FhirMappings {
     if (fhirComponent.configuration.getResourcesFilter().isEmpty()) {
       this.resources = List.of("Patient", "Specimen", "Condition", "Observation");
     } else {
-      this.resources = Arrays.stream(fhirComponent.configuration.getResourcesFilter().split(",")).toList();
+      this.resources =
+          Arrays.stream(fhirComponent.configuration.getResourcesFilter().split(",")).toList();
     }
 
-    return fhirComponent.configuration.isSaveToFileSystem() || !fhirComponent.configuration.getTargetFhirServer().isBlank()
+    return fhirComponent.configuration.isSaveToFileSystem()
+        || !fhirComponent.configuration.getTargetFhirServer().isBlank()
         || !this.overrideSourceFhirServer.isEmpty()
         || !this.overrideTargetFhirServer.isEmpty();
   }

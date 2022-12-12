@@ -1,6 +1,5 @@
 package de.samply.transfair.fhir.clients;
 
-
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IClientInterceptor;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
@@ -10,7 +9,7 @@ public class FhirClient {
 
   private IGenericClient client;
 
-  public void setBasicAuth(String username, String password){
+  public void setBasicAuth(String username, String password) {
     IClientInterceptor authInterceptor = new BasicAuthInterceptor(username, password);
     client.registerInterceptor(authInterceptor);
   }
