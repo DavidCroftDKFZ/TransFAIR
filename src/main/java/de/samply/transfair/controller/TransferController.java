@@ -3,13 +3,10 @@ package de.samply.transfair.controller;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.util.BundleUtil;
-import de.samply.transfair.Configuration;
 import de.samply.transfair.converters.IDMapper;
 import de.samply.transfair.converters.Resource_Type;
 import de.samply.transfair.models.ProfileFormats;
 import de.samply.transfair.resources.CauseOfDeath;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -41,16 +38,11 @@ public class TransferController {
 
   @Autowired IDMapper idMapper;
 
-  @Autowired
-  Configuration configuration;
-
-
+  FhirContext ctx;
 
   TransferController() throws Exception {
-    getCtx().getRestfulClientFactory().setSocketTimeout(300 * 1000);
-  }
 
-  private final FhirContext ctx = FhirContext.forR4();
+  }
 
   private List<IBaseResource> fetchSpecimenResources(IGenericClient client) {
 
@@ -59,12 +51,12 @@ public class TransferController {
     // Search
     Bundle bundle =
         client.search().forResource(Specimen.class).returnBundle(Bundle.class).count(500).execute();
-    resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     // Load the subsequent pages
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
+      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
       log.debug("Fetching next page of Specimen");
     }
     log.info("Loaded " + resourceList.size() + " Specimen Resources from source");
@@ -72,8 +64,8 @@ public class TransferController {
     return resourceList;
   }
 
-  public HashSet<String> fetchPatientIds(IGenericClient client) {
-    if (Objects.equals(configuration.getStartResource(), "Specimen")) {
+  public HashSet<String> fetchPatientIds(IGenericClient client, String startResource) {
+    if (Objects.equals(startResource, "Specimen")) {
       return this.getSpecimenPatients(client);
     } else {
       return this.getPatientRefs(client);
@@ -86,12 +78,12 @@ public class TransferController {
     Bundle bundle =
         client.search().forResource(resourceType).returnBundle(Bundle.class).count(500).execute();
     List<T> resourceList =
-        new ArrayList<>(BundleUtil.toListOfResourcesOfType(getCtx(), bundle, resourceType));
+        new ArrayList<>(BundleUtil.toListOfResourcesOfType(ctx, bundle, resourceType));
 
     // Load the subsequent pages
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResourcesOfType(getCtx(), bundle, resourceType));
+      resourceList.addAll(BundleUtil.toListOfResourcesOfType(ctx, bundle, resourceType));
       log.debug("Fetching next page of " + resourceType.getName());
     }
     log.info(
@@ -194,11 +186,11 @@ public class TransferController {
             .returnBundle(Bundle.class)
             .execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
+      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
     }
 
     List<Specimen> specimens = new ArrayList<>();
@@ -216,11 +208,11 @@ public class TransferController {
     Bundle bundle =
         client.search().forResource(Organization.class).returnBundle(Bundle.class).execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
+      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
     }
     return resourceList;
   }
@@ -235,11 +227,11 @@ public class TransferController {
             .returnBundle(Bundle.class)
             .execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
+      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
     }
     return resourceList;
   }
@@ -284,11 +276,11 @@ public class TransferController {
             .returnBundle(Bundle.class)
             .execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
+      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
     }
 
     return resourceList;
@@ -353,11 +345,11 @@ public class TransferController {
             .returnBundle(Bundle.class)
             .execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
-      resourceList.addAll(BundleUtil.toListOfResources(getCtx(), bundle));
+      resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
     }
 
     return resourceList;
@@ -405,9 +397,5 @@ public class TransferController {
     }
 
     return bundleOut;
-  }
-
-  public FhirContext getCtx() {
-    return ctx;
   }
 }

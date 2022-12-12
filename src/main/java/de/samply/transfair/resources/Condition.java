@@ -1,6 +1,5 @@
 package de.samply.transfair.resources;
 
-import de.samply.transfair.controller.TransferController;
 import java.util.Date;
 import java.util.Objects;
 import org.hl7.fhir.r4.model.Coding;
@@ -12,7 +11,7 @@ import org.slf4j.LoggerFactory;
 public class Condition
     extends ConvertClass<org.hl7.fhir.r4.model.Condition, org.hl7.fhir.r4.model.Condition> {
 
-  private static final Logger log = LoggerFactory.getLogger(TransferController.class);
+  private static final Logger log = LoggerFactory.getLogger(Condition.class);
 
 
   String bbmriId = "";
