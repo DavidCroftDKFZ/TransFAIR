@@ -2,12 +2,15 @@ package de.samply.transfair.fhir;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import de.samply.transfair.Configuration;
+import de.samply.transfair.controller.TransferController;
 import de.samply.transfair.fhir.clients.FhirClient;
 import de.samply.transfair.fhir.writers.FhirExportInterface;
 import de.samply.transfair.fhir.writers.FhirFileSaver;
 import de.samply.transfair.fhir.writers.FhirServerSaver;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +23,17 @@ public class FhirComponent {
 
   @Autowired public Configuration configuration;
 
-  public Map<String, String> overrideConfig;
+  public Map<String, String> overrideConfig = new HashMap<>();
 
+  TransferController transferController;
   private IGenericClient sourceFhirServer;
   private FhirExportInterface fhirExportInterface;
 
   FhirComponent() {
+  }
+
+  @PostConstruct
+  private void setup() {
     configuration.getCtx().getRestfulClientFactory().setSocketTimeout(300 * 1000);
   }
 

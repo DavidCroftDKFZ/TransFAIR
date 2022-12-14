@@ -1,13 +1,9 @@
 package de.samply.transfair.mappings;
 
-import de.samply.transfair.Configuration;
-import de.samply.transfair.controller.TransferController;
 import de.samply.transfair.fhir.FhirComponent;
-import de.samply.transfair.fhir.clients.FhirClient;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +14,6 @@ import org.springframework.stereotype.Component;
 public class Bbmri2Bbmri extends FhirMappings {
 
   private static final Logger log = LoggerFactory.getLogger(Bbmri2Bbmri.class);
-
-  @Autowired TransferController transferController;
-
   @Autowired FhirComponent fhirComponent;
 
   private List<String> resources;

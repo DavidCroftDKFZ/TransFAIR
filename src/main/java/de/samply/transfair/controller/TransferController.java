@@ -35,7 +35,9 @@ public class TransferController {
 
   FhirContext ctx;
 
-  TransferController() {}
+  TransferController(FhirContext ctx) {
+    this.ctx = ctx;
+  }
 
   private List<IBaseResource> fetchSpecimenResources(IGenericClient client) {
 
@@ -122,7 +124,7 @@ public class TransferController {
     Bundle bundle =
         client.search().forResource(Organization.class).returnBundle(Bundle.class).execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(, bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
