@@ -1,7 +1,6 @@
 package de.samply.transfair.mappings;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
-import de.samply.transfair.controller.TransferController;
 import de.samply.transfair.fhir.FhirComponent;
 import de.samply.transfair.models.ProfileFormats;
 import de.samply.transfair.resources.CauseOfDeath;
@@ -26,8 +25,6 @@ public class Mii2Bbmri extends FhirMappings {
 
   private static final Logger log = LoggerFactory.getLogger(Mii2Bbmri.class);
 
-  @Autowired TransferController transferController;
-
   @Autowired FhirComponent fhirComponent;
 
   List<String> resources;
@@ -41,7 +38,7 @@ public class Mii2Bbmri extends FhirMappings {
     IGenericClient sourceClient = fhirComponent.getSourceFhirServer();
 
     HashSet<String> patientIds =
-        transferController.fetchPatientIds(
+        fhirComponent.transferController.fetchPatientIds(
             sourceClient, fhirComponent.configuration.getStartResource());
 
     log.info("Loaded " + patientIds.size() + " Patients");
@@ -55,11 +52,12 @@ public class Mii2Bbmri extends FhirMappings {
       if (resources.contains("Patient")) {
         PatientMapping ap = new PatientMapping();
         log.debug("Analysing patient " + pid + " with format MII KDS");
-        ap.fromMii(transferController.fetchPatientResource(sourceClient, pid));
+        ap.fromMii(fhirComponent.transferController.fetchPatientResource(sourceClient, pid));
         patientResources.add(ap.toBbmri());
       }
       if (resources.contains("Specimen")) {
-        for (Specimen specimen : transferController.fetchPatientSpecimens(sourceClient, pid)) {
+        for (Specimen specimen :
+            fhirComponent.transferController.fetchPatientSpecimens(sourceClient, pid)) {
           SpecimenMapping transferSpecimenMapping = new SpecimenMapping();
           log.debug("Analysing Specimen " + specimen.getId() + " with format bbmri.de");
           transferSpecimenMapping.fromBbmri(specimen);
@@ -69,7 +67,8 @@ public class Mii2Bbmri extends FhirMappings {
         }
       }
       if (resources.contains("Condition")) {
-        for (IBaseResource base : transferController.fetchPatientCondition(sourceClient, pid)) {
+        for (IBaseResource base :
+            fhirComponent.transferController.fetchPatientCondition(sourceClient, pid)) {
           Condition condition = (Condition) base;
 
           if (CheckResources.checkMiiCauseOfDeath(condition)) {
@@ -89,7 +88,7 @@ public class Mii2Bbmri extends FhirMappings {
 
       fhirComponent
           .getFhirExportInterface()
-          .export(transferController.buildResources(patientResources));
+          .export(fhirComponent.transferController.buildResources(patientResources));
       log.info("Exported Resources " + counter++ + "/" + patientIds.size());
     }
   }

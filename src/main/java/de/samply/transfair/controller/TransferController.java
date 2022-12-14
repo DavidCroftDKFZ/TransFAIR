@@ -26,17 +26,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /** This class has most of the transformation and converting logic. */
-@Component
 public class TransferController {
 
   private static final Logger log = LoggerFactory.getLogger(TransferController.class);
 
-  @Autowired IDMapper idMapper;
+  IDMapper idMapper;
 
   FhirContext ctx;
 
-  TransferController(FhirContext ctx) {
+  public TransferController(FhirContext ctx, IDMapper idMapper) {
     this.ctx = ctx;
+    this.idMapper = idMapper;
   }
 
   private List<IBaseResource> fetchSpecimenResources(IGenericClient client) {
@@ -124,7 +124,7 @@ public class TransferController {
     Bundle bundle =
         client.search().forResource(Organization.class).returnBundle(Bundle.class).execute();
 
-    resourceList.addAll(BundleUtil.toListOfResources(, bundle));
+    resourceList.addAll(BundleUtil.toListOfResources(ctx, bundle));
 
     while (bundle.getLink(IBaseBundle.LINK_NEXT) != null) {
       bundle = client.loadPage().next(bundle).execute();
