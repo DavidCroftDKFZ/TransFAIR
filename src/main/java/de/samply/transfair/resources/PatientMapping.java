@@ -5,7 +5,7 @@ import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.Enumerations.AdministrativeGenderEnumFactory;
 import org.hl7.fhir.r4.model.Meta;
 
-public class Patient
+public class PatientMapping
     extends ConvertClass<org.hl7.fhir.r4.model.Patient, org.hl7.fhir.r4.model.Patient> {
 
   // MII data

@@ -5,11 +5,11 @@ import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.Observation;
 
 public class CheckResources {
-  public boolean checkBbmriCauseOfDeath(Observation observation) {
+  public static boolean checkBbmriCauseOfDeath(Observation observation) {
     return observation.getCode().getCodingFirstRep().getCode().equals("68343-3");
   }
 
-  public boolean checkMiiCauseOfDeath(Condition condition) {
+  public static boolean checkMiiCauseOfDeath(Condition condition) {
     return (Objects.equals(
                 condition.getCategoryFirstRep().getCodingFirstRep().getCode(), "16100001")
             && Objects.equals(

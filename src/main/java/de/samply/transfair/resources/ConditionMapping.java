@@ -8,10 +8,10 @@ import org.hl7.fhir.r4.model.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Condition
+public class ConditionMapping
     extends ConvertClass<org.hl7.fhir.r4.model.Condition, org.hl7.fhir.r4.model.Condition> {
 
-  private static final Logger log = LoggerFactory.getLogger(Condition.class);
+  private static final Logger log = LoggerFactory.getLogger(ConditionMapping.class);
 
 
   String bbmriId = "";

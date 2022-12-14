@@ -1,13 +1,9 @@
 package de.samply.transfair.mappings;
 
-import de.samply.transfair.Configuration;
-import de.samply.transfair.controller.TransferController;
 import de.samply.transfair.fhir.FhirComponent;
-import de.samply.transfair.fhir.clients.FhirClient;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +14,6 @@ import org.springframework.stereotype.Component;
 public class Bbmri2Bbmri extends FhirMappings {
 
   private static final Logger log = LoggerFactory.getLogger(Bbmri2Bbmri.class);
-
-  @Autowired TransferController transferController;
-
   @Autowired FhirComponent fhirComponent;
 
   private List<String> resources;
@@ -39,19 +32,20 @@ public class Bbmri2Bbmri extends FhirMappings {
     fhirComponent
         .getFhirExportInterface()
         .export(
-            transferController.buildResources(
-                transferController.fetchOrganizations(fhirComponent.getSourceFhirServer())));
+            fhirComponent.transferController.buildResources(
+                fhirComponent.transferController.fetchOrganizations(
+                    fhirComponent.getSourceFhirServer())));
     fhirComponent
         .getFhirExportInterface()
         .export(
-            transferController.buildResources(
-                transferController.fetchOrganizationAffiliation(
+            fhirComponent.transferController.buildResources(
+                fhirComponent.transferController.fetchOrganizationAffiliation(
                     fhirComponent.getSourceFhirServer())));
 
     int counter = 1;
 
     HashSet<String> patientRefs =
-        transferController.getSpecimenPatients(fhirComponent.getSourceFhirServer());
+        fhirComponent.transferController.getSpecimenPatients(fhirComponent.getSourceFhirServer());
 
     log.info("Loaded " + patientRefs.size() + " Patients");
 
@@ -60,18 +54,22 @@ public class Bbmri2Bbmri extends FhirMappings {
       log.debug("Loading data for patient " + pid);
 
       patientResources.add(
-          transferController.fetchPatientResource(fhirComponent.getSourceFhirServer(), pid));
+          fhirComponent.transferController.fetchPatientResource(
+              fhirComponent.getSourceFhirServer(), pid));
       patientResources.addAll(
-          transferController.fetchPatientSpecimens(fhirComponent.getSourceFhirServer(), pid));
+          fhirComponent.transferController.fetchPatientSpecimens(
+              fhirComponent.getSourceFhirServer(), pid));
       patientResources.addAll(
-          transferController.fetchPatientObservation(fhirComponent.getSourceFhirServer(), pid));
+          fhirComponent.transferController.fetchPatientObservation(
+              fhirComponent.getSourceFhirServer(), pid));
 
       patientResources.addAll(
-          transferController.fetchPatientCondition(fhirComponent.getSourceFhirServer(), pid));
+          fhirComponent.transferController.fetchPatientCondition(
+              fhirComponent.getSourceFhirServer(), pid));
 
       fhirComponent
           .getFhirExportInterface()
-          .export(transferController.buildResources(patientResources));
+          .export(fhirComponent.transferController.buildResources(patientResources));
       log.info("Exported Resources " + counter++ + "/" + patientRefs.size());
     }
   }

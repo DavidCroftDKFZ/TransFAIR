@@ -1,14 +1,20 @@
 package de.samply.transfair.mappings;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
-import de.samply.transfair.controller.TransferController;
 import de.samply.transfair.fhir.FhirComponent;
 import de.samply.transfair.models.ProfileFormats;
+import de.samply.transfair.resources.CauseOfDeath;
+import de.samply.transfair.resources.CheckResources;
+import de.samply.transfair.resources.ConditionMapping;
+import de.samply.transfair.resources.PatientMapping;
+import de.samply.transfair.resources.SpecimenMapping;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Condition;
+import org.hl7.fhir.r4.model.Specimen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +25,6 @@ public class Mii2Bbmri extends FhirMappings {
 
   private static final Logger log = LoggerFactory.getLogger(Mii2Bbmri.class);
 
-  @Autowired TransferController transferController;
-
   @Autowired FhirComponent fhirComponent;
 
   List<String> resources;
@@ -28,13 +32,13 @@ public class Mii2Bbmri extends FhirMappings {
   ProfileFormats sourceFormat = ProfileFormats.MII;
   ProfileFormats targetFormat = ProfileFormats.BBMRI;
 
-  public void transfer() throws Exception {
+  public void transfer() {
     this.setup();
 
     IGenericClient sourceClient = fhirComponent.getSourceFhirServer();
 
     HashSet<String> patientIds =
-        transferController.fetchPatientIds(
+        fhirComponent.transferController.fetchPatientIds(
             sourceClient, fhirComponent.configuration.getStartResource());
 
     log.info("Loaded " + patientIds.size() + " Patients");
@@ -46,36 +50,45 @@ public class Mii2Bbmri extends FhirMappings {
       log.debug("Loading data for patient " + pid);
 
       if (resources.contains("Patient")) {
-        patientResources.add(
-            transferController.convertPatientResource(
-                transferController.fetchPatientResource(sourceClient, pid),
-                pid,
-                this.sourceFormat,
-                this.targetFormat));
+        PatientMapping ap = new PatientMapping();
+        log.debug("Analysing patient " + pid + " with format MII KDS");
+        ap.fromMii(fhirComponent.transferController.fetchPatientResource(sourceClient, pid));
+        patientResources.add(ap.toBbmri());
       }
       if (resources.contains("Specimen")) {
-        patientResources.addAll(
-            transferController.convertBbmriSpecimenResources(
-                transferController.fetchPatientSpecimens(sourceClient, pid)));
-      }
-      if (resources.contains("Observation")) {
-        patientResources.addAll(
-            transferController.convertObservations(
-                transferController.fetchPatientObservation(sourceClient, pid),
-                this.sourceFormat,
-                this.targetFormat));
+        for (Specimen specimen :
+            fhirComponent.transferController.fetchPatientSpecimens(sourceClient, pid)) {
+          SpecimenMapping transferSpecimenMapping = new SpecimenMapping();
+          log.debug("Analysing Specimen " + specimen.getId() + " with format bbmri.de");
+          transferSpecimenMapping.fromBbmri(specimen);
+
+          log.debug("Analysing Specimen " + specimen.getId() + " with format bbmri.de");
+          patientResources.add(transferSpecimenMapping.toBbmri());
+        }
       }
       if (resources.contains("Condition")) {
-        patientResources.addAll(
-            transferController.convertConditions(
-                transferController.fetchPatientCondition(sourceClient, pid),
-                this.sourceFormat,
-                this.targetFormat));
+        for (IBaseResource base :
+            fhirComponent.transferController.fetchPatientCondition(sourceClient, pid)) {
+          Condition condition = (Condition) base;
+
+          if (CheckResources.checkMiiCauseOfDeath(condition)) {
+            CauseOfDeath causeOfDeath = new CauseOfDeath();
+            causeOfDeath.fromMii(condition);
+            log.debug("Analysing Cause of Death " + condition.getId() + " with format mii");
+
+            patientResources.add(causeOfDeath.toBbmri());
+            log.debug("Exporting Cause of Death " + condition.getId() + " with format bbmri");
+          } else {
+            ConditionMapping conditionMapping = new ConditionMapping();
+            conditionMapping.fromMii(condition);
+            patientResources.add(conditionMapping.toBbmri());
+          }
+        }
       }
 
       fhirComponent
           .getFhirExportInterface()
-          .export(transferController.buildResources(patientResources));
+          .export(fhirComponent.transferController.buildResources(patientResources));
       log.info("Exported Resources " + counter++ + "/" + patientIds.size());
     }
   }
