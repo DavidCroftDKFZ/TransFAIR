@@ -1,11 +1,23 @@
 version: "3.7"
 
 services:
+  transfair:
+    container_name: transfair
+    image: ghcr.io/samply/transfair:1af3959f8a786018592d24a3aba6845299b419a7
+    environment:
+      RESOURCEFILTER: ${RESOURCE_FILTER}
+      SOURCEFHIRSERVER: "http://source-blaze:8080/fhir"
+      TARGETFHIRSERVER: "http://target-blaze:8080/fhir"
+      STARTRESOURCE: ${START_RESOURCE}
+      SAVETOFILESYSTEM: ${SAVE_TO_FILESYSTEM}
+    ports:
+      - "8070:8070"
+
   source_blaze:
       container_name: source-blaze
       image: samply/blaze:develop
       environment:
-        BASE_URL: "http://localhost:8082"
+        BASE_URL: "http://source-blaze:8080"
       ports:
         - "8082:8080"
 
@@ -13,6 +25,6 @@ services:
     container_name: target-blaze
     image: samply/blaze:develop
     environment:
-      BASE_URL: "http://localhost:8083"
+      BASE_URL: "http://target-blaze:8080"
     ports:
       - "8083:8080"
