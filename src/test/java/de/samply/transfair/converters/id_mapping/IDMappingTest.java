@@ -1,10 +1,9 @@
-package de.samply.transfair.resources;
+package de.samply.transfair.converters.id_mapping;
 
-import de.samply.transfair.converters.IDMapping.CSV_Mapping;
-import de.samply.transfair.converters.IDMapping.ID_Mapping;
-import de.samply.transfair.converters.IDMapping.Identity_Mapping;
 import org.junit.jupiter.api.Test;
-
+import de.samply.transfair.converters.id_mapping.CSV_Mapping;
+import de.samply.transfair.converters.id_mapping.ID_Mapping;
+import de.samply.transfair.converters.id_mapping.Identity_Mapping;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

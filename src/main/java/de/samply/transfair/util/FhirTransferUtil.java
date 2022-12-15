@@ -1,9 +1,5 @@
-package de.samply.transfair.controller;
+package de.samply.transfair.util;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.rest.client.api.IGenericClient;
-import ca.uhn.fhir.util.BundleUtil;
-import de.samply.transfair.converters.IDMapper;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,21 +16,22 @@ import org.hl7.fhir.r4.model.OrganizationAffiliation;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.Specimen;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
+import ca.uhn.fhir.util.BundleUtil;
+import de.samply.transfair.converters.IDMapper;
+import lombok.extern.slf4j.Slf4j;
 
 /** This class has most of the transformation and converting logic. */
-public class TransferController {
 
-  private static final Logger log = LoggerFactory.getLogger(TransferController.class);
+@Slf4j
+public class FhirTransferUtil {
 
   IDMapper idMapper;
 
   FhirContext ctx;
 
-  public TransferController(FhirContext ctx, IDMapper idMapper) {
+  public FhirTransferUtil(FhirContext ctx, IDMapper idMapper) {
     this.ctx = ctx;
     this.idMapper = idMapper;
   }

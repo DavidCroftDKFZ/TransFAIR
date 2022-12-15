@@ -3,6 +3,7 @@ package de.samply.transfair.resources;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import ca.uhn.fhir.context.FhirContext;
+import de.samply.transfair.resources.CauseOfDeath;
 import java.util.List;
 import java.util.Objects;
 import org.hl7.fhir.instance.model.api.IBaseResource;

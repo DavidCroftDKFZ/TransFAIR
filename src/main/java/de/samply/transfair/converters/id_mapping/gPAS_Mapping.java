@@ -1,4 +1,4 @@
-package de.samply.transfair.converters.IDMapping;
+package de.samply.transfair.converters.id_mapping;
 
 import org.jetbrains.annotations.NotNull;
 

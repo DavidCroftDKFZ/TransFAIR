@@ -1,19 +1,19 @@
 package de.samply.transfair.converters;
 
-import de.samply.transfair.converters.IDMapping.CSV_Mapping;
-import de.samply.transfair.converters.IDMapping.ID_Mapping;
-import de.samply.transfair.converters.IDMapping.Identity_Mapping;
 import javax.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import de.samply.transfair.converters.id_mapping.CSV_Mapping;
+import de.samply.transfair.converters.id_mapping.ID_Mapping;
+import de.samply.transfair.converters.id_mapping.Identity_Mapping;
+import de.samply.transfair.enums.Resource_Type;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class holds the different ID's and can map to the opposite project. It uses the Singleton
  * pattern in order to be accessible from the whole project
  */
 @Component("IDMapper")
+@Slf4j
 public class IDMapper {
 
   private ID_Mapping id_mapping;
@@ -24,7 +24,6 @@ public class IDMapper {
 
   // TODO: Autowired does not work from test...
   // @Autowired
-  private static final Logger log = LoggerFactory.getLogger(IDMapper.class);
 
   public IDMapper() {
     // TODO: injections do not work in test...

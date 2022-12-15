@@ -1,20 +1,16 @@
 package de.samply.transfair.resources;
 
 import java.util.List;
-import java.util.Objects;
-import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Reference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CauseOfDeath extends ConvertClass<Observation, Condition> {
-
-  private static final Logger log = LoggerFactory.getLogger(CauseOfDeath.class);
 
   static String ICD_SYSTEM = "http://hl7.org/fhir/sid/icd-10";
 

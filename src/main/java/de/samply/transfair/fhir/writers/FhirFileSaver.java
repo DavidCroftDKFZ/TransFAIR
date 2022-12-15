@@ -1,15 +1,13 @@
 package de.samply.transfair.fhir.writers;
 
-import ca.uhn.fhir.context.FhirContext;
 import java.io.FileWriter;
 import java.io.IOException;
 import org.hl7.fhir.r4.model.Bundle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ca.uhn.fhir.context.FhirContext;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class FhirFileSaver extends FhirExportInterface {
-
-  private static final Logger log = LoggerFactory.getLogger(FhirFileSaver.class);
 
   public FhirFileSaver(FhirContext context) {
     this.ctx = context;
