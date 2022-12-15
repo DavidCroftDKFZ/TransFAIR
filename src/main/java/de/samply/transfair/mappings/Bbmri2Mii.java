@@ -1,14 +1,5 @@
 package de.samply.transfair.mappings;
 
-import ca.uhn.fhir.rest.client.api.IGenericClient;
-import de.samply.transfair.enums.ProfileFormats;
-import de.samply.transfair.fhir.FhirComponent;
-import de.samply.transfair.resources.CauseOfDeath;
-import de.samply.transfair.resources.CheckResources;
-import de.samply.transfair.resources.ConditionMapping;
-import de.samply.transfair.resources.PatientMapping;
-import de.samply.transfair.resources.SpecimenMapping;
-import de.samply.transfair.util.TransferUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -17,15 +8,21 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Specimen;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
+import de.samply.transfair.enums.ProfileFormats;
+import de.samply.transfair.fhir.FhirComponent;
+import de.samply.transfair.resources.CauseOfDeath;
+import de.samply.transfair.resources.CheckResources;
+import de.samply.transfair.resources.ConditionMapping;
+import de.samply.transfair.resources.PatientMapping;
+import de.samply.transfair.resources.SpecimenMapping;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class Bbmri2Mii extends FhirMappings {
-
-  private static final Logger log = LoggerFactory.getLogger(Bbmri2Mii.class);
 
   ProfileFormats sourceFormat = ProfileFormats.BBMRI;
   ProfileFormats targetFormat = ProfileFormats.MII;

@@ -1,4 +1,4 @@
-package de.samply.transfair;
+package de.samply.transfair.resources;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

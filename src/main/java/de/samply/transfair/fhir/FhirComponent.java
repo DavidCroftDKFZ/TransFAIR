@@ -1,5 +1,11 @@
 package de.samply.transfair.fhir;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import de.samply.transfair.Configuration;
 import de.samply.transfair.converters.IDMapper;
@@ -8,19 +14,11 @@ import de.samply.transfair.fhir.writers.FhirExportInterface;
 import de.samply.transfair.fhir.writers.FhirFileSaver;
 import de.samply.transfair.fhir.writers.FhirServerSaver;
 import de.samply.transfair.util.TransferUtil;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import javax.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class FhirComponent {
-
-  private static final Logger log = LoggerFactory.getLogger(FhirComponent.class);
 
   @Autowired public Configuration configuration;
 

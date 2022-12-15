@@ -1,20 +1,17 @@
-package de.samply.transfair;
-
-import de.samply.transfair.converters.IDMapper;
-import de.samply.transfair.converters.Resource_Type;
-import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+package de.samply.transfair.converters.IDMapping;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
+import de.samply.transfair.converters.IDMapper;
+import de.samply.transfair.enums.Resource_Type;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  Test classes responsible for the {@link de.samply.transfair.converters.IDMapper}
@@ -22,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @SpringBootTest
 @TestPropertySource(properties = "TRANSFAIR_MAPPER_SETTING=csvmapping")
 @TestPropertySource(properties = "TRANSFAIR_CSVMAPPING_PATH=./test_mapping.csv")
+@Slf4j
 public class IDMapperTest {
 
     @Value("${TRANSFAIR_CSVMAPPING_PATH}")
@@ -29,8 +27,6 @@ public class IDMapperTest {
 
     @Value("${TRANSFAIR_MAPPER_SETTING}")
     private String mapper_setting;
-
-    private static final Logger log = LoggerFactory.getLogger(IDMapperTest.class);
 
     public IDMapperTest(){}
 

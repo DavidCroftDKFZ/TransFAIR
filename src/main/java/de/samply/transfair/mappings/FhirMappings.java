@@ -1,7 +1,5 @@
 package de.samply.transfair.mappings;
 
-import de.samply.transfair.fhir.writers.FhirExportInterface;
-
 public abstract class FhirMappings {
 
   private Boolean setup() {
