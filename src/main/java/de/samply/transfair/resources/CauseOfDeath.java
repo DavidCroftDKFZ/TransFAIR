@@ -2,24 +2,32 @@ package de.samply.transfair.resources;
 
 import java.util.List;
 import java.util.Objects;
+import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CauseOfDeath extends ConvertClass<Observation, Condition> {
 
-  // Currently the MII only has Cause of death
+  private static final Logger log = LoggerFactory.getLogger(CauseOfDeath.class);
 
-  // SnomedCT
-  String miiCauseOfDeath = "";
+  static String ICD_SYSTEM = "http://hl7.org/fhir/sid/icd-10";
+
+  static String BBMRI_Profile = "https://fhir.bbmri.de/StructureDefinition/CauseOfDeath";
+
+  static String MII_Profile = "https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Todesursache";
+
+
+  String CauseOfDeath = "";
   String miiID = "";
   String miiPatientID = "";
 
   // ICD-10
-  String bbmriCauseOfDeath = "";
   String bbmriID = "";
   String bbmriPatientID = "";
 
@@ -27,16 +35,24 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
 
   @Override
   public void fromBbmri(Observation resource) {
-    this.bbmriID = resource.getId();
-    this.bbmriCauseOfDeath = resource.getValue().primitiveValue();
-    this.bbmriPatientID = resource.getSubject().getId();
+    if(resource.getMeta().getProfile().stream().anyMatch(canonicalType -> canonicalType.equals(BBMRI_Profile))) {
+      this.bbmriID = resource.getId();
+      if(resource.getValueCodeableConcept().getCodingFirstRep().getSystem().equals(ICD_SYSTEM)) {
+        this.CauseOfDeath = resource.getValueCodeableConcept().getCodingFirstRep().getCode();
+      }
+      this.bbmriPatientID = resource.getSubject().getReference();
+    }
   }
 
   @Override
   public void fromMii(Condition resource) {
-    this.miiID = resource.getId();
-    this.miiCauseOfDeath = resource.getCode().getCodingFirstRep().getCode();
-    this.miiPatientID = resource.getSubject().getReference();
+    if(resource.getMeta().getProfile().stream().anyMatch(canonicalType -> canonicalType.equals(MII_Profile))) {
+      this.miiID = resource.getId();
+      if(resource.getCode().getCodingFirstRep().getSystem().equals(ICD_SYSTEM)) {
+        this.CauseOfDeath = resource.getCode().getCodingFirstRep().getCode();
+      }
+      this.miiPatientID = resource.getSubject().getReference();
+    }
   }
 
   public org.hl7.fhir.r4.model.Observation toBbmri() {
@@ -47,7 +63,6 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
     Coding codingFirstRep = observation.getCode().getCodingFirstRep();
     codingFirstRep.setCode("68343-3");
     codingFirstRep.setSystem("http://loinc.org");
-    codingFirstRep.setDisplay("Primary cause of death");
 
     if (bbmriID.isEmpty() && !miiID.isEmpty()) {
       this.bbmriID = miiID;
@@ -57,16 +72,16 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
       this.bbmriPatientID = miiPatientID;
     }
 
-    if (bbmriCauseOfDeath.isEmpty() && !miiCauseOfDeath.isEmpty()) {
-      this.bbmriCauseOfDeath = miiCauseOfDeath;
-    }
+    if (bbmriID.isBlank() && bbmriPatientID.isBlank() && CauseOfDeath.isBlank()) {
+      return null;
+      }
 
     observation.setId(bbmriID);
     observation.setSubject(new Reference().setReference(bbmriPatientID));
     CodeableConcept codeableConcept = new CodeableConcept();
     codeableConcept.getCodingFirstRep().setSystem("http://hl7.org/fhir/sid/icd-10");
 
-    codeableConcept.getCodingFirstRep().setCode(bbmriCauseOfDeath);
+    codeableConcept.getCodingFirstRep().setCode(CauseOfDeath);
     observation.setValue(codeableConcept);
 
     return observation;
@@ -85,13 +100,15 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
 
     if (!bbmriID.isEmpty() && miiID.isEmpty()) {
       this.miiID = this.bbmriID;
-    } else if (miiPatientID.isEmpty() && !bbmriPatientID.isEmpty()) {
-      this.bbmriPatientID = miiPatientID;
     }
 
-    if (Objects.equals(bbmriCauseOfDeath, null) && !Objects.equals(miiCauseOfDeath, null)) {
-      this.bbmriCauseOfDeath = miiCauseOfDeath;
+    condition.setId(miiID);
+
+    if (miiPatientID.isEmpty() && !bbmriPatientID.isEmpty()) {
+      this.miiPatientID = bbmriPatientID;
     }
+
+    condition.setSubject(new Reference(miiPatientID));
 
     CodeableConcept codingSnomedCt = new CodeableConcept();
     codingSnomedCt.getCodingFirstRep().setSystem("http://snomed.info/sct");
@@ -100,8 +117,8 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
     condition.setCategory(List.of(codingLoinc, codingSnomedCt));
 
     CodeableConcept codeableConceptCause = new CodeableConcept();
-    codeableConceptCause.getCodingFirstRep().setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm");
-    codeableConceptCause.getCodingFirstRep().setCode(miiCauseOfDeath);
+    codeableConceptCause.getCodingFirstRep().setSystem(ICD_SYSTEM);
+    codeableConceptCause.getCodingFirstRep().setCode(CauseOfDeath);
     condition.setCode(codeableConceptCause);
 
     return condition;
