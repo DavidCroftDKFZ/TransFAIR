@@ -1,8 +1,9 @@
-package de.samply.transfair.resources;
+package de.samply.transfair;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import ca.uhn.fhir.context.FhirContext;
+import de.samply.transfair.resources.CauseOfDeath;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.Observation;
 import org.junit.jupiter.api.Test;

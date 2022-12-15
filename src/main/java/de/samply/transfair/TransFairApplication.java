@@ -1,7 +1,5 @@
 package de.samply.transfair;
 
-import org.hl7.fhir.r4.model.Condition;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

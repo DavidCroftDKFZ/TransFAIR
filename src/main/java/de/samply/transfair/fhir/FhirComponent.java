@@ -2,12 +2,12 @@ package de.samply.transfair.fhir;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import de.samply.transfair.Configuration;
-import de.samply.transfair.controller.TransferController;
 import de.samply.transfair.converters.IDMapper;
 import de.samply.transfair.fhir.clients.FhirClient;
 import de.samply.transfair.fhir.writers.FhirExportInterface;
 import de.samply.transfair.fhir.writers.FhirFileSaver;
 import de.samply.transfair.fhir.writers.FhirServerSaver;
+import de.samply.transfair.util.TransferUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -28,7 +28,7 @@ public class FhirComponent {
 
   public Map<String, String> overrideConfig = new HashMap<>();
 
-  public TransferController transferController;
+  public TransferUtil transferController;
   private IGenericClient sourceFhirServer;
   private FhirExportInterface fhirExportInterface;
 
@@ -38,7 +38,7 @@ public class FhirComponent {
   private void setup() {
     configuration.getCtx().getRestfulClientFactory().setSocketTimeout(300 * 1000);
 
-    this.transferController = new TransferController(configuration.getCtx(), mapper);
+    this.transferController = new TransferUtil(configuration.getCtx(), mapper);
   }
 
   public void setSourceFhirServer(String server) {

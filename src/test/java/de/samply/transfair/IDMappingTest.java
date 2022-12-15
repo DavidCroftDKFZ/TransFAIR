@@ -1,4 +1,4 @@
-package de.samply.transfair.resources;
+package de.samply.transfair;
 
 import de.samply.transfair.converters.IDMapping.CSV_Mapping;
 import de.samply.transfair.converters.IDMapping.ID_Mapping;

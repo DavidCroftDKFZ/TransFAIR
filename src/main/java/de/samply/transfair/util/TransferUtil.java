@@ -1,4 +1,4 @@
-package de.samply.transfair.controller;
+package de.samply.transfair.util;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
@@ -26,15 +26,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /** This class has most of the transformation and converting logic. */
-public class TransferController {
+public class TransferUtil {
 
-  private static final Logger log = LoggerFactory.getLogger(TransferController.class);
+  private static final Logger log = LoggerFactory.getLogger(TransferUtil.class);
 
   IDMapper idMapper;
 
   FhirContext ctx;
 
-  public TransferController(FhirContext ctx, IDMapper idMapper) {
+  public TransferUtil(FhirContext ctx, IDMapper idMapper) {
     this.ctx = ctx;
     this.idMapper = idMapper;
   }

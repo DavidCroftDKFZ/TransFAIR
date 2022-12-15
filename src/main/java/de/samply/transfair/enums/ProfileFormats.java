@@ -1,4 +1,4 @@
-package de.samply.transfair.models;
+package de.samply.transfair.enums;
 
 public enum ProfileFormats {
   BBMRI,

@@ -1,8 +1,8 @@
 package de.samply.transfair.mappings;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
+import de.samply.transfair.enums.ProfileFormats;
 import de.samply.transfair.fhir.FhirComponent;
-import de.samply.transfair.models.ProfileFormats;
 import de.samply.transfair.resources.CauseOfDeath;
 import de.samply.transfair.resources.CheckResources;
 import de.samply.transfair.resources.ConditionMapping;
