@@ -2,9 +2,9 @@ package de.samply.transfair.converters;
 
 import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
-import de.samply.transfair.converters.IDMapping.CSV_Mapping;
-import de.samply.transfair.converters.IDMapping.ID_Mapping;
-import de.samply.transfair.converters.IDMapping.Identity_Mapping;
+import de.samply.transfair.converters.id_mapping.CSV_Mapping;
+import de.samply.transfair.converters.id_mapping.ID_Mapping;
+import de.samply.transfair.converters.id_mapping.Identity_Mapping;
 import de.samply.transfair.enums.Resource_Type;
 import lombok.extern.slf4j.Slf4j;
 

@@ -25,13 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 /** This class has most of the transformation and converting logic. */
 
 @Slf4j
-public class TransferUtil {
+public class FhirTransferUtil {
 
   IDMapper idMapper;
 
   FhirContext ctx;
 
-  public TransferUtil(FhirContext ctx, IDMapper idMapper) {
+  public FhirTransferUtil(FhirContext ctx, IDMapper idMapper) {
     this.ctx = ctx;
     this.idMapper = idMapper;
   }
