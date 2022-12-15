@@ -1,9 +1,9 @@
 package de.samply.transfair;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import ca.uhn.fhir.context.FhirContext;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Data
 @Component
@@ -22,8 +22,7 @@ public class Configuration {
   private String startResource;
 
   @Value("${RESOURCEFILTER}")
-  private
-  String resourcesFilter;
+  private String resourcesFilter;
 
   @Value("${TARGETFHIRSERVER}")
   private String targetFhirServer;
@@ -37,5 +36,4 @@ public class Configuration {
 
   @Value("${PSEUDOCSVFILE}")
   private String csvFileName;
-
 }

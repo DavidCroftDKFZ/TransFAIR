@@ -2,10 +2,9 @@ package de.samply.transfair.converters.id_mapping;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.FileReader;
 import java.io.IOException;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Reads ID-Mappings from csv file. See read_mappings method for details. Access to the mappings is

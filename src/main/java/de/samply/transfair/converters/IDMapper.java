@@ -1,12 +1,12 @@
 package de.samply.transfair.converters;
 
-import javax.annotation.PostConstruct;
-import org.springframework.stereotype.Component;
 import de.samply.transfair.converters.id_mapping.CSV_Mapping;
 import de.samply.transfair.converters.id_mapping.ID_Mapping;
 import de.samply.transfair.converters.id_mapping.Identity_Mapping;
 import de.samply.transfair.enums.Resource_Type;
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 /**
  * This class holds the different ID's and can map to the opposite project. It uses the Singleton
@@ -34,7 +34,7 @@ public class IDMapper {
   @PostConstruct
   public void
       setup() { // TODO: Should be called automatically after object was created i.e. after value
-                // injection. @PostConstruct causes NullpointerException in .to... methods
+    // injection. @PostConstruct causes NullpointerException in .to... methods
     switch (this.mapper_setting) {
       case "csvmapping" -> {
         // log.info("Using csvmapping " + this.csv_mappings_path); //TODO: Readd

@@ -1,13 +1,13 @@
 package de.samply.transfair.resources;
 
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Reference;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CauseOfDeath extends ConvertClass<Observation, Condition> {
@@ -16,8 +16,8 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
 
   static String BBMRI_Profile = "https://fhir.bbmri.de/StructureDefinition/CauseOfDeath";
 
-  static String MII_Profile = "https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Todesursache";
-
+  static String MII_Profile =
+      "https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Todesursache";
 
   String CauseOfDeath = "";
   String miiID = "";
@@ -31,9 +31,10 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
 
   @Override
   public void fromBbmri(Observation resource) {
-    if(resource.getMeta().getProfile().stream().anyMatch(canonicalType -> canonicalType.equals(BBMRI_Profile))) {
+    if (resource.getMeta().getProfile().stream()
+        .anyMatch(canonicalType -> canonicalType.equals(BBMRI_Profile))) {
       this.bbmriID = resource.getId();
-      if(resource.getValueCodeableConcept().getCodingFirstRep().getSystem().equals(ICD_SYSTEM)) {
+      if (resource.getValueCodeableConcept().getCodingFirstRep().getSystem().equals(ICD_SYSTEM)) {
         this.CauseOfDeath = resource.getValueCodeableConcept().getCodingFirstRep().getCode();
       }
       this.bbmriPatientID = resource.getSubject().getReference();
@@ -42,9 +43,10 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
 
   @Override
   public void fromMii(Condition resource) {
-    if(resource.getMeta().getProfile().stream().anyMatch(canonicalType -> canonicalType.equals(MII_Profile))) {
+    if (resource.getMeta().getProfile().stream()
+        .anyMatch(canonicalType -> canonicalType.equals(MII_Profile))) {
       this.miiID = resource.getId();
-      if(resource.getCode().getCodingFirstRep().getSystem().equals(ICD_SYSTEM)) {
+      if (resource.getCode().getCodingFirstRep().getSystem().equals(ICD_SYSTEM)) {
         this.CauseOfDeath = resource.getCode().getCodingFirstRep().getCode();
       }
       this.miiPatientID = resource.getSubject().getReference();
@@ -70,7 +72,7 @@ public class CauseOfDeath extends ConvertClass<Observation, Condition> {
 
     if (bbmriID.isBlank() && bbmriPatientID.isBlank() && CauseOfDeath.isBlank()) {
       return null;
-      }
+    }
 
     observation.setId(bbmriID);
     observation.setSubject(new Reference().setReference(bbmriPatientID));

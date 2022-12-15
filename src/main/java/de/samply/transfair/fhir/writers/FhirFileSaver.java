@@ -1,10 +1,10 @@
 package de.samply.transfair.fhir.writers;
 
+import ca.uhn.fhir.context.FhirContext;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.hl7.fhir.r4.model.Bundle;
-import ca.uhn.fhir.context.FhirContext;
 import lombok.extern.slf4j.Slf4j;
+import org.hl7.fhir.r4.model.Bundle;
 
 @Slf4j
 public class FhirFileSaver extends FhirExportInterface {

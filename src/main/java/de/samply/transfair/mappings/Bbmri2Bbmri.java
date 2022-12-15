@@ -1,13 +1,13 @@
 package de.samply.transfair.mappings;
 
+import de.samply.transfair.fhir.FhirComponent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import de.samply.transfair.fhir.FhirComponent;
-import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j

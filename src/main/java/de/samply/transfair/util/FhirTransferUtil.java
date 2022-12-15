@@ -1,10 +1,15 @@
 package de.samply.transfair.util;
 
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
+import ca.uhn.fhir.util.BundleUtil;
+import de.samply.transfair.converters.IDMapper;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Bundle;
@@ -16,14 +21,8 @@ import org.hl7.fhir.r4.model.OrganizationAffiliation;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.Specimen;
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.rest.client.api.IGenericClient;
-import ca.uhn.fhir.util.BundleUtil;
-import de.samply.transfair.converters.IDMapper;
-import lombok.extern.slf4j.Slf4j;
 
 /** This class has most of the transformation and converting logic. */
-
 @Slf4j
 public class FhirTransferUtil {
 

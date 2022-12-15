@@ -1,9 +1,8 @@
 package de.samply.transfair.converters.id_mapping;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Stores mappings between IDs from multiple domains in nested hashmaps. A mapping is always
@@ -177,7 +176,7 @@ public abstract class ID_Mapping {
         id,
         src_domain,
         tar_domain)) { // If no mapping for the ud from src_domain to tar_domain exists, fetch the
-                       // id and add it to the cache
+      // id and add it to the cache
       try {
         tar_id = this.fetch_mapping(id, src_domain, tar_domain);
       } catch (Exception e) {

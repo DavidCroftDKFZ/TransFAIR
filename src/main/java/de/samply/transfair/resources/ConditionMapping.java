@@ -2,10 +2,10 @@ package de.samply.transfair.resources;
 
 import java.util.Date;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Reference;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ConditionMapping
@@ -47,13 +47,13 @@ public class ConditionMapping
   public void fromMii(org.hl7.fhir.r4.model.Condition resource) {
     this.miiId = resource.getId();
 
-    for(Coding coding: resource.getCode().getCoding()) {
-      if(Objects.equals(coding.getSystem(), "http://fhir.de/CodeSystem/bfarm/icd-10-gm")) {
+    for (Coding coding : resource.getCode().getCoding()) {
+      if (Objects.equals(coding.getSystem(), "http://fhir.de/CodeSystem/bfarm/icd-10-gm")) {
         this.diagnosisICD10GM = coding.getCode();
         continue;
       }
 
-      if(Objects.equals(coding.getSystem(), "http://snomed.info/sct")) {
+      if (Objects.equals(coding.getSystem(), "http://snomed.info/sct")) {
         this.diagnosisSnomed = coding.getCode();
         continue;
       }

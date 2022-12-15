@@ -1,8 +1,7 @@
 package de.samply.transfair.converters.id_mapping;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Mapper that maps every ID to itself and ignores any domain arguments. It is also impossible to
