@@ -3,84 +3,92 @@ package de.samply.transfair.resources;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import ca.uhn.fhir.context.FhirContext;
+import java.util.List;
+import java.util.Objects;
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.CanonicalType;
+import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.Reference;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
+@TestInstance(Lifecycle.PER_CLASS)
 public class CauseOfDeathTest {
 
   // BBMRI.DE resource
-  private final String observation_string_source;
-  private final String observation_string_target;
+  Observation causeOfDeathBbmri;
 
   // MII resource
-  private final String condition_string_source;
-  private final String condition_string_target;
+  Condition causeOfDeathMII;
 
   ca.uhn.fhir.parser.IParser parser;
 
-  public CauseOfDeathTest(){
-    FhirContext ctx = FhirContext.forR4();
-    this.parser = ctx.newXmlParser();
+  @BeforeAll
+  void setup() {
+    parser = FhirContext.forR4().newJsonParser();
 
-    //TODO: Both should contain the same information as they will be converted into each other
+    Patient patient = new Patient();
+    patient.setId("causeOfDeath");
 
-    // BBMRI.DE resource
-    this.observation_string_source = "<Observation><id value=\"bbmri-10002-cause-of-death\"/><meta><versionId value=\"1009\"/><lastUpdated value=\"2022-12-07T08:09:29.234Z\"/><profile value=\"https://fhir.bbmri.de/StructureDefinition/CauseOfDeath\"/></meta><status value=\"final\"/><code><coding><system value=\"http://loinc.org\"/><code value=\"68343-3\"/></coding></code><subject><reference value=\"Patient/bbmri-10002\"/></subject><valueCodeableConcept><coding><system value=\"http://hl7.org/fhir/sid/icd-10\"/><code value=\"D55.2\"/></coding></valueCodeableConcept></Observation>";
-    this.observation_string_target = "";
+    causeOfDeathBbmri = new Observation();
+    causeOfDeathBbmri.setId("death");
+    causeOfDeathBbmri.getMeta().setProfile(List.of(new CanonicalType(
+        "https://fhir.bbmri.de/StructureDefinition/CauseOfDeath")));
+    causeOfDeathBbmri.getCode().getCodingFirstRep().setSystem("http://loinc.org").setCode("68343-3");
+    causeOfDeathBbmri.setSubject(new Reference().setReference(patient.getId()));
+    CodeableConcept codeableConcept = new CodeableConcept();
+    codeableConcept.getCodingFirstRep().setSystem("http://hl7.org/fhir/sid/icd-10").setCode("C25.0");
+    causeOfDeathBbmri.setValue(codeableConcept);
 
-    // MII resource
-    this.condition_string_source = "<Condition><id value=\"bbmri-10002-cause-of-death\"/><meta><versionId value=\"1009\"/><lastUpdated value=\"2022-12-07T08:09:29.234Z\"/><profile value=\"https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Todesursache\"/></meta><status value=\"final\"/><category><coding><system value=\"http://snomed.info/sct\" /><code value=\"16100001\" /></coding><coding><system value=\"http://loinc.org\" /><code value=\"79378-6\" /></coding></category><code><coding><system value=\"http://hl7.org/fhir/sid/icd-10\"/><code value=\"D55.2\"/></coding></code><subject><reference value=\"Patient/bbmri-10002\"/></subject></Condition>";
-    this.condition_string_target = "<Condition xmlns=\"http://hl7.org/fhir\"><meta><profile value=\"https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Todesursache\"></profile></meta><category><coding><system value=\"http://loinc.org\"></system><code value=\"79378-6\"></code></coding></category><category><coding><system value=\"http://snomed.info/sct\"></system><code value=\"16100001\"></code></coding></category><code><coding><system value=\"http://fhir.de/CodeSystem/bfarm/icd-10-gm\"></system><code value=\"D55.2\"></code></coding></code></Condition>";
-    //https://simplifier.net/MedizininformatikInitiative-ModulDiagnosen/Diagnose/~overview
+    causeOfDeathMII = new Condition();
+    causeOfDeathMII.setId("death");
+    causeOfDeathMII.getMeta().setProfile(List.of(new CanonicalType("https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Todesursache")));
+    CodeableConcept loinc = new CodeableConcept();
+    loinc.getCodingFirstRep().setSystem("http://loinc.org").setCode("79378-6");
+    CodeableConcept snomed = new CodeableConcept();
+    snomed.getCodingFirstRep().setSystem("http://snomed.info/sct").setCode("16100001");
+    causeOfDeathMII.setSubject(new Reference().setReference(patient.getId()));
+    causeOfDeathMII.setCategory(List.of(loinc,snomed));
+    causeOfDeathMII.getCode().getCodingFirstRep().setSystem("http://hl7.org/fhir/sid/icd-10").setCode("C25.0");
+
   }
 
   @Test
   void convertFromBbmriToMii() {
-    Observation original_observation = parser.parseResource(Observation.class, this.observation_string_source);
-
     CauseOfDeath causeOfDeath = new CauseOfDeath();
-    causeOfDeath.fromBbmri(original_observation);
-    Condition after_conversion = causeOfDeath.toMii();
 
-    String serialized_after_conversion = parser.encodeResourceToString(after_conversion);
-    assertEquals(this.condition_string_target, serialized_after_conversion);
+    causeOfDeath.fromBbmri(causeOfDeathBbmri);
+
+    compareFhirObjects(causeOfDeathMII, causeOfDeath.toMii());
   }
 
-  @Test
-  void convertFromMiiToMii() {
-    Condition original_condition = parser.parseResource(Condition.class, this.condition_string_source);
-
-    CauseOfDeath causeOfDeath = new CauseOfDeath();
-    causeOfDeath.fromMii(original_condition);
-    Condition after_conversion = causeOfDeath.toMii();
-
-    String serialized_after_conversion = parser.encodeResourceToString(after_conversion);
-    assertEquals(this.condition_string_target, serialized_after_conversion);
+  void compareFhirObjects(IBaseResource a, IBaseResource b) {
+    String actualAsJson = parser.encodeResourceToString(a);
+    String expectedAsJson = parser.encodeResourceToString(b);
+    assert(Objects.equals(expectedAsJson,actualAsJson));
   }
-
   @Test
   void convertFromBbmriToBbmri() {
-    Observation original_observation = parser.parseResource(Observation.class, this.observation_string_source);
-
     CauseOfDeath causeOfDeath = new CauseOfDeath();
-    causeOfDeath.fromBbmri(original_observation);
-    Observation after_conversion = causeOfDeath.toBbmri();
 
-    String serialized_after_conversion = parser.encodeResourceToString(after_conversion);
-    assertEquals(this.observation_string_target, serialized_after_conversion);
+    causeOfDeath.fromBbmri(causeOfDeathBbmri);
+
+    compareFhirObjects(causeOfDeathBbmri,causeOfDeath.toBbmri());
   }
 
   @Test
   void convertFromMiiToBbmri() {
-    Condition original_condition = parser.parseResource(Condition.class, this.condition_string_source);
-
     CauseOfDeath causeOfDeath = new CauseOfDeath();
-    causeOfDeath.fromMii(original_condition);
-    Observation after_conversion = causeOfDeath.toBbmri();
 
-    String serialized_after_conversion = parser.encodeResourceToString(after_conversion);
-    assertEquals(this.observation_string_target, serialized_after_conversion);
+    causeOfDeath.fromMii(causeOfDeathMII);
 
+    compareFhirObjects(causeOfDeathBbmri,causeOfDeath.toBbmri());
   }
 }
+
+
