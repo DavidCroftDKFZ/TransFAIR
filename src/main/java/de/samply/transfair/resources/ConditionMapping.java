@@ -9,7 +9,7 @@ import org.hl7.fhir.r4.model.Reference;
 
 @Slf4j
 public class ConditionMapping
-    extends ConvertClass<org.hl7.fhir.r4.model.Condition, org.hl7.fhir.r4.model.Condition> {
+extends ConvertClass<org.hl7.fhir.r4.model.Condition, org.hl7.fhir.r4.model.Condition> {
 
   String bbmriId = "";
   String bbmriSubject;
@@ -84,10 +84,10 @@ public class ConditionMapping
     condition.getOnsetDateTimeType().setValue(this.onset);
 
     condition
-        .getCode()
-        .getCodingFirstRep()
-        .setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm")
-        .setCode(this.diagnosisICD10GM);
+    .getCode()
+    .getCodingFirstRep()
+    .setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm")
+    .setCode(this.diagnosisICD10GM);
 
     return condition;
   }
@@ -97,8 +97,8 @@ public class ConditionMapping
     org.hl7.fhir.r4.model.Condition condition = new org.hl7.fhir.r4.model.Condition();
     condition.setMeta(
         new Meta()
-            .addProfile(
-                "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Diagnose"));
+        .addProfile(
+            "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Diagnose"));
 
     if (miiId.isEmpty() && !bbmriId.isEmpty()) {
       this.miiId = bbmriId;
@@ -124,10 +124,10 @@ public class ConditionMapping
     }
 
     condition
-        .getCode()
-        .getCodingFirstRep()
-        .setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm")
-        .setCode(this.diagnosisICD10GM);
+    .getCode()
+    .getCodingFirstRep()
+    .setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm")
+    .setCode(this.diagnosisICD10GM);
 
     return condition;
   }
