@@ -1,8 +1,6 @@
 package de.samply.transfair.resources;
 
 import java.util.List;
-import java.util.Objects;
-import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Condition;
@@ -13,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import ca.uhn.fhir.context.FhirContext;
+import static de.samply.transfair.util.JsonUtils.*;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ConditionMappingTest {
@@ -30,13 +28,10 @@ public class ConditionMappingTest {
   Condition conditionMiiICD10GM;
 
   ConditionMapping conditionMapping;
-
-  ca.uhn.fhir.parser.IParser parser;
-
+  
   @BeforeEach
   void setup() {
-    parser = FhirContext.forR4().newJsonParser();
-
+    
     conditionMapping = new ConditionMapping();
 
     Patient patient = new Patient();
@@ -118,7 +113,6 @@ public class ConditionMappingTest {
     conditionMapping.fromBbmri(conditionBbmriForConvertingICD10);
     condition2Mii = conditionMapping.toMii();
 
-
     compareFhirObjects(condition2Mii, conditionMiiICD10GM);
   }
 
@@ -129,7 +123,6 @@ public class ConditionMappingTest {
 
     conditionMapping.fromBbmri(conditionBbmriForConvertingICD10GM);
     condition2Mii = conditionMapping.toMii();
-
 
     compareFhirObjects(condition2Mii, conditionMiiICD10GM);
   }
@@ -171,11 +164,7 @@ public class ConditionMappingTest {
   }
 
 
-  void compareFhirObjects(IBaseResource a, IBaseResource b) {
-    String actualAsJson = parser.encodeResourceToString(a);
-    String expectedAsJson = parser.encodeResourceToString(b);
-    assert(Objects.equals(expectedAsJson, actualAsJson));
-  }
+
 
 
 
