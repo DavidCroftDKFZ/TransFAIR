@@ -6,6 +6,7 @@ import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Reference;
 import lombok.extern.slf4j.Slf4j;
+import static de.samply.transfair.converters.ICDSnomedConverter.*;
 
 @Slf4j
 public class ConditionMapping
@@ -33,7 +34,7 @@ extends ConvertClass<org.hl7.fhir.r4.model.Condition, org.hl7.fhir.r4.model.Cond
       if (Objects.equals(coding.getSystem(), "http://hl7.org/fhir/sid/icd-10")) {
         this.diagnosisICD10WHO = coding.getCode();
       } else if (Objects.equals(
-          coding.getSystem(), "http://fhir.de/StructureDefinition/CodingICD10GM")) {
+          coding.getSystem(), "http://fhir.de/CodeSystem/bfarm/icd-10-gm")) {
         this.diagnosisICD10GM = coding.getCode();
       } else if (Objects.equals(coding.getSystem(), "http://hl7.org/fhir/sid/icd-9")) {
         this.diagnosisICD9 = coding.getCode();
@@ -83,11 +84,15 @@ extends ConvertClass<org.hl7.fhir.r4.model.Condition, org.hl7.fhir.r4.model.Cond
 
     condition.getOnsetDateTimeType().setValue(this.onset);
 
-    condition
-    .getCode()
-    .getCodingFirstRep()
-    .setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm")
-    .setCode(this.diagnosisICD10GM);
+    if (this.diagnosisICD10GM != null) {
+      condition
+      .getCode()
+      .getCodingFirstRep()
+      .setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm")
+      .setCode(this.diagnosisICD10GM);
+    } else if (this.diagnosisSnomed != null) {
+      condition.getCode().getCodingFirstRep().setSystem("http://hl7.org/fhir/sid/icd-10").setCode(fromSnomed2Icd10Who(this.diagnosisSnomed));
+    }
 
     return condition;
   }
