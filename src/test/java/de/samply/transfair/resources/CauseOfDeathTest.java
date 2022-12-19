@@ -73,6 +73,7 @@ public class CauseOfDeathTest {
     String expectedAsJson = parser.encodeResourceToString(b);
     assert(Objects.equals(expectedAsJson,actualAsJson));
   }
+  
   @Test
   void convertFromBbmriToBbmri() {
     CauseOfDeath causeOfDeath = new CauseOfDeath();

@@ -2,10 +2,10 @@ package de.samply.transfair.resources;
 
 import java.util.Date;
 import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Reference;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ConditionMapping
