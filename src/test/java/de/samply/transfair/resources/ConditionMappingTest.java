@@ -18,12 +18,12 @@ import ca.uhn.fhir.context.FhirContext;
 @TestInstance(Lifecycle.PER_CLASS)
 public class ConditionMappingTest {
 
-  // BBMRI.DE resource
-  Condition conditionBbmri;
+  // BBMRI.DE resources
+  Condition conditionBbmriForComparing, conditionBbmriForConverting;
 
   // MII resource
   Condition conditionMii;
-  
+
   ConditionMapping conditionMapping = new ConditionMapping();
 
   ca.uhn.fhir.parser.IParser parser;
@@ -37,14 +37,24 @@ public class ConditionMappingTest {
     DateTimeType onset = new DateTimeType();
     onset.setValueAsString("1997-10-22T00:00:00+02:00");
 
-    conditionBbmri = new Condition();
-    conditionBbmri.setId("conditionId");
-    conditionBbmri.setOnset(onset);
-    conditionBbmri.getMeta().setProfile(List.of(new CanonicalType("https://fhir.bbmri.de/StructureDefinition/Condition")));
-    conditionBbmri.setSubject(new Reference().setReference(patient.getId()));
-    CodeableConcept codeableConceptBbmri = new CodeableConcept();
-    codeableConceptBbmri.getCodingFirstRep().setSystem("http://hl7.org/fhir/sid/icd-10").setCode("C61");
-    conditionBbmri.setCode(codeableConceptBbmri);
+    conditionBbmriForConverting = new Condition();
+    conditionBbmriForConverting.setId("conditionId");
+    conditionBbmriForConverting.setOnset(onset);
+    conditionBbmriForConverting.getMeta().setProfile(List.of(new CanonicalType("https://fhir.bbmri.de/StructureDefinition/Condition")));
+    conditionBbmriForConverting.setSubject(new Reference().setReference(patient.getId()));
+    CodeableConcept codeableConceptBbmriForConverting = new CodeableConcept();
+    codeableConceptBbmriForConverting.getCodingFirstRep().setSystem("http://hl7.org/fhir/sid/icd-10").setCode("C61");
+    conditionBbmriForConverting.setCode(codeableConceptBbmriForConverting);
+    
+    conditionBbmriForComparing = new Condition();
+    conditionBbmriForComparing.setId("conditionId");
+    conditionBbmriForComparing.setOnset(onset);
+    conditionBbmriForComparing.getMeta().setProfile(List.of(new CanonicalType("https://fhir.bbmri.de/StructureDefinition/Condition")));
+    // TODO uncomment when implemented
+    // conditionBbmriForComparing.setSubject(new Reference().setReference(patient.getId()));
+    CodeableConcept codeableConceptBbmriForComparing = new CodeableConcept();
+    codeableConceptBbmriForComparing.getCodingFirstRep().setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm").setCode("C61");
+    conditionBbmriForComparing.setCode(codeableConceptBbmriForComparing);
 
     conditionMii = new Condition();
     conditionMii.setId("conditionId");
@@ -55,26 +65,38 @@ public class ConditionMappingTest {
     codeableConceptMii.getCodingFirstRep().setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm").setCode("C61");
     conditionMii.setCode(codeableConceptMii);
   }
-  
+
   @Test
   void fromBbmriToMiiExpectOK() {
-    
+
     Condition condition2Mii = new Condition();
 
-    conditionMapping.fromBbmri(conditionBbmri);
+    conditionMapping.fromBbmri(conditionBbmriForConverting);
     condition2Mii = conditionMapping.toMii();
 
 
     compareFhirObjects(condition2Mii, conditionMii);
   }
-  
+
+  @Test
+  void fromMiiToBbmriExpectOK() {
+
+    Condition condition2Bbmri = new Condition();
+
+    conditionMapping.fromMii(conditionMii);
+    condition2Bbmri = conditionMapping.toBbmri();
+
+
+    compareFhirObjects(condition2Bbmri, conditionBbmriForComparing);
+  }
+
 
   void compareFhirObjects(IBaseResource a, IBaseResource b) {
     String actualAsJson = parser.encodeResourceToString(a);
     String expectedAsJson = parser.encodeResourceToString(b);
-    assert(Objects.equals(expectedAsJson,actualAsJson));
+    assert(Objects.equals(expectedAsJson, actualAsJson));
   }
-  
+
 
 
 
