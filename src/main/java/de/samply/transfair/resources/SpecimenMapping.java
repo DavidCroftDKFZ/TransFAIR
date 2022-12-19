@@ -1,8 +1,5 @@
 package de.samply.transfair.resources;
 
-import de.samply.transfair.converters.ICD10Converter;
-import de.samply.transfair.converters.SnomedSamplyTypeConverter;
-import de.samply.transfair.converters.TemperatureConverter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,7 +11,12 @@ import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Range;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Type;
+import de.samply.transfair.converters.ICD10Converter;
+import de.samply.transfair.converters.SnomedSamplyTypeConverter;
+import de.samply.transfair.converters.TemperatureConverter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SpecimenMapping
     extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.hl7.fhir.r4.model.Specimen> {
 
@@ -90,11 +92,12 @@ public class SpecimenMapping
           Reference ref = (Reference) t;
           this.collectionRef = ref.getReference();
         } else {
-          System.out.println("Unsupported Extension");
+          log.info("Unsupported Extension");
         }
       }
     } catch (Exception e) {
-      System.out.println("This fails :(");
+      log.info("This fails :(");
+      log.error(e.getMessage());
     }
   }
 

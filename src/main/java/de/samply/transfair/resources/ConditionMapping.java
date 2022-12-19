@@ -39,7 +39,7 @@ extends ConvertClass<org.hl7.fhir.r4.model.Condition, org.hl7.fhir.r4.model.Cond
       } else if (Objects.equals(coding.getSystem(), "http://hl7.org/fhir/sid/icd-9")) {
         this.diagnosisICD9 = coding.getCode();
       } else {
-        System.out.println("Unsupported Coding");
+        log.info("Unsupported Coding");
       }
     }
   }
