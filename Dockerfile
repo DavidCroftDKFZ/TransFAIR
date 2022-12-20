@@ -4,8 +4,9 @@ WORKDIR /app
 
 COPY . ./
 
-RUN mvn install  && \
-    mv target/transFAIR-*.jar target/transFAIR.jar
+ENV TZ=Europe/Berlin
+RUN mvn install
+RUN mv target/transFAIR-*.jar target/transFAIR.jar
 
 
 FROM eclipse-temurin:17-focal
