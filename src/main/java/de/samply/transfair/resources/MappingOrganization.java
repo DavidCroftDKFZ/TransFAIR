@@ -3,16 +3,17 @@ package de.samply.transfair.resources;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Organization;
 
+/** Organizationmappings for converting between bbmri.de and MII KDS. */
 public class MappingOrganization
     extends ConvertClass<Organization, Organization> {
 
   String identifer;
   String bioBankDescription;
 
-  void fromBbmriOrganization(org.hl7.fhir.r4.model.Organization Organization) {
-    identifer = Organization.getIdentifierFirstRep().getValue();
+  void fromBbmriOrganization(org.hl7.fhir.r4.model.Organization organization) {
+    identifer = organization.getIdentifierFirstRep().getValue();
 
-    for (Extension extension : Organization.getExtension()) {
+    for (Extension extension : organization.getExtension()) {
       if (extension
           .getUrl()
           .equals("https://fhir.bbmri.de/StructureDefinition/OrganizationDescription")) {
@@ -21,10 +22,10 @@ public class MappingOrganization
     }
   }
 
-  void fromMiiOrganization(org.hl7.fhir.r4.model.Organization Organization) {
-    identifer = Organization.getIdentifierFirstRep().getValue();
+  void fromMiiOrganization(org.hl7.fhir.r4.model.Organization organization) {
+    identifer = organization.getIdentifierFirstRep().getValue();
 
-    for (Extension extension : Organization.getExtension()) {
+    for (Extension extension : organization.getExtension()) {
       if (extension
           .getUrl()
           .equals(

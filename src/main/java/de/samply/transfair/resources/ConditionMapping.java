@@ -7,6 +7,7 @@ import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Reference;
 
+/** Organizationmappings for converting between bbmri.de and MII KDS. */
 @Slf4j
 public class ConditionMapping
     extends ConvertClass<org.hl7.fhir.r4.model.Condition, org.hl7.fhir.r4.model.Condition> {

@@ -9,6 +9,7 @@ import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Reference;
 
+/** Cause of Death mappings for converting between bbmri.de and MII KDS. */
 @Slf4j
 public class CauseOfDeathMapping extends ConvertClass<Observation, Condition> {
 

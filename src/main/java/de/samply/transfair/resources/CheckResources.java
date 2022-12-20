@@ -4,6 +4,7 @@ import java.util.Objects;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.Observation;
 
+/** Static methods for filtering specific profiles. */
 public class CheckResources {
   public static boolean checkBbmriCauseOfDeath(Observation observation) {
     return observation.getCode().getCodingFirstRep().getCode().equals("68343-3");
