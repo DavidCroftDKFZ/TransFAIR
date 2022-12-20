@@ -71,7 +71,7 @@ public class ConditionMappingTest {
     conditionBbmriForComparingICD10GM.setOnset(onset);
     conditionBbmriForComparingICD10GM.getMeta().setProfile(List.of(new CanonicalType("https://fhir.bbmri.de/StructureDefinition/Condition")));
     // TODO uncomment when implemented
-    // conditionBbmriForComparing.setSubject(new Reference().setReference(patient.getId()));
+    // conditionBbmriForComparingICD10GM.setSubject(new Reference().setReference(patient.getId()));
     CodeableConcept codeableConceptBbmriForComparingICD10GM = new CodeableConcept();
     codeableConceptBbmriForComparingICD10GM.getCodingFirstRep().setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm").setCode("C61");
     conditionBbmriForComparingICD10GM.setCode(codeableConceptBbmriForComparingICD10GM);
@@ -81,7 +81,7 @@ public class ConditionMappingTest {
     conditionBbmriForComparingICD10.setOnset(onset);
     conditionBbmriForComparingICD10.getMeta().setProfile(List.of(new CanonicalType("https://fhir.bbmri.de/StructureDefinition/Condition")));
     // TODO uncomment when implemented
-    // conditionBbmriForComparing.setSubject(new Reference().setReference(patient.getId()));
+    // conditionBbmriForComparingICD10.setSubject(new Reference().setReference(patient.getId()));
     CodeableConcept codeableConceptBbmriForComparingICD10 = new CodeableConcept();
     codeableConceptBbmriForComparingICD10.getCodingFirstRep().setSystem("http://hl7.org/fhir/sid/icd-10").setCode("C61");
     conditionBbmriForComparingICD10.setCode(codeableConceptBbmriForComparingICD10);
