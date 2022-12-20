@@ -9,8 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * This class holds the different ID's and can map to the opposite project. It uses the Singleton
- * pattern in order to be accessible from the whole project
+ * This class holds the different ID's and can map to the opposite project.
+ * It uses the Singleton pattern in order to be accessible from the whole project.
  */
 @Component("IdMapper")
 @Slf4j
@@ -22,9 +22,7 @@ public class IdMapper {
 
   private String csvMappingsPath;
 
-  // TODO: Autowired does not work from test...
-  // @Autowired
-
+  /** New Idmapper. */
   public IdMapper() {
     // TODO: injections do not work in test...
     this.mapperSetting = "csvmapping";
@@ -32,8 +30,7 @@ public class IdMapper {
   }
 
   @PostConstruct
-  public void
-      setup() { // TODO: Should be called automatically after object was created i.e. after value
+   void setup() {
     // injection. @PostConstruct causes NullpointerException in .to... methods
     switch (this.mapperSetting) {
       case "csvmapping" -> {
@@ -65,37 +62,37 @@ public class IdMapper {
     return this.csvMappingsPath;
   }
 
-  private final String prefix_bbmri = "BBMRI."; // Prefix for IDs within BBMRI FHIR-Store
-  private final String prefix_mii = "MII."; // Prefix for IDs within MII FHIR-Store
+  private final String prefixBbmri = "BBMRI."; // Prefix for IDs within BBMRI FHIR-Store
+  private final String prefixMii = "MII."; // Prefix for IDs within MII FHIR-Store
 
   /**
-   * Maps ids from MII domains to BBMRI domains depending on the FHIR resource type
+   * Maps ids from MII domains to BBMRI domains depending on the FHIR resource type.
    *
    * @param id the id to be mapped to BBMRI domain
-   * @param resource_type define which FHIR resource type the id belongs to - e.g. Patient, Specimen
+   * @param resourceType define which FHIR resource type the id belongs to - e.g. Patient, Specimen
    * @return id from the respective BBMRI domain
    * @throws IllegalArgumentException escalates exceptions from {@link IdMapping}.map_id method
    */
-  public String toBbmri(String id, ResourceType resource_type) throws Exception {
-    return switch (resource_type) {
-      case PATIENT -> this.idMapping.mapId(id, prefix_mii + "Patient", prefix_bbmri + "Patient");
+  public String toBbmri(String id, ResourceType resourceType) throws Exception {
+    return switch (resourceType) {
+      case PATIENT -> this.idMapping.mapId(id, prefixMii + "Patient", prefixBbmri + "Patient");
       case SPECIMEN -> this.idMapping.mapId(
-          id, prefix_mii + "Specimen", prefix_bbmri + "Specimen");
+          id, prefixMii + "Specimen", prefixBbmri + "Specimen");
     };
   }
 
   /**
-   * Maps ids from BBMRI domains to MII domains depending on the FHIR resource type
+   * Maps ids from BBMRI domains to MII domains depending on the FHIR resource type.
    *
    * @param id the id to be mapped to MII domain
-   * @param resource_type define which FHIR resource type the id belongs to - e.g. Patient, Specimen
+   * @param resourceType define which FHIR resource type the id belongs to - e.g. Patient, Specimen
    * @return id from the respective MII domain
    * @throws IllegalArgumentException escalates exceptions from {@link IdMapping}.map_id method
    */
-  public String toMii(String id, ResourceType resource_type) throws Exception {
-    return switch (resource_type) {
-      case PATIENT -> idMapping.mapId(id, prefix_bbmri + "Patient", prefix_mii + "Patient");
-      case SPECIMEN -> idMapping.mapId(id, prefix_bbmri + "Specimen", prefix_mii + "Specimen");
+  public String toMii(String id, ResourceType resourceType) throws Exception {
+    return switch (resourceType) {
+      case PATIENT -> idMapping.mapId(id, prefixBbmri + "Patient", prefixMii + "Patient");
+      case SPECIMEN -> idMapping.mapId(id, prefixBbmri + "Specimen", prefixMii + "Specimen");
     };
   }
 }

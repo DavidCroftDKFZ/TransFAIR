@@ -1,6 +1,9 @@
 package de.samply.transfair.converters;
 
+/** Converter between SnomedCT and ICD10-WHO. */
 public class IcdSnomedConverter {
+
+  /** Converts a SnomedCT Diagnosis to ICD10. */
   public static String fromSnomed2Icd10Who(String snomed) {
     return switch (snomed) {
       case "195506001" -> "I95.0";
@@ -13,6 +16,7 @@ public class IcdSnomedConverter {
     };
   }
 
+  /** Converts a ICD10 Diagnosis to SnomedCT. */
   public static String fromIcd10Who2Snomed(String snomed) {
     return switch (snomed) {
       case "I95.0" -> "195506001";

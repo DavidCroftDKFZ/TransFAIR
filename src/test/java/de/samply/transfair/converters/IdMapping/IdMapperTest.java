@@ -57,7 +57,6 @@ public class IdMapperTest {
 
 
         IdMapper idmapper = new IdMapper();
-        idmapper.setup();
 
         // Check whether settings are imported correctly
         assertEquals(this.mapper_setting, idmapper.getMapperSetting());

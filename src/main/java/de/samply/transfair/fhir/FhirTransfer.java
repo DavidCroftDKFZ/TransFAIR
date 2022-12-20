@@ -1,4 +1,4 @@
-package de.samply.transfair.util;
+package de.samply.transfair.fhir;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
@@ -24,13 +24,13 @@ import org.hl7.fhir.r4.model.Specimen;
 
 /** This class has most of the transformation and converting logic. */
 @Slf4j
-public class FhirTransferUtil {
+public class FhirTransfer {
 
   IdMapper idMapper;
 
   FhirContext ctx;
 
-  public FhirTransferUtil(FhirContext ctx, IdMapper idMapper) {
+  public FhirTransfer(FhirContext ctx, IdMapper idMapper) {
     this.ctx = ctx;
     this.idMapper = idMapper;
   }

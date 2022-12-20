@@ -7,7 +7,6 @@ import de.samply.transfair.fhir.clients.FhirClient;
 import de.samply.transfair.fhir.writers.FhirExportInterface;
 import de.samply.transfair.fhir.writers.FhirFileSaver;
 import de.samply.transfair.fhir.writers.FhirServerSaver;
-import de.samply.transfair.util.FhirTransferUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -26,7 +25,7 @@ public class FhirComponent {
 
   public Map<String, String> overrideConfig = new HashMap<>();
 
-  public FhirTransferUtil transferController;
+  public FhirTransfer transferController;
   private IGenericClient sourceFhirServer;
   private FhirExportInterface fhirExportInterface;
 
@@ -36,7 +35,7 @@ public class FhirComponent {
   private void setup() {
     configuration.getCtx().getRestfulClientFactory().setSocketTimeout(300 * 1000);
 
-    this.transferController = new FhirTransferUtil(configuration.getCtx(), mapper);
+    this.transferController = new FhirTransfer(configuration.getCtx(), mapper);
   }
 
   public void setSourceFhirServer(String server) {

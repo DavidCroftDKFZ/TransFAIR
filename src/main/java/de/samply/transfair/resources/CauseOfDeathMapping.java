@@ -20,40 +20,41 @@ public class CauseOfDeathMapping extends ConvertClass<Observation, Condition> {
   static String MII_Profile =
       "https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Todesursache";
 
-  String CauseOfDeath = "";
-  String miiID = "";
-  String miiPatientID = "";
+  String causeOfDeath = "";
+  String miiId = "";
+  String miiPatientId = "";
 
   // ICD-10
-  String bbmriID = "";
-  String bbmriPatientID = "";
+  String bbmriId = "";
+  String bbmriPatientId = "";
 
-  // https://simplifier.net/medizininformatikinitiative-modulperson/sdmiipersontodesursache
-
+  /** This imports a Cause of Death to bbmri.de. */
   @Override
   public void fromBbmri(Observation resource) {
     if (resource.getMeta().getProfile().stream()
         .anyMatch(canonicalType -> canonicalType.equals(BBMRI_Profile))) {
-      this.bbmriID = resource.getId();
+      this.bbmriId = resource.getId();
       if (resource.getValueCodeableConcept().getCodingFirstRep().getSystem().equals(ICD_SYSTEM)) {
-        this.CauseOfDeath = resource.getValueCodeableConcept().getCodingFirstRep().getCode();
+        this.causeOfDeath = resource.getValueCodeableConcept().getCodingFirstRep().getCode();
       }
-      this.bbmriPatientID = resource.getSubject().getReference();
+      this.bbmriPatientId = resource.getSubject().getReference();
     }
   }
 
+  /** This imports a Cause of Death to MII KDS. */
   @Override
   public void fromMii(Condition resource) {
     if (resource.getMeta().getProfile().stream()
         .anyMatch(canonicalType -> canonicalType.equals(MII_Profile))) {
-      this.miiID = resource.getId();
+      this.miiId = resource.getId();
       if (resource.getCode().getCodingFirstRep().getSystem().equals(ICD_SYSTEM)) {
-        this.CauseOfDeath = resource.getCode().getCodingFirstRep().getCode();
+        this.causeOfDeath = resource.getCode().getCodingFirstRep().getCode();
       }
-      this.miiPatientID = resource.getSubject().getReference();
+      this.miiPatientId = resource.getSubject().getReference();
     }
   }
 
+  /** This exports a Cause of Death to bbmri.de. */
   public org.hl7.fhir.r4.model.Observation toBbmri() {
     org.hl7.fhir.r4.model.Observation observation = new org.hl7.fhir.r4.model.Observation();
     observation.setMeta(
@@ -63,31 +64,33 @@ public class CauseOfDeathMapping extends ConvertClass<Observation, Condition> {
     codingFirstRep.setCode("68343-3");
     codingFirstRep.setSystem("http://loinc.org");
 
-    if (bbmriID.isEmpty() && !miiID.isEmpty()) {
-      this.bbmriID = miiID;
+    if (bbmriId.isEmpty() && !miiId.isEmpty()) {
+      this.bbmriId = miiId;
     }
 
-    if (!miiPatientID.isEmpty() && bbmriPatientID.isEmpty()) {
-      this.bbmriPatientID = miiPatientID;
+    if (!miiPatientId.isEmpty() && bbmriPatientId.isEmpty()) {
+      this.bbmriPatientId = miiPatientId;
     }
 
-    if (bbmriID.isBlank() && bbmriPatientID.isBlank() && CauseOfDeath.isBlank()) {
+    if (bbmriId.isBlank() && bbmriPatientId.isBlank() && causeOfDeath.isBlank()) {
       return new Observation();
     }
 
-    observation.setId(bbmriID);
-    observation.setSubject(new Reference().setReference(bbmriPatientID));
+    observation.setId(bbmriId);
+    observation.setSubject(new Reference().setReference(bbmriPatientId));
     CodeableConcept codeableConcept = new CodeableConcept();
     codeableConcept.getCodingFirstRep().setSystem("http://hl7.org/fhir/sid/icd-10");
 
-    codeableConcept.getCodingFirstRep().setCode(CauseOfDeath);
+    codeableConcept.getCodingFirstRep().setCode(causeOfDeath);
     observation.setValue(codeableConcept);
 
     return observation;
   }
 
+  /** This exports a Cause of Death to MII KDS. */
+
   public org.hl7.fhir.r4.model.Condition toMii() {
-    if (bbmriID.isBlank() && bbmriPatientID.isBlank() && CauseOfDeath.isBlank()) {
+    if (bbmriId.isBlank() && bbmriPatientId.isBlank() && causeOfDeath.isBlank()) {
       return new Condition();
     }
 
@@ -101,17 +104,17 @@ public class CauseOfDeathMapping extends ConvertClass<Observation, Condition> {
     codingLoinc.getCodingFirstRep().setSystem("http://loinc.org");
     codingLoinc.getCodingFirstRep().setCode("79378-6");
 
-    if (!bbmriID.isEmpty() && miiID.isEmpty()) {
-      this.miiID = this.bbmriID;
+    if (!bbmriId.isEmpty() && miiId.isEmpty()) {
+      this.miiId = this.bbmriId;
     }
 
-    condition.setId(miiID);
+    condition.setId(miiId);
 
-    if (miiPatientID.isEmpty() && !bbmriPatientID.isEmpty()) {
-      this.miiPatientID = bbmriPatientID;
+    if (miiPatientId.isEmpty() && !bbmriPatientId.isEmpty()) {
+      this.miiPatientId = bbmriPatientId;
     }
 
-    condition.setSubject(new Reference(miiPatientID));
+    condition.setSubject(new Reference(miiPatientId));
 
     CodeableConcept codingSnomedCt = new CodeableConcept();
     codingSnomedCt.getCodingFirstRep().setSystem("http://snomed.info/sct");
@@ -121,7 +124,7 @@ public class CauseOfDeathMapping extends ConvertClass<Observation, Condition> {
 
     CodeableConcept codeableConceptCause = new CodeableConcept();
     codeableConceptCause.getCodingFirstRep().setSystem(ICD_SYSTEM);
-    codeableConceptCause.getCodingFirstRep().setCode(CauseOfDeath);
+    codeableConceptCause.getCodingFirstRep().setCode(causeOfDeath);
     condition.setCode(codeableConceptCause);
 
     return condition;

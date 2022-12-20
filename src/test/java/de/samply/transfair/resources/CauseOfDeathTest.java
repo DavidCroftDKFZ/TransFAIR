@@ -1,6 +1,6 @@
 package de.samply.transfair.resources;
 
-import static de.samply.transfair.util.JsonUtils.compareFhirObjects;
+import static de.samply.transfair.JsonUtils.compareFhirObjects;
 import java.util.List;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.CodeableConcept;

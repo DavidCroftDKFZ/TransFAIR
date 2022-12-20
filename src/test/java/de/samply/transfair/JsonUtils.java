@@ -1,4 +1,4 @@
-package de.samply.transfair.util;
+package de.samply.transfair;
 
 import java.util.Objects;
 import org.hl7.fhir.instance.model.api.IBaseResource;
