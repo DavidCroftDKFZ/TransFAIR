@@ -50,7 +50,7 @@ public class IDMapperTest {
             writer.write(mapping_string);
             writer.close();
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            log.error(ex.getMessage());
         }
 
 
@@ -70,8 +70,8 @@ public class IDMapperTest {
             assertEquals(mii_patient_id, idmapper.toMii(bbmri_patient_id, Resource_Type.PATIENT));
             assertEquals(mii_specimen_id, idmapper.toMii(bbmri_specimen_id, Resource_Type.SPECIMEN));
         }catch(Exception e){
-            System.out.println("Unexpected exception thrown!");
-            e.printStackTrace();
+            log.info("Unexpected exception thrown!");
+            log.error(e.getStackTrace().toString());
             fail();
         }
     }

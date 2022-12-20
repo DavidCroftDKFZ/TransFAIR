@@ -2,14 +2,15 @@ package de.samply.transfair.resources;
 
 import java.util.Date;
 import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Reference;
+import lombok.extern.slf4j.Slf4j;
+import static de.samply.transfair.converters.ICDSnomedConverter.*;
 
 @Slf4j
 public class ConditionMapping
-    extends ConvertClass<org.hl7.fhir.r4.model.Condition, org.hl7.fhir.r4.model.Condition> {
+extends ConvertClass<org.hl7.fhir.r4.model.Condition, org.hl7.fhir.r4.model.Condition> {
 
   String bbmriId = "";
   String bbmriSubject;
@@ -33,12 +34,12 @@ public class ConditionMapping
       if (Objects.equals(coding.getSystem(), "http://hl7.org/fhir/sid/icd-10")) {
         this.diagnosisICD10WHO = coding.getCode();
       } else if (Objects.equals(
-          coding.getSystem(), "http://fhir.de/StructureDefinition/CodingICD10GM")) {
+          coding.getSystem(), "http://fhir.de/CodeSystem/bfarm/icd-10-gm")) {
         this.diagnosisICD10GM = coding.getCode();
       } else if (Objects.equals(coding.getSystem(), "http://hl7.org/fhir/sid/icd-9")) {
         this.diagnosisICD9 = coding.getCode();
       } else {
-        System.out.println("Unsupported Coding");
+        log.info("Unsupported Coding");
       }
     }
   }
@@ -83,11 +84,15 @@ public class ConditionMapping
 
     condition.getOnsetDateTimeType().setValue(this.onset);
 
-    condition
-        .getCode()
-        .getCodingFirstRep()
-        .setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm")
-        .setCode(this.diagnosisICD10GM);
+    if (this.diagnosisICD10GM != null) {
+      condition
+      .getCode()
+      .getCodingFirstRep()
+      .setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm")
+      .setCode(this.diagnosisICD10GM);
+    } else if (this.diagnosisSnomed != null) {
+      condition.getCode().getCodingFirstRep().setSystem("http://hl7.org/fhir/sid/icd-10").setCode(fromSnomed2Icd10Who(this.diagnosisSnomed));
+    }
 
     return condition;
   }
@@ -97,8 +102,8 @@ public class ConditionMapping
     org.hl7.fhir.r4.model.Condition condition = new org.hl7.fhir.r4.model.Condition();
     condition.setMeta(
         new Meta()
-            .addProfile(
-                "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Diagnose"));
+        .addProfile(
+            "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Diagnose"));
 
     if (miiId.isEmpty() && !bbmriId.isEmpty()) {
       this.miiId = bbmriId;
@@ -124,10 +129,10 @@ public class ConditionMapping
     }
 
     condition
-        .getCode()
-        .getCodingFirstRep()
-        .setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm")
-        .setCode(this.diagnosisICD10GM);
+    .getCode()
+    .getCodingFirstRep()
+    .setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm")
+    .setCode(this.diagnosisICD10GM);
 
     return condition;
   }

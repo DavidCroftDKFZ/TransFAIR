@@ -1,19 +1,20 @@
 package de.samply.transfair.converters.id_mapping;
 
-import org.junit.jupiter.api.Test;
-import de.samply.transfair.converters.id_mapping.CSV_Mapping;
-import de.samply.transfair.converters.id_mapping.ID_Mapping;
-import de.samply.transfair.converters.id_mapping.Identity_Mapping;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import lombok.extern.slf4j.Slf4j;
 
 /**
   Test classes responsible for ID mapping. In particular {@link ID_Mapping}, {@link CSV_Mapping} and {@link Identity_Mapping}.
  */
+@Slf4j
 public class IDMappingTest {
 
   private final String csv_path_config;
@@ -120,7 +121,7 @@ public class IDMappingTest {
       assertEquals(IDs_B[idx], mapping.map_id(IDs_A[idx], dom_A, dom_B));
       assertEquals(IDs_A[idx], mapping.map_id(IDs_B[idx], dom_B, dom_A));
     }catch(Exception e){ //Should usually not happen
-      System.out.println("Unexpected exception thrown!");
+      log.error("Unexpected exception thrown!");
       fail();
     }
   }
@@ -160,7 +161,7 @@ public class IDMappingTest {
       writer.close();
 
     } catch (IOException ex) {
-      System.out.println(ex.getMessage());
+      log.error(ex.getMessage());
     }
 
     CSV_Mapping csv_mapping = new CSV_Mapping();
@@ -189,8 +190,8 @@ public class IDMappingTest {
       assertEquals(IDs_C[0], csv_mapping.map_id(IDs_B[0], dom_B, dom_C)); //B->C
       assertEquals(IDs_B[0], csv_mapping.map_id(IDs_C[0], dom_C, dom_B)); //C->B
     }catch(Exception e){ //Should usually not happen
-      System.out.println("Unexpected exception thrown!");
-      e.printStackTrace();
+      log.error("Unexpected exception thrown!");
+      log.error(e.getStackTrace().toString());
       fail();
     }
 
@@ -199,8 +200,8 @@ public class IDMappingTest {
       assertEquals(IDs_B[1], csv_mapping.map_id(IDs_A[1], dom_A, dom_B)); //A->B
       assertEquals(IDs_A[1], csv_mapping.map_id(IDs_B[1], dom_B, dom_A)); //B->A
     }catch(Exception e){ //Should usually not happen
-      System.out.println("Unexpected exception thrown!");
-      e.printStackTrace();
+      log.error("Unexpected exception thrown!");
+      log.error(e.getStackTrace().toString());
       fail();
     }
     assertThrows(Exception.class, () -> csv_mapping.map_id(IDs_A[1], dom_A, dom_C)); //A->C //TODO: Specify exception type?
@@ -217,8 +218,8 @@ public class IDMappingTest {
       assertEquals(IDs_C[2], csv_mapping.map_id(IDs_B[2], dom_B, dom_C)); //B->C
       assertEquals(IDs_B[2], csv_mapping.map_id(IDs_C[2], dom_C, dom_B)); //C->B
     }catch(Exception e){ //Should usually not happen
-      System.out.println("Unexpected exception thrown!");
-      e.printStackTrace();
+      log.error("Unexpected exception thrown!");
+      log.error(e.getStackTrace().toString());
       fail();
     }
 
