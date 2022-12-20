@@ -7,21 +7,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Range;
 import org.hl7.fhir.r4.model.Reference;
-import org.hl7.fhir.r4.model.Specimen;
 import org.hl7.fhir.r4.model.Type;
-import de.samply.transfair.converters.IcdSnomedConverter;
-import de.samply.transfair.converters.SnomedSamplyTypeConverter;
-import de.samply.transfair.converters.TemperatureConverter;
-import lombok.extern.slf4j.Slf4j;
 
 /** Specimenmappings for converting between bbmri.de and MII KDS. */
-  @Slf4j
+@Slf4j
 public class SpecimenMapping
     extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.hl7.fhir.r4.model.Specimen> {
 

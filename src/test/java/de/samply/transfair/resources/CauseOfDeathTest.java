@@ -59,7 +59,7 @@ public class CauseOfDeathTest {
 
     causeOfDeathMapping.fromBbmri(new Observation());
 
-    compareFhirObjects(null, causeOfDeathMapping.toBbmri());
+    compareFhirObjects(new Observation(), causeOfDeathMapping.toBbmri());
   }
 
   @Test
@@ -68,7 +68,7 @@ public class CauseOfDeathTest {
 
     causeOfDeathMapping.fromMii(new Condition());
 
-    compareFhirObjects(null, causeOfDeathMapping.toMii());
+    compareFhirObjects(new Condition(), causeOfDeathMapping.toMii());
   }
 
   @Test

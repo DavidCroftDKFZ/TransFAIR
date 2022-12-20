@@ -72,7 +72,7 @@ public class CauseOfDeathMapping extends ConvertClass<Observation, Condition> {
     }
 
     if (bbmriID.isBlank() && bbmriPatientID.isBlank() && CauseOfDeath.isBlank()) {
-      return null;
+      return new Observation();
     }
 
     observation.setId(bbmriID);
@@ -87,6 +87,10 @@ public class CauseOfDeathMapping extends ConvertClass<Observation, Condition> {
   }
 
   public org.hl7.fhir.r4.model.Condition toMii() {
+    if (bbmriID.isBlank() && bbmriPatientID.isBlank() && CauseOfDeath.isBlank()) {
+      return new Condition();
+    }
+
     org.hl7.fhir.r4.model.Condition condition = new org.hl7.fhir.r4.model.Condition();
     condition.setMeta(
         new Meta()

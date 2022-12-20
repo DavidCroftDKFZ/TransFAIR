@@ -85,14 +85,14 @@ extends ConvertClass<org.hl7.fhir.r4.model.Condition, org.hl7.fhir.r4.model.Cond
 
     condition.getOnsetDateTimeType().setValue(this.onset);
 
-    if (this.diagnosisICD10GM != null) {
+    if (Objects.nonNull(this.diagnosisICD10GM)) {
       condition
       .getCode()
       .getCodingFirstRep()
       .setSystem("http://fhir.de/CodeSystem/bfarm/icd-10-gm")
       .setCode(this.diagnosisICD10GM);
     } else if (this.diagnosisSnomed != null) {
-      condition.getCode().getCodingFirstRep().setSystem("http://hl7.org/fhir/sid/icd-10").setCode(fromIcd10Who2Snomed(this.diagnosisSnomed));
+      condition.getCode().getCodingFirstRep().setSystem("http://hl7.org/fhir/sid/icd-10").setCode(fromSnomed2Icd10Who(this.diagnosisSnomed));
     }
 
     return condition;
