@@ -10,7 +10,7 @@ import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Reference;
 
 @Slf4j
-public class CauseOfDeath extends ConvertClass<Observation, Condition> {
+public class CauseOfDeathMapping extends ConvertClass<Observation, Condition> {
 
   static String ICD_SYSTEM = "http://hl7.org/fhir/sid/icd-10";
 

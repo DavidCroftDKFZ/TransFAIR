@@ -1,6 +1,6 @@
 package de.samply.transfair.resources;
 
-import de.samply.transfair.converters.ICD10Converter;
+import de.samply.transfair.converters.Icd10Converter;
 import de.samply.transfair.converters.SnomedSamplyTypeConverter;
 import de.samply.transfair.converters.TemperatureConverter;
 import java.util.ArrayList;
@@ -13,10 +13,11 @@ import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Range;
 import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.Specimen;
 import org.hl7.fhir.r4.model.Type;
 
 public class SpecimenMapping
-    extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.hl7.fhir.r4.model.Specimen> {
+    extends ConvertClass<Specimen, Specimen> {
 
   // Shared
   Date collectedDate;
@@ -206,7 +207,7 @@ public class SpecimenMapping
       CodeableConcept codeableConcept = new CodeableConcept();
       List<Coding> diagnosis = new ArrayList<>();
       if (Objects.nonNull(this.getDiagnosisICD10Gm())) {
-        this.diagnosisICD10Who = ICD10Converter.gm2who(this.getDiagnosisICD10Gm());
+        this.diagnosisICD10Who = Icd10Converter.gm2who(this.getDiagnosisICD10Gm());
       }
       diagnosis.add(
           new Coding()

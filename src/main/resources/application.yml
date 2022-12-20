@@ -5,6 +5,7 @@ logging:
     org:
       springframework: DEBUG
 
+TF:
 
 RESOURCEFILTER: ""
 SOURCEFHIRSERVER: ""

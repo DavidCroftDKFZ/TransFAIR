@@ -1,6 +1,6 @@
 package de.samply.transfair.converters;
 
-public class ICDSnomedConverter {
+public class IcdSnomedConverter {
   static String fromSnomed2Icd10Who(String snomed) {
     return switch (snomed) {
       case "195506001" -> "I95.0";

@@ -3,7 +3,7 @@ package de.samply.transfair.mappings;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import de.samply.transfair.enums.ProfileFormats;
 import de.samply.transfair.fhir.FhirComponent;
-import de.samply.transfair.resources.CauseOfDeath;
+import de.samply.transfair.resources.CauseOfDeathMapping;
 import de.samply.transfair.resources.CheckResources;
 import de.samply.transfair.resources.ConditionMapping;
 import de.samply.transfair.resources.PatientMapping;
@@ -87,12 +87,12 @@ public class Bbmri2Mii extends FhirMappings {
           Observation observation = (Observation) base;
 
           if (CheckResources.checkBbmriCauseOfDeath(observation)) {
-            CauseOfDeath causeOfDeath = new CauseOfDeath();
-            causeOfDeath.fromBbmri(observation);
+            CauseOfDeathMapping causeOfDeathMapping = new CauseOfDeathMapping();
+            causeOfDeathMapping.fromBbmri(observation);
             log.debug("Analysing Cause of Death " + observation.getId() + " with format bbmri");
 
             if (targetFormat == ProfileFormats.BBMRI) {
-              patientResources.add(causeOfDeath.toBbmri());
+              patientResources.add(causeOfDeathMapping.toBbmri());
               log.debug("Analysing Cause of Death " + observation.getId() + " with format bbmri");
             }
           }

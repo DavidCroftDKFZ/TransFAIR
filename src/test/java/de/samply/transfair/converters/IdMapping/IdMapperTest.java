@@ -1,4 +1,4 @@
-package de.samply.transfair.converters.id_mapping;
+package de.samply.transfair.converters.IdMapping;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -9,18 +9,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
-import de.samply.transfair.converters.IDMapper;
-import de.samply.transfair.enums.Resource_Type;
+import de.samply.transfair.converters.IdMapper;
+import de.samply.transfair.enums.ResourceType;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- Test classes responsible for the {@link de.samply.transfair.converters.IDMapper}
+ Test classes responsible for the {@link IdMapper}
  */
 @SpringBootTest
 @TestPropertySource(properties = "TRANSFAIR_MAPPER_SETTING=csvmapping")
 @TestPropertySource(properties = "TRANSFAIR_CSVMAPPING_PATH=./test_mapping.csv")
 @Slf4j
-public class IDMapperTest {
+public class IdMapperTest {
 
     @Value("${TRANSFAIR_CSVMAPPING_PATH}")
     private String csv_path_config;
@@ -28,10 +28,10 @@ public class IDMapperTest {
     @Value("${TRANSFAIR_MAPPER_SETTING}")
     private String mapper_setting;
 
-    public IDMapperTest(){}
+    public IdMapperTest(){}
 
     /**
-     * Tests that instance of the converter {@link IDMapper} is set up correctly and that it maps ids between the correct domains
+     * Tests that instance of the converter {@link IdMapper} is set up correctly and that it maps ids between the correct domains
      */
     @Test
     void idMapper(){
@@ -54,21 +54,21 @@ public class IDMapperTest {
         }
 
 
-        IDMapper idmapper = new IDMapper();
+        IdMapper idmapper = new IdMapper();
         idmapper.setup();
 
         // Check whether settings are imported correctly
-        assertEquals(this.mapper_setting, idmapper.getMapper_setting());
-        assertEquals(this.csv_path_config, idmapper.getCsv_mappings_path());
+        assertEquals(this.mapper_setting, idmapper.getMapperSetting());
+        assertEquals(this.csv_path_config, idmapper.getCsvMappingsPath());
 
         // Test mapping MII->BBMRI
         try {
-            assertEquals(bbmri_patient_id, idmapper.toBbmri(mii_patient_id, Resource_Type.PATIENT));
-            assertEquals(bbmri_specimen_id, idmapper.toBbmri(mii_specimen_id, Resource_Type.SPECIMEN));
+            assertEquals(bbmri_patient_id, idmapper.toBbmri(mii_patient_id, ResourceType.PATIENT));
+            assertEquals(bbmri_specimen_id, idmapper.toBbmri(mii_specimen_id, ResourceType.SPECIMEN));
 
             //Test mapping BBMRI->MII
-            assertEquals(mii_patient_id, idmapper.toMii(bbmri_patient_id, Resource_Type.PATIENT));
-            assertEquals(mii_specimen_id, idmapper.toMii(bbmri_specimen_id, Resource_Type.SPECIMEN));
+            assertEquals(mii_patient_id, idmapper.toMii(bbmri_patient_id, ResourceType.PATIENT));
+            assertEquals(mii_specimen_id, idmapper.toMii(bbmri_specimen_id, ResourceType.SPECIMEN));
         }catch(Exception e){
             System.out.println("Unexpected exception thrown!");
             e.printStackTrace();

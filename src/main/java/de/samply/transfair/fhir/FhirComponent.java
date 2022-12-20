@@ -2,7 +2,7 @@ package de.samply.transfair.fhir;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import de.samply.transfair.Configuration;
-import de.samply.transfair.converters.IDMapper;
+import de.samply.transfair.converters.IdMapper;
 import de.samply.transfair.fhir.clients.FhirClient;
 import de.samply.transfair.fhir.writers.FhirExportInterface;
 import de.samply.transfair.fhir.writers.FhirFileSaver;
@@ -22,7 +22,7 @@ public class FhirComponent {
 
   @Autowired public Configuration configuration;
 
-  @Autowired private IDMapper mapper;
+  @Autowired private IdMapper mapper;
 
   public Map<String, String> overrideConfig = new HashMap<>();
 

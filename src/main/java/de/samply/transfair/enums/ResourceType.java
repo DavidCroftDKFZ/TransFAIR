@@ -1,14 +1,14 @@
 package de.samply.transfair.enums;
 
-import de.samply.transfair.converters.IDMapper;
+import de.samply.transfair.converters.IdMapper;
 
 /**
  * Used in class {@link this.set_mapping} to define the FHIR resource type that an id belong to. See
- * {@link IDMapper}.toBbmri and {@link IDMapper}.toMii methods
+ * {@link IdMapper}.toBbmri and {@link IdMapper}.toMii methods
  *
  * @author jdoerenberg
  */
-public enum Resource_Type {
+public enum ResourceType {
   PATIENT,
   SPECIMEN
 }

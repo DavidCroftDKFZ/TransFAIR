@@ -3,7 +3,7 @@ package de.samply.transfair.util;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.util.BundleUtil;
-import de.samply.transfair.converters.IDMapper;
+import de.samply.transfair.converters.IdMapper;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,11 +26,11 @@ import org.hl7.fhir.r4.model.Specimen;
 @Slf4j
 public class FhirTransferUtil {
 
-  IDMapper idMapper;
+  IdMapper idMapper;
 
   FhirContext ctx;
 
-  public FhirTransferUtil(FhirContext ctx, IDMapper idMapper) {
+  public FhirTransferUtil(FhirContext ctx, IdMapper idMapper) {
     this.ctx = ctx;
     this.idMapper = idMapper;
   }

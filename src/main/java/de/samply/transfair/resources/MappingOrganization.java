@@ -1,9 +1,10 @@
 package de.samply.transfair.resources;
 
 import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.Organization;
 
-public class Organization
-    extends ConvertClass<org.hl7.fhir.r4.model.Organization, org.hl7.fhir.r4.model.Organization> {
+public class MappingOrganization
+    extends ConvertClass<Organization, Organization> {
 
   String identifer;
   String bioBankDescription;
