@@ -228,7 +228,7 @@ public class FhirTransferUtil {
       }
 
     } catch (Error e) {
-      System.out.println(e.getMessage());
+      log.error(e.getMessage());
     }
 
     return bundleOut;

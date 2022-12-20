@@ -15,9 +15,15 @@ import org.hl7.fhir.r4.model.Range;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Specimen;
 import org.hl7.fhir.r4.model.Type;
+import de.samply.transfair.converters.IcdSnomedConverter;
+import de.samply.transfair.converters.SnomedSamplyTypeConverter;
+import de.samply.transfair.converters.TemperatureConverter;
+import lombok.extern.slf4j.Slf4j;
 
 /** Specimenmappings for converting between bbmri.de and MII KDS. */
-public class SpecimenMapping extends ConvertClass<Specimen, Specimen> {
+  @Slf4j
+public class SpecimenMapping
+    extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.hl7.fhir.r4.model.Specimen> {
 
   // Shared
   Date collectedDate;
@@ -94,11 +100,12 @@ public class SpecimenMapping extends ConvertClass<Specimen, Specimen> {
           Reference ref = (Reference) t;
           this.collectionRef = ref.getReference();
         } else {
-          System.out.println("Unsupported Extension");
+          log.info("Unsupported Extension");
         }
       }
     } catch (Exception e) {
-      System.out.println("This fails :(");
+      log.info("This fails :(");
+      log.error(e.getMessage());
     }
   }
 

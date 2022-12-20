@@ -1,11 +1,7 @@
 package de.samply.transfair.resources;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import ca.uhn.fhir.context.FhirContext;
+import static de.samply.transfair.util.JsonUtils.compareFhirObjects;
 import java.util.List;
-import java.util.Objects;
-import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Condition;
@@ -30,7 +26,6 @@ public class CauseOfDeathTest {
 
   @BeforeAll
   void setup() {
-    parser = FhirContext.forR4().newJsonParser();
 
     Patient patient = new Patient();
     patient.setId("causeOfDeath");
@@ -85,11 +80,6 @@ public class CauseOfDeathTest {
     compareFhirObjects(causeOfDeathMII, causeOfDeathMapping.toMii());
   }
 
-  void compareFhirObjects(IBaseResource a, IBaseResource b) {
-    String actualAsJson = parser.encodeResourceToString(a);
-    String expectedAsJson = parser.encodeResourceToString(b);
-    assert(Objects.equals(expectedAsJson,actualAsJson));
-  }
   @Test
   void convertFromBbmriToBbmri() {
     CauseOfDeathMapping causeOfDeathMapping = new CauseOfDeathMapping();
