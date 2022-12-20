@@ -1,4 +1,4 @@
-package de.samply.transfair.converters.IdMapping;
+package de.samply.transfair.converters.idMapping;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
@@ -7,8 +7,8 @@ import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Reads ID-Mappings from csv file. See read_mappings method for details. Access to the mappings is
- * provided by using the methods from the parent class.
+ * Reads ID-Mappings from csv file. See read_mappings method for details.
+ * Access to the mappings is provided by using the methods from the parent class.
  *
  * @see this.read_mappings
  * @see IdMapping
@@ -24,7 +24,7 @@ public class CsvMapping extends IdMapping {
   }
 
   /**
-   * Constructor which stores filepath
+   * Constructor which stores filepath.
    *
    * @param s filepath to csv file where mappings are loaded from
    */

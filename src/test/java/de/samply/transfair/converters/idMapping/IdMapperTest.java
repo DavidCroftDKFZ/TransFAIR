@@ -1,4 +1,4 @@
-package de.samply.transfair.converters.IdMapping;
+package de.samply.transfair.converters.idMapping;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;

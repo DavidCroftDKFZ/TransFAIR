@@ -1,4 +1,4 @@
-package de.samply.transfair.converters.IdMapping;
+package de.samply.transfair.converters.idMapping;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -147,7 +147,7 @@ public abstract class IdMapping {
    * @param srcDomain The domain tht should contain the id
    * @param tarDomain The domain where it should be able to map id to
    * @return Whether a mapping
-   * @throws IllegalArgumentException: Mapping from source to target domain is not within the cache
+   * @throws IllegalArgumentException Mapping from source to target domain is not within the cache
    */
   public boolean existsMapping(
       @NotNull String id, @NotNull String srcDomain, @NotNull String tarDomain) {
@@ -163,8 +163,8 @@ public abstract class IdMapping {
    * @param id id that shall be mapped from source domain to target domain
    * @param srcDomain domain that contains the id
    * @param tarDomain domain the id shall be mapped to
-   * @throws IllegalArgumentException if mapping does not exist
    * @return id from tarDomain which was mapped from input id
+   * @throws IllegalArgumentException if mapping does not exist
    */
   public String mapId(@NotNull String id, @NotNull String srcDomain, @NotNull String tarDomain)
       throws Exception { // TODO: Specify exception type?

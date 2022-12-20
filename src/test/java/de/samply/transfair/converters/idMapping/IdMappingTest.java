@@ -1,4 +1,4 @@
-package de.samply.transfair.converters.IdMapping;
+package de.samply.transfair.converters.idMapping;
 
 import org.junit.jupiter.api.Test;
 import java.io.File;
