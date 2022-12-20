@@ -1,4 +1,4 @@
-package de.samply.transfair.converters.idMapping;
+package de.samply.transfair.converters.idmapping;
 
 import java.util.ArrayList;
 import org.jetbrains.annotations.NotNull;

@@ -9,6 +9,9 @@ import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/** Jump Mapping.
+ * This mapping transfers everything from one blaze with bbmri to another
+ */
 @Component
 @Slf4j
 public class Bbmri2Bbmri extends FhirMappings {
@@ -17,6 +20,7 @@ public class Bbmri2Bbmri extends FhirMappings {
 
   private List<String> resources;
 
+  /** Transferring. */
   public void transfer() {
     log.info("Running TransFAIR in BBMRI2BBMRI mode");
     if (!this.setup()) {

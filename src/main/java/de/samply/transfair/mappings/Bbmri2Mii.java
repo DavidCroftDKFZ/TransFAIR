@@ -20,6 +20,8 @@ import org.hl7.fhir.r4.model.Specimen;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+
+/** Mapping for bbmri.de data and transformation to MII KDS. */
 @Component
 @Slf4j
 public class Bbmri2Mii extends FhirMappings {
@@ -31,6 +33,7 @@ public class Bbmri2Mii extends FhirMappings {
 
   List<String> resources;
 
+  /** Transferring. */
   public void transfer() throws Exception {
 
     if (!this.setup()) {

@@ -1,8 +1,8 @@
 package de.samply.transfair.converters;
 
-import de.samply.transfair.converters.idMapping.CsvMapping;
-import de.samply.transfair.converters.idMapping.IdMapping;
-import de.samply.transfair.converters.idMapping.IdentityMapping;
+import de.samply.transfair.converters.idmapping.CsvMapping;
+import de.samply.transfair.converters.idmapping.IdMapping;
+import de.samply.transfair.converters.idmapping.IdentityMapping;
 import de.samply.transfair.enums.ResourceType;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;

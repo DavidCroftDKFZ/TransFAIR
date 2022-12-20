@@ -1,4 +1,4 @@
-package de.samply.transfair.converters.idMapping;
+package de.samply.transfair.converters.idmapping;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
@@ -18,7 +18,7 @@ public class CsvMapping extends IdMapping {
 
   private String filepath;
 
-  /** Standard constructor */
+  /** Standard constructor. */
   public CsvMapping() {
     super();
   }
@@ -69,9 +69,8 @@ public class CsvMapping extends IdMapping {
       @NotNull String id, @NotNull String srcDomain, @NotNull String tarDomain)
       throws IOException, CsvException, Exception {
     CSVReader reader = new CSVReader(new FileReader(filepath)); // Potential IOException
-    String[] row;
 
-    // Get indicex of rows containing source domain and targe domain
+    // Get indices of rows containing source domain and target domain
     String[] domains = reader.readNext();
     int srcIdx = -1;
     int tarIdx = -1;
@@ -93,6 +92,7 @@ public class CsvMapping extends IdMapping {
 
     // Iterate over whole csv file and search for mapping between the domains where value of
     // src_domain is argumentid
+    String[] row;
     while ((row = reader.readNext()) != null) {
       if (row[srcIdx].equals(id) && !row[tarIdx].equals("")) {
         return row[tarIdx];

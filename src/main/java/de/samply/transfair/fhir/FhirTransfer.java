@@ -30,6 +30,7 @@ public class FhirTransfer {
 
   FhirContext ctx;
 
+  /** Constructor. */
   public FhirTransfer(FhirContext ctx, IdMapper idMapper) {
     this.ctx = ctx;
     this.idMapper = idMapper;
@@ -55,6 +56,7 @@ public class FhirTransfer {
     return resourceList;
   }
 
+  /** Fetches all patient ids. */
   public HashSet<String> fetchPatientIds(IGenericClient client, String startResource) {
     if (Objects.equals(startResource, "Specimen")) {
       return this.getSpecimenPatients(client);
@@ -83,10 +85,12 @@ public class FhirTransfer {
     return resourceList;
   }
 
+  /** Fetches a patient resource. */
   public Patient fetchPatientResource(IGenericClient client, String patientId) {
     return client.read().resource(Patient.class).withId(patientId).execute();
   }
 
+  /** Fetches all patient specimen resources. */
   public List<Specimen> fetchPatientSpecimens(IGenericClient client, String patientId) {
     List<IBaseResource> resourceList = new ArrayList<>();
 
@@ -114,6 +118,7 @@ public class FhirTransfer {
     return specimens;
   }
 
+  /** Fetches all organizations resources. */
   public List<IBaseResource> fetchOrganizations(IGenericClient client) {
     List<IBaseResource> resourceList = new ArrayList<>();
 
@@ -129,6 +134,7 @@ public class FhirTransfer {
     return resourceList;
   }
 
+  /** Fetches all organizations affiliation resources. */
   public List<IBaseResource> fetchOrganizationAffiliation(IGenericClient client) {
     List<IBaseResource> resourceList = new ArrayList<>();
 
@@ -148,6 +154,7 @@ public class FhirTransfer {
     return resourceList;
   }
 
+  /** Fetches all observation resources. */
   public List<IBaseResource> fetchPatientObservation(IGenericClient client, String patientId) {
     List<IBaseResource> resourceList = new ArrayList<>();
 
@@ -169,6 +176,7 @@ public class FhirTransfer {
     return resourceList;
   }
 
+  /** Fetches all condition resources of a patient. */
   public List<IBaseResource> fetchPatientCondition(IGenericClient client, String patientId) {
     List<IBaseResource> resourceList = new ArrayList<>();
 
@@ -190,6 +198,7 @@ public class FhirTransfer {
     return resourceList;
   }
 
+  /** Fetches all patient ids which have a specimen. */
   public HashSet<String> getSpecimenPatients(IGenericClient sourceClient) {
     List<IBaseResource> specimens = fetchSpecimenResources(sourceClient);
     HashSet<String> patientRefs = new HashSet<>();
@@ -210,6 +219,7 @@ public class FhirTransfer {
     return patientRefs;
   }
 
+  /** Builds a bundle out of resource. */
   public Bundle buildResources(List<IBaseResource> resources) {
     Bundle bundleOut = new Bundle();
     bundleOut.setId(String.valueOf(UUID.randomUUID()));

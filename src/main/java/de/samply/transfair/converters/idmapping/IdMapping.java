@@ -1,4 +1,4 @@
-package de.samply.transfair.converters.idMapping;
+package de.samply.transfair.converters.idmapping;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -114,7 +114,7 @@ public abstract class IdMapping {
   }
 
   /**
-   * Overloads {@link this.set_mappings} by adding the option to pass ArrayLists instead of arrays
+   * Overloads {@link this.set_mappings} by adding the option to pass ArrayLists instead of arrays.
    */
   @SuppressWarnings("unused")
   public void setMappings(
@@ -127,12 +127,12 @@ public abstract class IdMapping {
   }
 
   /**
-   * Checks whether mapping from srcDomain to tarDomain is set up in the cache
+   * Checks whether mapping from srcDomain to tarDomain is set up in the cache.
    *
    * @param srcDomain name of srcDomain
    * @param tarDomain name of tarDomain
    * @return Returns a boolean whether srcDomain and tarDomain exist and mapping from srcDomain to
-   *     tarDomain is set up in the cache
+   *     tarDomain is set up in the cache.
    */
   public boolean existDomains(@NotNull String srcDomain, @NotNull String tarDomain) {
     return mappingsCache.containsKey(srcDomain)

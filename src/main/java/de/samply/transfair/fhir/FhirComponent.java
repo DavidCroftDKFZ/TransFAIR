@@ -15,18 +15,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/** Main Class for working with fhir mappings. */
 @Component
 @Slf4j
 public class FhirComponent {
 
+  /** Configuration. */
   @Autowired public Configuration configuration;
 
+  /** ID Mapper. */
   @Autowired private IdMapper mapper;
 
+  /** Override Config. */
   public Map<String, String> overrideConfig = new HashMap<>();
 
+  /** transferController. */
   public FhirTransfer transferController;
+
+  /** Source fhir client. */
   private IGenericClient sourceFhirServer;
+
+  /** Fhir export interface. */
   private FhirExportInterface fhirExportInterface;
 
   FhirComponent() {}
@@ -38,14 +47,7 @@ public class FhirComponent {
     this.transferController = new FhirTransfer(configuration.getCtx(), mapper);
   }
 
-  public void setSourceFhirServer(String server) {
-    overrideConfig.put("sourceServer", server);
-  }
-
-  public void setTargetServer(String server) {
-    overrideConfig.put("targetServer", server);
-  }
-
+  /** Returns source fhir client. */
   public IGenericClient getSourceFhirServer() {
 
     if (Objects.nonNull(sourceFhirServer)) {
@@ -67,6 +69,7 @@ public class FhirComponent {
     return sourceClient.getClient();
   }
 
+  /** Returns fhir export interface. */
   public FhirExportInterface getFhirExportInterface() {
     if (Objects.isNull(fhirExportInterface)) {
       String targetFhirServer =
