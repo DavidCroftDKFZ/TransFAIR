@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . ./
 
-RUN mvn install -Dcheckstyle.skip -DskipTests=true  && \
+RUN mvn install  && \
     mv target/transFAIR-*.jar target/transFAIR.jar
 
 
