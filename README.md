@@ -32,14 +32,14 @@ To do so, specify the required configuration (see [Configuration](#configuration
 
 TransFAIR is configured using environment variables:
 
-| Variable                   | Description                                                                                                        | Default                          |
-|----------------------------|--------------------------------------------------------------------------------------------------------------------|----------------------------------|
-| `TF_SOURCE_ADDR`           | HTTP Address of the `SOURCE` datastore                                                                               | (required)                       |
-| `TF_TARGET_ADDR`           | HTTP Address of the `TARGET` datastore                                                                               | (required)                       |
-| `TF_PROFILE`               | Identifier of the TransFAIR profile to execute (see [Profiles](#profiles))                                         | (required)                       |
-| `TF_START_RESOURCE`        | (`Patient`/`Specimen`) Starts collection resources on the specified level.                                         | `Patient`                        |
-| `TF_RESOURCE_FILTER`       | Set to export only the specified resources.                                                                        | none, will export all ressources |
-| `TF_PSEUDONYMIZATION_ADDR` | HTTP Address pointing to a service to map `SOURCE` IDs to `TARGET` IDs (see [Pseudonymization](#pseudonymization)) | none, IDs will be unchanged      |
+| Variable                        | Description                                                                                                        | Default                          |
+|---------------------------------|--------------------------------------------------------------------------------------------------------------------|----------------------------------|
+| `TF_FHIR_SERVER_SOURCE_ADDRESS` | HTTP Address of the `SOURCE` datastore                                                                               | (required)                       |
+| `TF_FHIR_SERVER_TARGET_ADDRESS` | HTTP Address of the `TARGET` datastore                                                                               | (required)                       |
+| `TF_PROFILE`                    | Identifier of the TransFAIR profile to execute (see [Profiles](#profiles))                                         | (required)                       |
+| `TF_RESOURCES_START`            | (`Patient`/`Specimen`) Starts collection resources on the specified level.                                         | `Patient`                        |
+| `TF_RESOURCES_FILTER`           | Set to export only the specified resources.                                                                        | none, will export all ressources |
+| `TF_PSEUDONYMIZATION_ADDR`      | HTTP Address pointing to a service to map `SOURCE` IDs to `TARGET` IDs (see [Pseudonymization](#pseudonymization)) | none, IDs will be unchanged      |
 
 ## Profiles
 

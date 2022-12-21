@@ -5,12 +5,23 @@ logging:
     org:
       springframework: INFO
 
-TF:
+tf:
+  profile: "none"
+  resources:
+    filter: ""
+    start: ""
+  fhir:
+    server:
+      source:
+        address: ""
+        username: ""
+        password: ""
+      target:
+        address: ""
+        username: ""
+        password: ""
+    filesystem: "false"
+  pseudo:
+    csv: ""
 
-RESOURCEFILTER: ""
-SOURCEFHIRSERVER: ""
-TARGETFHIRSERVER: ""
-STARTRESOURCE: ""
-SAVETOFILESYSTEM: "false"
-PSEUDOCSVFILE: ""
 
