@@ -1,9 +1,13 @@
 package de.samply.transfair.resources;
 
+import de.samply.transfair.converters.Icd10Converter;
+import de.samply.transfair.converters.SnomedSamplyTypeConverter;
+import de.samply.transfair.converters.TemperatureConverter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Extension;
@@ -11,11 +15,8 @@ import org.hl7.fhir.r4.model.Meta;
 import org.hl7.fhir.r4.model.Range;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Type;
-import de.samply.transfair.converters.ICD10Converter;
-import de.samply.transfair.converters.SnomedSamplyTypeConverter;
-import de.samply.transfair.converters.TemperatureConverter;
-import lombok.extern.slf4j.Slf4j;
 
+/** Specimenmappings for converting between bbmri.de and MII KDS. */
 @Slf4j
 public class SpecimenMapping
     extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.hl7.fhir.r4.model.Specimen> {
@@ -34,8 +35,8 @@ public class SpecimenMapping
   String bbmriBodySite;
 
   String storageTemperature;
-  private String diagnosisICD10Gm;
-  String diagnosisICD10Who;
+  private String diagnosisIcd10Gm;
+  String diagnosisIcd10Who;
 
   String collectionRef;
 
@@ -81,9 +82,12 @@ public class SpecimenMapping
           for (Coding codeableConcept1 : codeableConcept.getCoding()) {
             switch (codeableConcept1.getSystem()) {
               case "http://hl7.org/fhir/sid/icd-10":
-                this.diagnosisICD10Who = codeableConcept.getCodingFirstRep().getCode();
+                this.diagnosisIcd10Who = codeableConcept.getCodingFirstRep().getCode();
+                break;
               case "http://fhir.de/CodeSystem/dimdi/icd-10-gm":
-                this.setDiagnosisICD10Gm(codeableConcept.getCodingFirstRep().getCode());
+                this.setDiagnosisIcd10Gm(codeableConcept.getCodingFirstRep().getCode());
+                break;
+              default:
             }
           }
         } else if (Objects.equals(
@@ -144,7 +148,9 @@ public class SpecimenMapping
   @Override
   public org.hl7.fhir.r4.model.Specimen toBbmri() {
 
-    if (this.hasParent) return null;
+    if (this.hasParent) {
+      return null;
+    }
 
     org.hl7.fhir.r4.model.Specimen specimen = new org.hl7.fhir.r4.model.Specimen();
     specimen.setMeta(new Meta().addProfile("https://fhir.bbmri.de/StructureDefinition/Specimen"));
@@ -203,22 +209,22 @@ public class SpecimenMapping
               this.miiStoargeTemperatureHigh, this.miiStoargeTemperaturelow));
     }
 
-    if (Objects.nonNull(this.getDiagnosisICD10Gm()) || Objects.nonNull(this.diagnosisICD10Who)) {
+    if (Objects.nonNull(this.getDiagnosisIcd10Gm()) || Objects.nonNull(this.diagnosisIcd10Who)) {
       Extension extension = new Extension();
       extension.setUrl("https://fhir.bbmri.de/StructureDefinition/SampleDiagnosis");
-      CodeableConcept codeableConcept = new CodeableConcept();
       List<Coding> diagnosis = new ArrayList<>();
-      if (Objects.nonNull(this.getDiagnosisICD10Gm())) {
-        this.diagnosisICD10Who = ICD10Converter.gm2who(this.getDiagnosisICD10Gm());
+      if (Objects.nonNull(this.getDiagnosisIcd10Gm())) {
+        this.diagnosisIcd10Who = Icd10Converter.gm2who(this.getDiagnosisIcd10Gm());
       }
       diagnosis.add(
           new Coding()
               .setSystem("http://fhir.de/CodeSystem/dimdi/icd-10-gm")
-              .setCode(this.getDiagnosisICD10Gm()));
+              .setCode(this.getDiagnosisIcd10Gm()));
       diagnosis.add(
           new Coding()
               .setSystem("http://hl7.org/fhir/sid/icd-10")
-              .setCode(this.getDiagnosisICD10Gm()));
+              .setCode(this.getDiagnosisIcd10Gm()));
+      CodeableConcept codeableConcept = new CodeableConcept();
       extension.setValue(codeableConcept.setCoding(diagnosis));
     }
 
@@ -278,11 +284,11 @@ public class SpecimenMapping
     return miiConditionRef;
   }
 
-  public String getDiagnosisICD10Gm() {
-    return diagnosisICD10Gm;
+  public String getDiagnosisIcd10Gm() {
+    return diagnosisIcd10Gm;
   }
 
-  public void setDiagnosisICD10Gm(String diagnosisICD10Gm) {
-    this.diagnosisICD10Gm = diagnosisICD10Gm;
+  public void setDiagnosisIcd10Gm(String diagnosisIcd10Gm) {
+    this.diagnosisIcd10Gm = this.diagnosisIcd10Gm;
   }
 }

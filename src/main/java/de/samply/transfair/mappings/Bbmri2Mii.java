@@ -3,7 +3,7 @@ package de.samply.transfair.mappings;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import de.samply.transfair.enums.ProfileFormats;
 import de.samply.transfair.fhir.FhirComponent;
-import de.samply.transfair.resources.CauseOfDeath;
+import de.samply.transfair.resources.CauseOfDeathMapping;
 import de.samply.transfair.resources.CheckResources;
 import de.samply.transfair.resources.ConditionMapping;
 import de.samply.transfair.resources.PatientMapping;
@@ -20,6 +20,8 @@ import org.hl7.fhir.r4.model.Specimen;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+
+/** Mapping for bbmri.de data and transformation to MII KDS. */
 @Component
 @Slf4j
 public class Bbmri2Mii extends FhirMappings {
@@ -31,6 +33,7 @@ public class Bbmri2Mii extends FhirMappings {
 
   List<String> resources;
 
+  /** Transferring. */
   public void transfer() throws Exception {
 
     if (!this.setup()) {
@@ -87,12 +90,12 @@ public class Bbmri2Mii extends FhirMappings {
           Observation observation = (Observation) base;
 
           if (CheckResources.checkBbmriCauseOfDeath(observation)) {
-            CauseOfDeath causeOfDeath = new CauseOfDeath();
-            causeOfDeath.fromBbmri(observation);
+            CauseOfDeathMapping causeOfDeathMapping = new CauseOfDeathMapping();
+            causeOfDeathMapping.fromBbmri(observation);
             log.debug("Analysing Cause of Death " + observation.getId() + " with format bbmri");
 
             if (targetFormat == ProfileFormats.BBMRI) {
-              patientResources.add(causeOfDeath.toBbmri());
+              patientResources.add(causeOfDeathMapping.toBbmri());
               log.debug("Analysing Cause of Death " + observation.getId() + " with format bbmri");
             }
           }

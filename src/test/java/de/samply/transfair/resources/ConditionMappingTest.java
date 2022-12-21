@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import static de.samply.transfair.util.JsonUtils.*;
+import static de.samply.transfair.JsonUtils.*;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class ConditionMappingTest {

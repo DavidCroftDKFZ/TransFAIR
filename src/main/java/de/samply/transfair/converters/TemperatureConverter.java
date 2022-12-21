@@ -5,14 +5,16 @@ import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Quantity;
 import org.hl7.fhir.r4.model.Range;
 
+/** Convert between bbmri.de and MII KDS temperature. */
 public class TemperatureConverter {
 
-  public static Extension fromBbrmiToMii(String BbmriTemp) {
+  /** From bbmri.de to MII KDS temperature. */
+  public static Extension fromBbrmiToMii(String bbmriTemp) {
     Extension extension = new Extension();
     extension.setUrl(
         "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen");
 
-    switch (BbmriTemp) {
+    switch (bbmriTemp) {
       case "temperature2to10" -> extension.setValue(
           new Range().setHigh(new Quantity(10)).setLow(new Quantity(2)));
       case "temperature-18to-35" -> extension.setValue(
@@ -26,11 +28,12 @@ public class TemperatureConverter {
       case "temperatureRoom" -> extension.setValue(
           new Range().setHigh(new Quantity(30)).setLow(new Quantity(11)));
       case "temperatureOther" -> extension.setValue(new Range());
+      default -> new Range();
     }
-
     return extension;
   }
 
+  /** From MII KDS to bbmri.de temperature. */
   public static Extension fromMiiToBbmri(Long high, Long low) {
     Extension extension = new Extension();
     extension.setUrl("https://fhir.bbmri.de/StructureDefinition/StorageTemperature");

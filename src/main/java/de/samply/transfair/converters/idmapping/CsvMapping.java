@@ -1,4 +1,4 @@
-package de.samply.transfair.converters.id_mapping;
+package de.samply.transfair.converters.idmapping;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
@@ -7,29 +7,29 @@ import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Reads ID-Mappings from csv file. See read_mappings method for details. Access to the mappings is
- * provided by using the methods from the parent class.
+ * Reads ID-Mappings from csv file. See read_mappings method for details.
+ * Access to the mappings is provided by using the methods from the parent class.
  *
  * @see this.read_mappings
- * @see ID_Mapping
+ * @see IdMapping
  * @author jdoerenberg
  */
-public class CSV_Mapping extends ID_Mapping {
+public class CsvMapping extends IdMapping {
 
   private String filepath;
 
-  /** Standard constructor */
-  public CSV_Mapping() {
+  /** Standard constructor. */
+  public CsvMapping() {
     super();
   }
 
   /**
-   * Constructor which stores filepath
+   * Constructor which stores filepath.
    *
    * @param s filepath to csv file where mappings are loaded from
    */
   @SuppressWarnings("unused")
-  public CSV_Mapping(@NotNull String s) {
+  public CsvMapping(@NotNull String s) {
     super();
     this.filepath = s;
   }
@@ -65,37 +65,40 @@ public class CSV_Mapping extends ID_Mapping {
    * @throws CsvException in case file at this.filepath is not a proper csv file
    */
   @Override
-  public String fetch_mapping(
-      @NotNull String id, @NotNull String src_domain, @NotNull String tar_domain)
+  public String fetchMapping(
+      @NotNull String id, @NotNull String srcDomain, @NotNull String tarDomain)
       throws IOException, CsvException, Exception {
     CSVReader reader = new CSVReader(new FileReader(filepath)); // Potential IOException
-    String[] row;
 
-    // Get indicex of rows containing source domain and targe domain
+    // Get indices of rows containing source domain and target domain
     String[] domains = reader.readNext();
-    int src_idx = -1;
-    int tar_idx = -1;
+    int srcIdx = -1;
+    int tarIdx = -1;
     for (int i = 0; i < domains.length; i++) {
-      if (domains[i].equals(src_domain)) src_idx = i;
-      if (domains[i].equals(tar_domain)) tar_idx = i;
+      if (domains[i].equals(srcDomain)) {
+        srcIdx = i;
+      }
+      if (domains[i].equals(tarDomain)) {
+        tarIdx = i;
+      }
     }
     // If one of the domains is not found, throw an exception
-    if (src_idx == -1)
-      throw new Exception("Domain " + src_domain + " not found in csv file " + this.filepath);
-    if (tar_idx == -1)
-      throw new Exception("Domain " + tar_domain + " not found in csv file " + this.filepath);
+    if (srcIdx == -1) {
+      throw new Exception("Domain " + srcDomain + " not found in csv file " + this.filepath);
+    }
+    if (tarIdx == -1) {
+      throw new Exception("Domain " + tarDomain + " not found in csv file " + this.filepath);
+    }
 
     // Iterate over whole csv file and search for mapping between the domains where value of
     // src_domain is argumentid
+    String[] row;
     while ((row = reader.readNext()) != null) {
-      if (row[src_idx].equals(id) && !row[tar_idx].equals("")) return row[tar_idx];
+      if (row[srcIdx].equals(id) && !row[tarIdx].equals("")) {
+        return row[tarIdx];
+      }
     }
     throw new Exception(
-        "No mapping from domain "
-            + src_domain
-            + " to domain "
-            + tar_domain
-            + " found for id "
-            + id);
+        "No mapping from domain " + srcDomain + " to domain " + tarDomain + " found for id " + id);
   }
 }

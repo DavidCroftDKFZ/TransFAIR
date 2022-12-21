@@ -2,13 +2,16 @@ package de.samply.transfair.converters;
 
 import java.util.HashMap;
 
-public class ICD10Converter {
+/** Converter between ICD10-GM and ICD10-WHO. */
+public class Icd10Converter {
 
+  /** Converts between ICD10-WHO and ICD10-GM. */
   public static String who2gm(String icd10Code) throws Exception {
     throw new Exception("What on Earth are you thinking???!!!");
     // return icd10Code;
   }
 
+  /** Converts between ICD10-GM and ICD10-WHO. */
   public static String gm2who(String icd10Code) {
 
     HashMap<String, String> icd10gm2icd10who = new HashMap<String, String>();

@@ -1,18 +1,14 @@
 version: "3.7"
 
 services:
-  source_blaze:
-    container_name: source-blaze
-    image: samply/blaze:develop
+  transfair:
+    container_name: transfair
+    image: samply/transfair
     environment:
-      BASE_URL: "http://localhost:8082"
+      RESOURCEFILTER: ${RESOURCE_FILTER}
+      SOURCEFHIRSERVER: ${SOURCE_FHIR_SERVER}
+      TARGETFHIRSERVER: ${TARGET_FHIR_SERVER}
+      STARTRESOURCE: ${START_RESOURCE}
+      SAVETOFILESYSTEM: ${SAVE_TO_FILESYSTEM}
     ports:
-      - "8082:8080"
-
-  target_blaze:
-    container_name: target-blaze
-    image: samply/blaze:develop
-    environment:
-      BASE_URL: "http://localhost:8083"
-    ports:
-      - "8083:8080"
+      - "8070:8070"

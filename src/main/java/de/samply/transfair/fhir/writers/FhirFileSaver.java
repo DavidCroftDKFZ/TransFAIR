@@ -6,13 +6,16 @@ import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.r4.model.Bundle;
 
+/** Interface to post data to local file system. */
 @Slf4j
 public class FhirFileSaver extends FhirExportInterface {
 
+  /** Filer Saver constructor. */
   public FhirFileSaver(FhirContext context) {
     this.ctx = context;
   }
 
+  /** export. */
   @Override
   public Boolean export(Bundle bundle) {
 

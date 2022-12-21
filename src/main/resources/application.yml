@@ -3,8 +3,9 @@ server:
 logging:
   level:
     org:
-      springframework: DEBUG
+      springframework: INFO
 
+TF:
 
 RESOURCEFILTER: ""
 SOURCEFHIRSERVER: ""

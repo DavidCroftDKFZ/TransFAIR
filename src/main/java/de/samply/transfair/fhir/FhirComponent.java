@@ -2,12 +2,11 @@ package de.samply.transfair.fhir;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import de.samply.transfair.Configuration;
-import de.samply.transfair.converters.IDMapper;
+import de.samply.transfair.converters.IdMapper;
 import de.samply.transfair.fhir.clients.FhirClient;
 import de.samply.transfair.fhir.writers.FhirExportInterface;
 import de.samply.transfair.fhir.writers.FhirFileSaver;
 import de.samply.transfair.fhir.writers.FhirServerSaver;
-import de.samply.transfair.util.FhirTransferUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -16,18 +15,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/** Main Class for working with fhir mappings. */
 @Component
 @Slf4j
 public class FhirComponent {
 
+  /** Configuration. */
   @Autowired public Configuration configuration;
 
-  @Autowired private IDMapper mapper;
+  /** ID Mapper. */
+  @Autowired private IdMapper mapper;
 
+  /** Override Config. */
   public Map<String, String> overrideConfig = new HashMap<>();
 
-  public FhirTransferUtil transferController;
+  /** transferController. */
+  public FhirTransfer transferController;
+
+  /** Source fhir client. */
   private IGenericClient sourceFhirServer;
+
+  /** Fhir export interface. */
   private FhirExportInterface fhirExportInterface;
 
   FhirComponent() {}
@@ -36,17 +44,10 @@ public class FhirComponent {
   private void setup() {
     configuration.getCtx().getRestfulClientFactory().setSocketTimeout(300 * 1000);
 
-    this.transferController = new FhirTransferUtil(configuration.getCtx(), mapper);
+    this.transferController = new FhirTransfer(configuration.getCtx(), mapper);
   }
 
-  public void setSourceFhirServer(String server) {
-    overrideConfig.put("sourceServer", server);
-  }
-
-  public void setTargetServer(String server) {
-    overrideConfig.put("targetServer", server);
-  }
-
+  /** Returns source fhir client. */
   public IGenericClient getSourceFhirServer() {
 
     if (Objects.nonNull(sourceFhirServer)) {
@@ -68,6 +69,7 @@ public class FhirComponent {
     return sourceClient.getClient();
   }
 
+  /** Returns fhir export interface. */
   public FhirExportInterface getFhirExportInterface() {
     if (Objects.isNull(fhirExportInterface)) {
       String targetFhirServer =

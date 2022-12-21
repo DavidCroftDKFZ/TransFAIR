@@ -2,8 +2,10 @@ package de.samply.transfair.converters;
 
 import java.util.Objects;
 
+/** Static methods for converting the bbmri.de sample types to SnomedCT codes and back. */
 public class SnomedSamplyTypeConverter {
 
+  /** From SnomedCT to bbmri.de sample type. */
   public static String fromMiiToBbmri(String snomedType) {
     return switch (snomedType) {
       case "119297000" -> "whole-blood";
@@ -34,12 +36,13 @@ public class SnomedSamplyTypeConverter {
     };
   }
 
-  public static String fromBbmriToMii(String BbmriType) {
-    String default_snomedcode = "123038009";
-    if (Objects.equals(BbmriType, null)) {
-      return default_snomedcode;
+  /** From bbmri.de to SnomedCT sample type. */
+  public static String fromBbmriToMii(String bbmriType) {
+    String defaultSnomedcode = "123038009";
+    if (Objects.equals(bbmriType, null)) {
+      return defaultSnomedcode;
     }
-    return switch (BbmriType) {
+    return switch (bbmriType) {
       case "whole-blood" -> "119297000";
       case "bone-marrow" -> "119359002";
       case "buffy-coat" -> "258587000";
@@ -70,7 +73,7 @@ public class SnomedSamplyTypeConverter {
       case "g-dna" -> "18470003"; // Check
       case "rna" -> "441673008";
       case "liquid-other" -> "33463005";
-      default -> default_snomedcode;
+      default -> defaultSnomedcode;
     };
   }
 }

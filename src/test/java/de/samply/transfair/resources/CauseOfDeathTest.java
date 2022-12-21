@@ -1,6 +1,6 @@
 package de.samply.transfair.resources;
 
-import static de.samply.transfair.util.JsonUtils.compareFhirObjects;
+import static de.samply.transfair.JsonUtils.compareFhirObjects;
 import java.util.List;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.CodeableConcept;
@@ -54,30 +54,48 @@ public class CauseOfDeathTest {
   }
 
   @Test
+  void failConvertionBBMRI() {
+    CauseOfDeathMapping causeOfDeathMapping = new CauseOfDeathMapping();
+
+    causeOfDeathMapping.fromBbmri(new Observation());
+
+    compareFhirObjects(new Observation(), causeOfDeathMapping.toBbmri());
+  }
+
+  @Test
+  void failConvertionMII() {
+    CauseOfDeathMapping causeOfDeathMapping = new CauseOfDeathMapping();
+
+    causeOfDeathMapping.fromMii(new Condition());
+
+    compareFhirObjects(new Condition(), causeOfDeathMapping.toMii());
+  }
+
+  @Test
   void convertFromBbmriToMii() {
-    CauseOfDeath causeOfDeath = new CauseOfDeath();
+    CauseOfDeathMapping causeOfDeathMapping = new CauseOfDeathMapping();
 
-    causeOfDeath.fromBbmri(causeOfDeathBbmri);
+    causeOfDeathMapping.fromBbmri(causeOfDeathBbmri);
 
-    compareFhirObjects(causeOfDeathMII, causeOfDeath.toMii());
+    compareFhirObjects(causeOfDeathMII, causeOfDeathMapping.toMii());
   }
 
   @Test
   void convertFromBbmriToBbmri() {
-    CauseOfDeath causeOfDeath = new CauseOfDeath();
+    CauseOfDeathMapping causeOfDeathMapping = new CauseOfDeathMapping();
 
-    causeOfDeath.fromBbmri(causeOfDeathBbmri);
+    causeOfDeathMapping.fromBbmri(causeOfDeathBbmri);
 
-    compareFhirObjects(causeOfDeathBbmri,causeOfDeath.toBbmri());
+    compareFhirObjects(causeOfDeathBbmri, causeOfDeathMapping.toBbmri());
   }
 
   @Test
   void convertFromMiiToBbmri() {
-    CauseOfDeath causeOfDeath = new CauseOfDeath();
+    CauseOfDeathMapping causeOfDeathMapping = new CauseOfDeathMapping();
 
-    causeOfDeath.fromMii(causeOfDeathMII);
+    causeOfDeathMapping.fromMii(causeOfDeathMII);
 
-    compareFhirObjects(causeOfDeathBbmri,causeOfDeath.toBbmri());
+    compareFhirObjects(causeOfDeathBbmri, causeOfDeathMapping.toBbmri());
   }
 }
 
