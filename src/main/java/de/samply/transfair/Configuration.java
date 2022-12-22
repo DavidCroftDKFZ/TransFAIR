@@ -33,6 +33,12 @@ public class Configuration {
   @Value("${tf.fhir.server.target.address}")
   private String targetFhirServer;
 
+  @Value("${tf.id.patient.whitelist}")
+  private String whitelist;
+
+  @Value("${tf.id.patient.blacklist}")
+  private String blacklist;
+
   @Value("${tf.fhir.server.target.username}")
   private String targetFhirServerUsername;
 
