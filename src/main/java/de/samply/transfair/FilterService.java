@@ -3,6 +3,7 @@ package de.samply.transfair;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.samply.transfair.models.FilterModel;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class FilterService {
   public FilterModel blacklist;
 
   @PostConstruct
-  private void processFilter() throws JsonProcessingException {
+  private void processFilter() throws Exception {
     if (!configuration.getWhitelist().isBlank()) {
       ObjectMapper objectMapper = new ObjectMapper();
       whitelist = objectMapper.readValue(configuration.getWhitelist(), FilterModel.class);
@@ -30,6 +31,12 @@ public class FilterService {
     if (!configuration.getBlacklist().isBlank()) {
       ObjectMapper objectMapper = new ObjectMapper();
       blacklist = objectMapper.readValue(configuration.getBlacklist(), FilterModel.class);
+    }
+
+    if (Objects.nonNull(blacklist) && Objects.nonNull(whitelist)) {
+      if (!blacklist.patient.ids.isEmpty() && !whitelist.patient.ids.isEmpty()) {
+        throw new Exception("Both white and blacklist patient ids are set!");
+      }
     }
   }
 }
