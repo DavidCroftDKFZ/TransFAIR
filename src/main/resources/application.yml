@@ -10,10 +10,8 @@ tf:
   resources:
     filter: ""
     start: ""
-  id:
-    patient:
-      whitelist: ""
-      blacklist: ""
+    whitelist: ""
+    blacklist: ""
   fhir:
     server:
       source:

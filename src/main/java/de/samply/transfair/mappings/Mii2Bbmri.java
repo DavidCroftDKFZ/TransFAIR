@@ -50,7 +50,7 @@ public class Mii2Bbmri extends FhirMappings {
     }
 
     if (Objects.nonNull(filterService.whitelist)) {
-      patientIds.removeIf(item -> !filterService.blacklist.patient.ids.contains(item));
+      patientIds.removeIf(item -> !filterService.whitelist.patient.ids.contains(item));
     }
 
     log.info("Loaded " + patientIds.size() + " Patients");
