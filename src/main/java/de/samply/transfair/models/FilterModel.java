@@ -13,14 +13,14 @@ public class FilterModel {
   /** Class fppr specimen related attrs. */
   public static class Specimen {
     public ArrayList<String> ids;
-    public ArrayList<String> profile;
+    public ArrayList<String> fhirProfile;
     public ArrayList<String> orgaFilter;
   }
 
   /** Class fppr specimen related attrs. */
   public static class Patient {
     public ArrayList<String> ids;
-    public ArrayList<String> profile;
+    public ArrayList<String> fhirProfile;
     public ArrayList<String> orgaFilter;
   }
 }

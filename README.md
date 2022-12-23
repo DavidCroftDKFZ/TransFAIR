@@ -57,8 +57,8 @@ As of now, TransFAIR supports the following transformation profiles:
 
 ## Filters
 
-TransFAIR supports many filter to customize the ETL process. Filters are coded with json.
-For example here we provide a filter that either ban or only transfers the ids.
+TransFAIR supports many filters to customize the ETL process. Filters are coded with json.
+For example here we provide a filter that either bans or only transfers the ids.
 
 ```json
 {"patient": {
