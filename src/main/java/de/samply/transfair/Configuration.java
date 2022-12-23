@@ -12,29 +12,36 @@ public class Configuration {
 
   private final FhirContext ctx = FhirContext.forR4();
 
-  @Value("${SOURCEFHIRSERVER}")
+  @Value("${tf.fhir.server.source.address}")
   private String sourceFhirServer;
 
+  @Value("${tf.fhir.server.source.username}")
   private String sourceFhirServerUsername;
 
+  @Value("${tf.fhir.server.source.password}")
   private String sourceFhirServerPassword;
 
-  @Value("${STARTRESOURCE}")
+  @Value("${tf.resources.start}")
   private String startResource;
 
-  @Value("${RESOURCEFILTER}")
+  @Value("${tf.resources.filter}")
   private String resourcesFilter;
 
-  @Value("${TARGETFHIRSERVER}")
+  @Value("${tf.profile}")
+  private String profile;
+
+  @Value("${tf.fhir.server.target.address}")
   private String targetFhirServer;
 
+  @Value("${tf.fhir.server.target.username}")
   private String targetFhirServerUsername;
 
+  @Value("${tf.fhir.server.target.password}")
   private String targetFhirServerPassword;
 
-  @Value("${SAVETOFILESYSTEM}")
+  @Value("${tf.fhir.filesystem}")
   private boolean saveToFileSystem;
 
-  @Value("${PSEUDOCSVFILE}")
+  @Value("${tf.pseudo.csv}")
   private String csvFileName;
 }
