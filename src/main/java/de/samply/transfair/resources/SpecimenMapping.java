@@ -18,7 +18,7 @@ import org.hl7.fhir.r4.model.Type;
 
 /** Specimenmappings for converting between bbmri.de and MII KDS. */
 @Slf4j
-public class SpecimenMapping
+public class SpecimenMapping 
     extends ConvertClass<org.hl7.fhir.r4.model.Specimen, org.hl7.fhir.r4.model.Specimen> {
 
   // Shared
@@ -143,6 +143,19 @@ public class SpecimenMapping
         this.setMiiConditionRef(extension.getValue().toString());
       }
     }
+
+
+    // Storage temperature is an extension of the collection
+    for (Extension extension : resource.getCollection().getExtension()) {
+      if (Objects.equals(
+          extension.getUrl(),
+          "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen")) {
+        Range r = (Range) extension.getValue();
+        this.miiStoargeTemperatureHigh = r.getHigh().getValue().longValue();
+        this.miiStoargeTemperaturelow = r.getLow().getValue().longValue();
+      } 
+    }
+
   }
 
   @Override
@@ -173,7 +186,7 @@ public class SpecimenMapping
     }
 
     CodeableConcept coding = new CodeableConcept();
-    coding.getCodingFirstRep().setCode(bbmrisampleType);
+    coding.getCodingFirstRep().setCode(bbmrisampleType).setSystem("https://fhir.bbmri.de/CodeSystem/SampleMaterialType");
     specimen.setType(coding);
 
     specimen.getCollection().getCollectedDateTimeType().setValue(this.collectedDate);
@@ -186,14 +199,12 @@ public class SpecimenMapping
     }
 
     CodeableConcept bodySiteCode = new CodeableConcept();
-    bodySiteCode.getCodingFirstRep().setCode(this.bbmriBodySite);
-    bodySiteCode.getCodingFirstRep().setSystem("urn:oid:1.3.6.1.4.1.19376.1.3.11.36");
+    bodySiteCode.getCodingFirstRep()
+        .setCode(this.bbmriBodySite)
+        .setSystem("urn:oid:1.3.6.1.4.1.19376.1.3.11.36");
     specimen.getCollection().setBodySite(bodySiteCode);
 
-    specimen
-        .getCollection()
-        .getFastingStatusCodeableConcept()
-        .getCodingFirstRep()
+    specimen.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep()
         .setCode(this.fastingStatus);
 
     if (Objects.nonNull(storageTemperature)) {
@@ -218,12 +229,12 @@ public class SpecimenMapping
       }
       diagnosis.add(
           new Coding()
-              .setSystem("http://fhir.de/CodeSystem/dimdi/icd-10-gm")
-              .setCode(this.getDiagnosisIcd10Gm()));
+          .setSystem("http://fhir.de/CodeSystem/dimdi/icd-10-gm")
+          .setCode(this.getDiagnosisIcd10Gm()));
       diagnosis.add(
           new Coding()
-              .setSystem("http://hl7.org/fhir/sid/icd-10")
-              .setCode(this.getDiagnosisIcd10Gm()));
+          .setSystem("http://hl7.org/fhir/sid/icd-10")
+          .setCode(this.getDiagnosisIcd10Gm()));
       CodeableConcept codeableConcept = new CodeableConcept();
       extension.setValue(codeableConcept.setCoding(diagnosis));
     }
@@ -236,8 +247,8 @@ public class SpecimenMapping
     org.hl7.fhir.r4.model.Specimen specimen = new org.hl7.fhir.r4.model.Specimen();
     specimen.setMeta(
         new Meta()
-            .addProfile(
-                "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Specimen"));
+        .addProfile(
+            "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Specimen"));
 
     if (!bbmriId.isEmpty() && miiId.isEmpty()) {
       // Todo: Add mapping from Patientfilter

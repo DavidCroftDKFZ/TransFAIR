@@ -38,21 +38,25 @@ public class TemperatureConverter {
     Extension extension = new Extension();
     extension.setUrl("https://fhir.bbmri.de/StructureDefinition/StorageTemperature");
 
+    CodeableConcept codeableConcept = new CodeableConcept();
+
     if (high <= 10 && low >= 2) {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperature2to10"));
+      codeableConcept.getCodingFirstRep().setSystem("https://fhir.bbmri.de/CodeSystem/StorageTemperature").setCode("temperature2to10");
     } else if (high <= -18 && low >= -35) {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperature-18to-35"));
+      codeableConcept.getCodingFirstRep().setSystem("https://fhir.bbmri.de/CodeSystem/StorageTemperature").setCode("temperature-18to-35");
     } else if (high <= -60 && low >= -85) {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperature-60to-85"));
+      codeableConcept.getCodingFirstRep().setSystem("https://fhir.bbmri.de/CodeSystem/StorageTemperature").setCode("temperature-60to-85");
     } else if (high <= -209 && low >= -196) {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperatureLN"));
+      codeableConcept.getCodingFirstRep().setSystem("https://fhir.bbmri.de/CodeSystem/StorageTemperature").setCode("temperatureLN");
     } else if (high <= -160 && low >= -195) {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperatureGN"));
+      codeableConcept.getCodingFirstRep().setSystem("https://fhir.bbmri.de/CodeSystem/StorageTemperature").setCode("temperatureGN");
     } else if (high <= 30 && low >= 11) {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperatureRoom"));
+      codeableConcept.getCodingFirstRep().setSystem("https://fhir.bbmri.de/CodeSystem/StorageTemperature").setCode("temperatureRoom");
     } else {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperatureOther"));
+      codeableConcept.getCodingFirstRep().setSystem("https://fhir.bbmri.de/CodeSystem/StorageTemperature").setCode("temperatureOther");
     }
+
+    extension.setValue(codeableConcept);
 
     return extension;
   }

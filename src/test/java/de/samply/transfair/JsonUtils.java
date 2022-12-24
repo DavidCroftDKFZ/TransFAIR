@@ -13,6 +13,8 @@ public class JsonUtils {
   public static void compareFhirObjects(IBaseResource a, IBaseResource b) {
     String actualAsJson = parser.encodeResourceToString(a);
     String expectedAsJson = parser.encodeResourceToString(b);
+    log.info(actualAsJson);
+    log.info(expectedAsJson);
     assert(Objects.equals(expectedAsJson, actualAsJson));
   }
 
