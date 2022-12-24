@@ -257,7 +257,7 @@ public class SpecimenMapping
     }
 
     CodeableConcept coding = new CodeableConcept();
-    coding.getCodingFirstRep().setCode(miiSampleType);
+    coding.getCodingFirstRep().setCode(miiSampleType).setSystem("http://snomed.info/sct");
     specimen.setType(coding);
 
     specimen.getCollection().getCollectedDateTimeType().setValue(this.collectedDate);
