@@ -1,12 +1,18 @@
-# Test for MII 2 BBMRI.de
+# Test for MII 2 bbmri.de
+
+A small test setup for transfairing MII KDS data sets to [bbmri.de](https://simplifier.net/bbmri.de).
 
 ## Usage
+
+### Preparation
+
+Start the FHIR Servers with
 
 ```
 docker-compose up
 ```
 
-## Data
+### Data
 
 Upload data with 
 
@@ -14,8 +20,10 @@ Upload data with
 curl -d @mii_test_person.json -H "Content-Type: application/json" http://localhost:8082/fhir 
 ```
 
-## Conversion
+### transfairing
+
+Transfer the data with
 
 ```
-curl http://localhost:8070/v1/fhir/mii2bbmri
+docker run --env-file ./.env samply/transfair
 ```

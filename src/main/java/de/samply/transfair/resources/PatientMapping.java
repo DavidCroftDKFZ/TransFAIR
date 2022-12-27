@@ -3,6 +3,7 @@ package de.samply.transfair.resources;
 import java.util.Date;
 import org.hl7.fhir.r4.model.BooleanType;
 import org.hl7.fhir.r4.model.Enumerations.AdministrativeGenderEnumFactory;
+import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Meta;
 
 /** Patientmappings for converting between bbmri.de and MII KDS. */
@@ -14,6 +15,9 @@ public class PatientMapping
 
   // BBMRI data
   String bbmriId = "";
+
+  Identifier identifier;
+
   Date brithDate;
   Boolean patientDeceased;
   Date patientDeceasedDateTime;

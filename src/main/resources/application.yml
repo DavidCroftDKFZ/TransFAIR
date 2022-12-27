@@ -10,6 +10,8 @@ tf:
   resources:
     filter: ""
     start: ""
+    whitelist: ""
+    blacklist: ""
   fhir:
     server:
       source:
