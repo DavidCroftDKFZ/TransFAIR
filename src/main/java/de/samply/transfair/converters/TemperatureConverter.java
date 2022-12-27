@@ -24,7 +24,7 @@ public class TemperatureConverter {
       case "temperature-60to-85" -> extension.setValue(
           new Range().setHigh(new Quantity(-60)).setLow(new Quantity(-85)));
       case "temperatureGN" -> extension.setValue(
-          new Range().setHigh(new Quantity(-195)).setLow(new Quantity(-160)));
+          new Range().setHigh(new Quantity(-160)).setLow(new Quantity(-195)));
       case "temperatureLN" -> extension.setValue(
           new Range().setHigh(new Quantity(-196)).setLow(new Quantity(-209)));
       case "temperatureRoom" -> extension.setValue(
@@ -48,7 +48,7 @@ public class TemperatureConverter {
       codeableConcept.getCodingFirstRep().setSystem(URL).setCode("temperature-18to-35");
     } else if (high <= -60 && low >= -85) {
       codeableConcept.getCodingFirstRep().setSystem(URL).setCode("temperature-60to-85");
-    } else if (high <= -209 && low >= -196) {
+    } else if (high <= -196 && low >= -209) {
       codeableConcept.getCodingFirstRep().setSystem(URL).setCode("temperatureLN");
     } else if (high <= -160 && low >= -195) {
       codeableConcept.getCodingFirstRep().setSystem(URL).setCode("temperatureGN");

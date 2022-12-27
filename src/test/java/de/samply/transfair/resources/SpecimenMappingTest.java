@@ -14,7 +14,6 @@ import org.hl7.fhir.r4.model.Range;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Specimen;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
