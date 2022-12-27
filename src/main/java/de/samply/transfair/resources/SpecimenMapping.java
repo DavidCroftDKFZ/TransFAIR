@@ -25,6 +25,7 @@ public class SpecimenMapping
   Date collectedDate;
 
   String fastingStatus;
+  String fastingStatusSystem;
 
   // BBMRI data
   String bbmriId = "";
@@ -67,6 +68,8 @@ public class SpecimenMapping
     this.bbmriBodySite = resource.getCollection().getBodySite().getCodingFirstRep().getCode();
     this.fastingStatus =
         resource.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().getCode();
+    this.fastingStatusSystem = 
+        resource.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().getSystem();
 
     try {
       for (Extension e : resource.getExtension()) {
@@ -129,6 +132,8 @@ public class SpecimenMapping
 
     this.fastingStatus =
         resource.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().getCode();
+    this.fastingStatusSystem = 
+        resource.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep().getSystem();
 
     for (Extension extension : resource.getProcessingFirstRep().getExtension()) {
       if (Objects.equals(
@@ -205,7 +210,7 @@ public class SpecimenMapping
     specimen.getCollection().setBodySite(bodySiteCode);
 
     specimen.getCollection().getFastingStatusCodeableConcept().getCodingFirstRep()
-        .setCode(this.fastingStatus);
+        .setSystem(this.fastingStatusSystem).setCode(this.fastingStatus);
 
     if (Objects.nonNull(storageTemperature)) {
       Extension extension = new Extension();
@@ -274,10 +279,8 @@ public class SpecimenMapping
     specimen.getCollection().getCollectedDateTimeType().setValue(this.collectedDate);
 
     specimen
-        .getCollection()
-        .getFastingStatusCodeableConcept()
-        .getCodingFirstRep()
-        .setCode(this.fastingStatus);
+        .getCollection().getFastingStatusCodeableConcept().getCodingFirstRep()
+        .setSystem(this.fastingStatusSystem).setCode(this.fastingStatus);
 
     if (!Objects.equals(this.storageTemperature, null)) {
       specimen

@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Quantity;
@@ -13,6 +14,7 @@ import org.hl7.fhir.r4.model.Range;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Specimen;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -47,9 +49,9 @@ public class SpecimenMappingTest {
     cal.set(Calendar.SECOND, 0);
     cal.set(Calendar.ZONE_OFFSET, 2);
     Date collectedDate = cal.getTime();
-
-    //    DateTimeType collected = new DateTimeType();
-    //    collected.setValueAsString("1997-10-22T00:00:00+02:00");
+    
+    Coding fastingStatus = new Coding();
+    fastingStatus.setSystem("http://terminology.hl7.org/CodeSystem/v2-0916").setCode("F");
 
     specimenBbmriForConverting = new Specimen();
     specimenBbmriForConverting.setId("specimenId");
@@ -74,6 +76,8 @@ public class SpecimenMappingTest {
     codeableConceptBbmriForConvertingSampleType.getCodingFirstRep().setSystem("https://fhir.bbmri.de/CodeSystem/SampleMaterialType").setCode("blood-plasma");
     specimenBbmriForConverting.setType(codeableConceptBbmriForConvertingSampleType);
     specimenBbmriForConverting.getCollection().getCollectedDateTimeType().setValue(collectedDate);
+    
+    specimenBbmriForConverting.getCollection().getFastingStatusCodeableConcept().addCoding(fastingStatus);
 
 
     specimenMiiForComparing = new Specimen();
@@ -90,6 +94,8 @@ public class SpecimenMappingTest {
     codingSampleTypeMiiForComparing.getCodingFirstRep().setCode("119361006").setSystem("http://snomed.info/sct");
     specimenMiiForComparing.setType(codingSampleTypeMiiForComparing);
     specimenMiiForComparing.getCollection().getCollectedDateTimeType().setValue(collectedDate);
+    
+    specimenMiiForComparing.getCollection().getFastingStatusCodeableConcept().addCoding(fastingStatus);
 
 
 
@@ -112,6 +118,8 @@ public class SpecimenMappingTest {
     specimenMiiForConverting.setType(codingSampleTypeMiiForConverting);
 
     specimenMiiForConverting.getCollection().getCollectedDateTimeType().setValue(collectedDate);
+    
+    specimenMiiForConverting.getCollection().getFastingStatusCodeableConcept().addCoding(fastingStatus);
 
 
     specimenBbmriForComparing = new Specimen();
@@ -135,6 +143,8 @@ public class SpecimenMappingTest {
     specimenBbmriForComparing.setType(codeableConceptBbmriForComparingSampleType);
 
     specimenBbmriForComparing.getCollection().getCollectedDateTimeType().setValue(collectedDate);
+    
+    specimenBbmriForComparing.getCollection().getFastingStatusCodeableConcept().addCoding(fastingStatus);
 
   }
 
