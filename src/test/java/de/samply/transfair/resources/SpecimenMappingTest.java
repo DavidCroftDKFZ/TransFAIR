@@ -102,7 +102,7 @@ public class SpecimenMappingTest {
     storageTemperatureExtensionMiiForConverting.setUrl(
         "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen");
     storageTemperatureExtensionMiiForConverting.setValue(new Range().setHigh(new Quantity(-195)).setLow(new Quantity(-160)));
-    specimenMiiForConverting.getCollection().setExtension(List.of(storageTemperatureExtensionMiiForConverting));
+    specimenMiiForConverting.getProcessingFirstRep().setExtension(List.of(storageTemperatureExtensionMiiForConverting));
 
     CodeableConcept bodySiteCodeForConverting = new CodeableConcept();
     bodySiteCodeForConverting.getCodingFirstRep().setCode("8148/2").setSystem("http://snomed.info/sct");

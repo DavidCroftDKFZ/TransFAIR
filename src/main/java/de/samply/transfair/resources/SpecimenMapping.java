@@ -145,8 +145,8 @@ public class SpecimenMapping
     }
 
 
-    // Storage temperature is an extension of the collection
-    for (Extension extension : resource.getCollection().getExtension()) {
+    // Storage temperature is an extension of the processing
+    for (Extension extension : resource.getProcessingFirstRep().getExtension()) {
       if (Objects.equals(
           extension.getUrl(),
           "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen")) {
