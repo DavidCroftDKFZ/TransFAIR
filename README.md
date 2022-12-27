@@ -32,22 +32,40 @@ To do so, specify the required configuration (see [Configuration](#configuration
 
 TransFAIR is configured using environment variables:
 
-| Variable                        | Description                                                                                                        | Default                          |
-|---------------------------------|--------------------------------------------------------------------------------------------------------------------|----------------------------------|
-| `TF_FHIR_SERVER_SOURCE_ADDRESS` | HTTP Address of the `SOURCE` datastore                                                                               | (required)                       |
-| `TF_FHIR_SERVER_TARGET_ADDRESS` | HTTP Address of the `TARGET` datastore                                                                               | (required)                       |
-| `TF_PROFILE`                    | Identifier of the TransFAIR profile to execute (see [Profiles](#profiles))                                         | (required)                       |
-| `TF_RESOURCES_START`            | (`Patient`/`Specimen`) Starts collection resources on the specified level.                                         | `Patient`                        |
-| `TF_RESOURCES_FILTER`           | Set to export only the specified resources.                                                                        | none, will export all ressources |
-| `TF_PSEUDONYMIZATION_ADDR`      | HTTP Address pointing to a service to map `SOURCE` IDs to `TARGET` IDs (see [Pseudonymization](#pseudonymization)) | none, IDs will be unchanged      |
+| Variable                                  | Description                                                                                                        | Default                          |
+|-------------------------------------------|--------------------------------------------------------------------------------------------------------------------|----------------------------------|
+| `TF_FHIR_SERVER_SOURCE_ADDRESS`           | HTTP Address of the `SOURCE` datastore                                                                             | (required)                       |
+| `TF_FHIR_SERVER_TARGET_ADDRESS`           | HTTP Address of the `TARGET` datastore                                                                             | (required)                       |
+| `TF_FHIR_SERVER_(SOURCE/TARGET)_USERNAME` | Basic Auth User                                                                                                    |                                  |
+| `TF_FHIR_SERVER_(SOURCE/TARGET)_PASSWORD` | Basic Auth Password                                                                                                |                                  |
+| `TF_PROFILE`                              | Identifier of the TransFAIR profile to execute (see [Profiles](#profiles))                                         | (required)                       |
+| `TF_RESOURCES_START`                      | (`Patient`/`Specimen`) Starts collection resources on the specified level.                                         | `Patient`                        |
+| `TF_RESOURCES_FILTER`                     | Set to export only the specified resources.                                                                        | none, will export all ressources |
+| `TF_RESOURCES_WHITELIST`                  | Transfers only resources according to the [Filters](#filters).                                                     |                                  |
+| `TF_RESOURCES_BLACKLIST`                  | ignores resources according to the [Filters](#filters).                                                            |                                  |
+| `TF_PSEUDONYMIZATION_ADDR`                | HTTP Address pointing to a service to map `SOURCE` IDs to `TARGET` IDs (see [Pseudonymization](#pseudonymization)) | none, IDs will be unchanged      |
 
 ## Profiles
 
 As of now, TransFAIR supports the following transformation profiles:
 
+
+
 - `FHIR2FHIR` will transfer all ressources from `SOURCE` to `TARGET` unchanged. This can be used to perform filtering and/or pseudonymization across FHIR servers.
 - `MII2BBMRI` will read the MII Core Dataset from `SOURCE` (usually a FHIR server/fassade providing the MII Core Dataset) and transfer all data required by BBMRI-ERIC into `TARGET` (= BBMRI-ERIC Bridgehead)
 - `BBMRI2MII` will load biosample information from `SOURCE` (BBMRI-ERIC Bridgehead), transform into MII Core Dataset to `TARGET` (e.g. FHIR Store with MII Core Dataset)
+
+## Filters
+
+TransFAIR supports many filters to customize the ETL process. Filters are coded with json.
+For example here we provide a filter that either bans or only transfers the ids.
+
+```json
+{"patient": {
+  "ids": ["1"]
+  }
+}
+```
 
 ## Pseudonymization
 

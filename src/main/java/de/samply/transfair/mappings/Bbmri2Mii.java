@@ -1,6 +1,7 @@
 package de.samply.transfair.mappings;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
+import de.samply.transfair.FilterService;
 import de.samply.transfair.enums.ProfileFormats;
 import de.samply.transfair.fhir.FhirComponent;
 import de.samply.transfair.resources.CauseOfDeathMapping;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.Condition;
@@ -31,6 +33,8 @@ public class Bbmri2Mii extends FhirMappings {
 
   @Autowired FhirComponent fhirComponent;
 
+  @Autowired FilterService filterService;
+
   List<String> resources;
 
   /** Transferring. */
@@ -48,6 +52,14 @@ public class Bbmri2Mii extends FhirMappings {
     HashSet<String> patientIds =
         fhirComponent.transferController.fetchPatientIds(
             sourceClient, fhirComponent.configuration.getStartResource());
+
+    if (Objects.nonNull(filterService.blacklist)) {
+      patientIds.removeIf(item -> filterService.blacklist.patient.ids.contains(item));
+    }
+
+    if (Objects.nonNull(filterService.whitelist)) {
+      patientIds.removeIf(item -> !filterService.blacklist.patient.ids.contains(item));
+    }
 
     log.info("Loaded " + patientIds.size() + " Patients");
 

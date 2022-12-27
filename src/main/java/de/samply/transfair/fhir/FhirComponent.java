@@ -30,7 +30,7 @@ public class FhirComponent {
   public FhirTransfer transferController;
 
   /** Source fhir client. */
-  private IGenericClient sourceFhirServer;
+  private FhirClient sourceFhirServer;
 
   /** Fhir export interface. */
   private FhirExportInterface fhirExportInterface;
@@ -48,17 +48,17 @@ public class FhirComponent {
   public IGenericClient getSourceFhirServer() {
 
     if (Objects.nonNull(sourceFhirServer)) {
-      return this.sourceFhirServer;
+      return this.sourceFhirServer.getClient();
     }
 
-    FhirClient sourceClient =
-        new FhirClient(configuration.getCtx(), configuration.getSourceFhirServer());
+    sourceFhirServer = new FhirClient(configuration.getCtx(), configuration.getSourceFhirServer());
     setAuth(
-        sourceClient,
+        sourceFhirServer,
         configuration.getSourceFhirServerUsername(),
         configuration.getSourceFhirServerPassword());
-    log.info("Start collecting Resources from FHIR server " + sourceFhirServer);
-    return sourceClient.getClient();
+    log.info("Start collecting Resources from FHIR server " + configuration.getSourceFhirServer());
+
+    return sourceFhirServer.getClient();
   }
 
   private void setAuth(FhirClient sourceClient, String user, String password) {
@@ -70,19 +70,21 @@ public class FhirComponent {
 
   /** Returns fhir export interface. */
   public FhirExportInterface getFhirExportInterface() {
-    if (Objects.isNull(fhirExportInterface)) {
+    if (Objects.nonNull(fhirExportInterface)) {
+      return fhirExportInterface;
+    }
 
-      if (configuration.isSaveToFileSystem()) {
-        this.fhirExportInterface = new FhirFileSaver(configuration.getCtx());
-      } else {
-        FhirServerSaver fhirServerSaver =
-            new FhirServerSaver(configuration.getCtx(), configuration.getTargetFhirServer());
-        setAuth(
-            fhirServerSaver.getClient(),
-            configuration.getTargetFhirServerUsername(),
-            configuration.getTargetFhirServerPassword());
-        log.info("Start exporting resources to FHIR server " + sourceFhirServer);
-      }
+    if (configuration.isSaveToFileSystem()) {
+      this.fhirExportInterface = new FhirFileSaver(configuration.getCtx());
+    } else {
+      FhirServerSaver fhirServerSaver =
+          new FhirServerSaver(configuration.getCtx(), configuration.getTargetFhirServer());
+      setAuth(
+          fhirServerSaver.getClient(),
+          configuration.getTargetFhirServerUsername(),
+          configuration.getTargetFhirServerPassword());
+      log.info("Start exporting resources to FHIR server " + sourceFhirServer);
+      fhirExportInterface = fhirServerSaver;
     }
 
     return fhirExportInterface;
