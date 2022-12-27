@@ -86,7 +86,7 @@ public class SpecimenMappingTest {
     Extension storageTemperatureExtensionMiiForComparing = new Extension();
     storageTemperatureExtensionMiiForComparing.setUrl(
         "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen");
-    storageTemperatureExtensionMiiForComparing.setValue(new Range().setHigh(new Quantity(-195)).setLow(new Quantity(-160)));
+    storageTemperatureExtensionMiiForComparing.setValue(new Range().setHigh(new Quantity(-160)).setLow(new Quantity(-195)));
 
     specimenMiiForComparing.getCollection().setExtension(List.of(storageTemperatureExtensionMiiForComparing));
     CodeableConcept codingSampleTypeMiiForComparing = new CodeableConcept();
@@ -106,7 +106,7 @@ public class SpecimenMappingTest {
     Extension storageTemperatureExtensionMiiForConverting = new Extension();
     storageTemperatureExtensionMiiForConverting.setUrl(
         "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen");
-    storageTemperatureExtensionMiiForConverting.setValue(new Range().setHigh(new Quantity(-195)).setLow(new Quantity(-160)));
+    storageTemperatureExtensionMiiForConverting.setValue(new Range().setHigh(new Quantity(-160)).setLow(new Quantity(-195)));
     specimenMiiForConverting.getProcessingFirstRep().setExtension(List.of(storageTemperatureExtensionMiiForConverting));
 
     CodeableConcept bodySiteCodeForConverting = new CodeableConcept();
