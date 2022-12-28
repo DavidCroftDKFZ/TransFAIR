@@ -7,7 +7,6 @@ import de.samply.transfair.fhir.clients.FhirClient;
 import de.samply.transfair.fhir.writers.FhirExportInterface;
 import de.samply.transfair.fhir.writers.FhirFileSaver;
 import de.samply.transfair.fhir.writers.FhirServerSaver;
-
 import jakarta.annotation.PostConstruct;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
