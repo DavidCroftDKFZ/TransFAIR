@@ -5,7 +5,7 @@ services:
     container_name: source-blaze
     image: samply/blaze:develop
     environment:
-      BASE_URL: "http://localhost:8082"
+      BASE_URL: "http://source_blaze:8080"
     ports:
       - "8082:8080"
 
@@ -13,6 +13,24 @@ services:
     container_name: target-blaze
     image: samply/blaze:develop
     environment:
-      BASE_URL: "http://localhost:8083"
+      BASE_URL: "http://target-blaze:8080"
     ports:
       - "8083:8080"
+
+  blazectl:
+    image: davidcroftdkfz/blazectl
+
+  transfair:
+    container_name: transfair
+    image: davidcroftdkfz/transfair
+    environment:
+      TF_FHIR_SERVER_SOURCE_ADDRESS: "http://source_blaze:8080/fhir"
+      TF_FHIR_SERVER_TARGET_ADDRESS: "http://target_blaze:8080/fhir"
+      TF_PROFILE: "BBMRI2BBMRI"
+      TF_FHIR_FILESYSTEM: "true"
+      TF_FHIR_FILEPATH: "/srv/transfair"
+    volumes:
+      - ./transfair:/srv/transfair
+    restart: on-failure
+    ports:
+      - "8080:8080"

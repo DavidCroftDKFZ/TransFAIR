@@ -48,6 +48,9 @@ public class Configuration {
   @Value("${tf.fhir.filesystem}")
   private boolean saveToFileSystem;
 
+  @Value("${tf.fhir.filepath}")
+  private String saveToFilePath;
+
   @Value("${tf.pseudo.csv}")
   private String csvFileName;
 }

@@ -14,6 +14,8 @@ FROM eclipse-temurin:17-focal
 COPY --from=build /app/target/transFAIR.jar /app/
 
 WORKDIR /app
+COPY ./run.sh /app/
 USER 1001
 
-CMD ["java", "-jar", "transFAIR.jar"]
+#CMD ["java", "-jar", "transFAIR.jar"]
+CMD ["sh", "/app/run.sh"]

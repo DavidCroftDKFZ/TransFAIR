@@ -2,6 +2,7 @@ package de.samply.transfair.fhir;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import de.samply.transfair.Configuration;
+import de.samply.transfair.TempParams;
 import de.samply.transfair.converters.IdMapper;
 import de.samply.transfair.fhir.clients.FhirClient;
 import de.samply.transfair.fhir.writers.FhirExportInterface;
@@ -73,6 +74,9 @@ public class FhirComponent {
     }
 
     if (configuration.isSaveToFileSystem()) {
+      String path = configuration.getSaveToFilePath();
+      TempParams.setSaveToFilePath(path);
+      log.info("FhirComponent.getFhirExportInterface: path=" + path);
       this.fhirExportInterface = new FhirFileSaver(configuration.getCtx());
     } else {
       FhirServerSaver fhirServerSaver =
