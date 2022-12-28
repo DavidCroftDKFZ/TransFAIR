@@ -26,7 +26,7 @@ services:
     environment:
       TF_FHIR_SERVER_SOURCE_ADDRESS: "http://source_blaze:8080/fhir"
       TF_FHIR_SERVER_TARGET_ADDRESS: "http://target_blaze:8080/fhir"
-      TF_PROFILE: "BBMRI2BBMRI"
+      TF_PROFILE: "BBMRI2BEACON"
       TF_FHIR_FILESYSTEM: "true"
       TF_FHIR_FILEPATH: "/srv/transfair"
     volumes:

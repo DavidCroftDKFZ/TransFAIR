@@ -1,6 +1,7 @@
 package de.samply.transfair;
 
 import de.samply.transfair.mappings.Bbmri2Bbmri;
+import de.samply.transfair.mappings.Bbmri2Beacon;
 import de.samply.transfair.mappings.Bbmri2Mii;
 import de.samply.transfair.mappings.Mii2Bbmri;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class MappingService {
+
+  @Autowired
+  Bbmri2Beacon bbmri2Beacon;
 
   @Autowired
   Bbmri2Bbmri bbmri2Bbmri;
@@ -27,6 +31,7 @@ public class MappingService {
   /** Starts the transformation. */
   public void run() throws Exception {
     switch (configuration.getProfile()) {
+      case "BBMRI2BEACON" -> bbmri2Beacon.transfer();
       case "BBMRI2BBMRI" -> bbmri2Bbmri.transfer();
       case "BBMRI2MII" -> bbmri2Mii.transfer();
       case "MII2BBMRI" -> mii2Bbmri.transfer();
