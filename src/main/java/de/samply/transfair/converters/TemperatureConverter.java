@@ -7,6 +7,8 @@ import org.hl7.fhir.r4.model.Range;
 
 /** Convert between bbmri.de and MII KDS temperature. */
 public class TemperatureConverter {
+  
+  public static final String URL = "https://fhir.bbmri.de/CodeSystem/StorageTemperature";
 
   /** From bbmri.de to MII KDS temperature. */
   public static Extension fromBbrmiToMii(String bbmriTemp) {
@@ -22,7 +24,7 @@ public class TemperatureConverter {
       case "temperature-60to-85" -> extension.setValue(
           new Range().setHigh(new Quantity(-60)).setLow(new Quantity(-85)));
       case "temperatureGN" -> extension.setValue(
-          new Range().setHigh(new Quantity(-195)).setLow(new Quantity(-160)));
+          new Range().setHigh(new Quantity(-160)).setLow(new Quantity(-195)));
       case "temperatureLN" -> extension.setValue(
           new Range().setHigh(new Quantity(-196)).setLow(new Quantity(-209)));
       case "temperatureRoom" -> extension.setValue(
@@ -38,21 +40,25 @@ public class TemperatureConverter {
     Extension extension = new Extension();
     extension.setUrl("https://fhir.bbmri.de/StructureDefinition/StorageTemperature");
 
+    CodeableConcept codeableConcept = new CodeableConcept();
+
     if (high <= 10 && low >= 2) {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperature2to10"));
+      codeableConcept.getCodingFirstRep().setSystem(URL).setCode("temperature2to10");
     } else if (high <= -18 && low >= -35) {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperature-18to-35"));
+      codeableConcept.getCodingFirstRep().setSystem(URL).setCode("temperature-18to-35");
     } else if (high <= -60 && low >= -85) {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperature-60to-85"));
-    } else if (high <= -209 && low >= -196) {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperatureLN"));
+      codeableConcept.getCodingFirstRep().setSystem(URL).setCode("temperature-60to-85");
+    } else if (high <= -196 && low >= -209) {
+      codeableConcept.getCodingFirstRep().setSystem(URL).setCode("temperatureLN");
     } else if (high <= -160 && low >= -195) {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperatureGN"));
+      codeableConcept.getCodingFirstRep().setSystem(URL).setCode("temperatureGN");
     } else if (high <= 30 && low >= 11) {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperatureRoom"));
+      codeableConcept.getCodingFirstRep().setSystem(URL).setCode("temperatureRoom");
     } else {
-      extension.setValue(new CodeableConcept().getCodingFirstRep().setCode("temperatureOther"));
+      codeableConcept.getCodingFirstRep().setSystem(URL).setCode("temperatureOther");
     }
+
+    extension.setValue(codeableConcept);
 
     return extension;
   }
