@@ -17,6 +17,8 @@ public class BeaconMeasures {
    * @param beaconMeasure measure to be added.
    */
   public void add(BeaconMeasure beaconMeasure) {
+    if (beaconMeasure == null)
+      return;
     measures.add(beaconMeasure);
   }
 }

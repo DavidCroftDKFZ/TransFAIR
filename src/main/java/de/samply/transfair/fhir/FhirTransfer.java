@@ -90,6 +90,11 @@ public class FhirTransfer {
     return client.read().resource(Patient.class).withId(patientId).execute();
   }
 
+  /** Fetches a specimen resource. */
+  public Specimen fetchSpecimenResource(IGenericClient client, String specimenId) {
+    return client.read().resource(Specimen.class).withId(specimenId).execute();
+  }
+
   /** Fetches all patient specimen resources. */
   public List<Specimen> fetchPatientSpecimens(IGenericClient client, String patientId) {
     List<IBaseResource> resourceList = new ArrayList<>();
@@ -207,6 +212,17 @@ public class FhirTransfer {
       patientRefs.add(s.getSubject().getReference());
     }
     return patientRefs;
+  }
+
+  /** Fetches all specimen ids which have an associated patient. */
+  public HashSet<String> getSpecimenIds(IGenericClient sourceClient) {
+    List<IBaseResource> specimens = fetchSpecimenResources(sourceClient);
+    HashSet<String> specimenRefs = new HashSet<>();
+    for (IBaseResource specimen : specimens) {
+      Specimen s = (Specimen) specimen;
+      specimenRefs.add(s.getId());
+    }
+    return specimenRefs;
   }
 
   private HashSet<String> getPatientRefs(IGenericClient sourceClient) {
