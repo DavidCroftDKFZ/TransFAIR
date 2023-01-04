@@ -14,7 +14,7 @@ TransFAIR allows low-effort, fully automatic data transfer among software system
 - The [CentraXX biobanking solution](https://www.kairos.de/produkte/centraxx-bio/) often found in German biobanks, which are networked under the umbrella of the [German Biobank Node](https://www.bbmri.de)
 - Data Integration Centers, as established by the [Medical Informatics Initiative](https://www.medizininformatik-initiative.de) / [Netzwerk Universitätsmedizin](https://www.netzwerk-universitaetsmedizin.de), based on the [MII Core Dataset in FHIR](https://simplifier.net/organization/koordinationsstellemii)
 - [Bridgeheads](https://github.com/samply/bridgehead) as used in the above networks as well as the European [Biobanking and BioMolecular Research Infrastructure (BBMRI-ERIC)](https://bbmri-eric.eu)
-- ERNs participating in rare disease initiatives such as [EJP-RD](https://www.ejprarediseases.org/), which utilize the [Beacon 2.0 search API](http://docs.genomebeacons.org/). See the section [Beacon 2.0](#beacon-2.0) for details.
+- ERNs participating in rare disease initiatives such as [EJP-RD](https://www.ejprarediseases.org/), which utilize the [Beacon 2.0 search API](http://docs.genomebeacons.org/). See the section [Beacon 2.0](#beacon-2) for details.
 
 TransFAIR is designed to
 
@@ -76,7 +76,7 @@ TransFAIR supports various ways to map patient/sample IDs between source and tar
 
 Whenever TransFAIR encounters an ID from the `SOURCE` system, it will ask the service defined in `PSEUDONYMIZATION_ADDR` for the corresponding ID in the `TARGET` system (or vice-versa). We are currently defining a simple, implementation-independent API format in cooperation with pilot biobanks and will update this section once finished.
 
-## Beacon 2.0
+## Beacon 2
 
 Setting the environment variable '''TF_PROFILE''' to "BBMRI2BEACON" causes TransFAIR to extract information from a FHIR store and generate files in "Beacon friendly format" (BFF). These files can be imported into a Beacon API reference implementation running on site, providing the Bridgehead with Beacon capabilites.
 
