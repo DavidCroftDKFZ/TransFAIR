@@ -14,7 +14,7 @@ TransFAIR allows low-effort, fully automatic data transfer among software system
 - The [CentraXX biobanking solution](https://www.kairos.de/produkte/centraxx-bio/) often found in German biobanks, which are networked under the umbrella of the [German Biobank Node](https://www.bbmri.de)
 - Data Integration Centers, as established by the [Medical Informatics Initiative](https://www.medizininformatik-initiative.de) / [Netzwerk Universitätsmedizin](https://www.netzwerk-universitaetsmedizin.de), based on the [MII Core Dataset in FHIR](https://simplifier.net/organization/koordinationsstellemii)
 - [Bridgeheads](https://github.com/samply/bridgehead) as used in the above networks as well as the European [Biobanking and BioMolecular Research Infrastructure (BBMRI-ERIC)](https://bbmri-eric.eu)
-- ERNs participating in rare disease initiatives such as [EJP-RD](https://www.ejprarediseases.org/), which utilize the [Beacon 2.0 search API](http://docs.genomebeacons.org/). See the section [Beacon 2.0](#Beacon 2.0) for details.
+- ERNs participating in rare disease initiatives such as [EJP-RD](https://www.ejprarediseases.org/), which utilize the [Beacon 2.0 search API](http://docs.genomebeacons.org/). See the section [Beacon 2.0](#beacon-2.0) for details.
 
 TransFAIR is designed to
 
