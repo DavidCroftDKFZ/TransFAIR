@@ -4,17 +4,17 @@ import de.samply.transfair.models.beacon.BeaconSampleOriginType;
 import lombok.extern.slf4j.Slf4j;
 
 /** Static methods for converting the bbmri.de sample type to Beacon sample tyüe
- * and back.
- *
- * See full list here: https://github.com/EnvironmentOntology/gaz/blob/master/src/ontology/gaz_countries.csv
+ * and back. See full list here:
+ * https://github.com/EnvironmentOntology/gaz/blob/master/src/ontology/gaz_countries.csv
  * */
 @Slf4j
 public class BbmriBeaconTypeConverter {
 
   /** From bbmri.de to Beacon sample type (Uberon ontology). */
   public static BeaconSampleOriginType fromBbmriToBeacon(String bbmriSampleType) {
-    if (bbmriSampleType == null)
+    if (bbmriSampleType == null) {
       return null;
+    }
     if (bbmriSampleType.toLowerCase().indexOf("ascites") >= 0) {
       return new BeaconSampleOriginType("UBERON:0007795", "ascitic fluid");
     }
@@ -55,7 +55,8 @@ public class BbmriBeaconTypeConverter {
       return new BeaconSampleOriginType("OBI:0002819", "Swab");
     }
     if (bbmriSampleType.toLowerCase().indexOf("tissue-formalin") >= 0) {
-      return new BeaconSampleOriginType("OBI:1200000", "Formalin-Fixed Paraffin-Embedded Tissue Sample");
+      return new BeaconSampleOriginType("OBI:1200000",
+              "Formalin-Fixed Paraffin-Embedded Tissue Sample");
     }
     if (bbmriSampleType.toLowerCase().indexOf("tissue-frozen") >= 0) {
       return new BeaconSampleOriginType("OBI:0000922", "Frozen Tissue");

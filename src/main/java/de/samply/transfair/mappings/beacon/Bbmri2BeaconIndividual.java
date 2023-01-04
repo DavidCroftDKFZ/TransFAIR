@@ -1,22 +1,27 @@
 package de.samply.transfair.mappings.beacon;
 
-import com.google.gson.GsonBuilder;
-import de.samply.transfair.TempParams;
 import de.samply.transfair.converters.BbmriBeaconAddressConverter;
 import de.samply.transfair.converters.BbmriBeaconSexConverter;
 import de.samply.transfair.fhir.FhirComponent;
-import de.samply.transfair.models.beacon.*;
-import lombok.extern.slf4j.Slf4j;
-import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.*;
-
-import java.io.FileWriter;
-import java.io.IOException;
+import de.samply.transfair.models.beacon.BeaconGeographicOrigin;
+import de.samply.transfair.models.beacon.BeaconIndividual;
+import de.samply.transfair.models.beacon.BeaconIndividuals;
+import de.samply.transfair.models.beacon.BeaconMeasure;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.hl7.fhir.instance.model.api.IBaseResource;
+import org.hl7.fhir.r4.model.Address;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Enumerations;
+import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.Patient;
+import org.hl7.fhir.r4.model.StringType;
 
 /**
- * This mapping transfers patient-related data from one blaze with bbmri to an individuals.json file.
+ * This mapping transfers patient-related data from one blaze with bbmri to an
+ * individuals.json file.
  */
 @Slf4j
 public class Bbmri2BeaconIndividual {
@@ -27,6 +32,9 @@ public class Bbmri2BeaconIndividual {
     this.fhirComponent = fhirComponent;
   }
 
+  /**
+   * Transfer data relating to patients from FHIR to Beacon.
+   */
   public void transfer() {
     HashSet<String> patientRefs = loadPatients();
     beaconIndividuals = new BeaconIndividuals();
@@ -42,20 +50,51 @@ public class Bbmri2BeaconIndividual {
    * @param pid ID of a patient in FHIR store.
    * @return Beacon individual.
    */
-  private BeaconIndividual transferIndividual(String pid) {
+  public BeaconIndividual transferIndividual(String pid) {
     log.info("Loading data for patient " + pid);
 
     Patient patient = fhirComponent.transferController.fetchPatientResource(
             fhirComponent.getSourceFhirServer(), pid);
+
+    log.info("Load Observations for patient " + pid);
+    List<IBaseResource> observations = fhirComponent.transferController.fetchPatientObservation(
+            fhirComponent.getSourceFhirServer(), pid);
+
+    return transferIndividual(patient, observations);
+  }
+
+  /**
+   * Create an object encapsulating a Beacon individual, based on a patient in the FHIR store.
+   *
+   * @param patient Patient in FHIR store.
+   * @return Beacon individual.
+   */
+  public BeaconIndividual transferIndividual(Patient patient, List<IBaseResource> observations) {
+    String pid = transferId(patient);
     BeaconIndividual beaconIndividual = new BeaconIndividual();
     beaconIndividual.id = pid;
     Enumerations.AdministrativeGender gender = patient.getGender();
     String bbmriGender = patient.getGender().getDisplay();
     beaconIndividual.sex = BbmriBeaconSexConverter.fromBbmriToBeacon(bbmriGender);
     beaconIndividual.geographicOrigin = transferAddress(patient);
-    beaconIndividual.measures = transferObservations(pid);
+    beaconIndividual.measures = transferObservations(observations);
 
     return beaconIndividual;
+  }
+
+  /**
+   * Pulls an ID from the BBMRI Patient.
+   *
+   * @param patient BBMRI Patient.
+   * @return ID.
+   */
+  private String transferId(Patient patient) {
+    String id = patient.getIdPart();
+    if (id == null) {
+      id = patient.getId();
+    }
+
+    return id;
   }
 
   /**
@@ -87,24 +126,23 @@ public class Bbmri2BeaconIndividual {
 
   /**
    * In Beacon, "measures" (such as body weight) are considered to be part of an individual,
-   * whereas in FHIR, they are contracted out to the Observation resource.
-   *
-   * In this method, relevant information is extracted from the Observations associated with
+   * whereas in FHIR, they are contracted out to the Observation resource. In this method,
+   * relevant information is extracted from the Observations associated with
    * a patient and transferred to a set of Beacon measures.
    *
-   * @param pid The ID of the patient.
+   * @param observations List of Observations for the patient.
    * @return A set of Beacon measures for the patient.
    */
-  private BeaconMeasures transferObservations(String pid) {
-    log.info("Load Observations for patient " + pid);
-    List<IBaseResource> observations = fhirComponent.transferController.fetchPatientObservation(
-            fhirComponent.getSourceFhirServer(), pid);
-    BeaconMeasures beaconMeasures = new BeaconMeasures();
+  private List<BeaconMeasure> transferObservations(List<IBaseResource> observations) {
+    List<BeaconMeasure> measures = new ArrayList<BeaconMeasure>();
     for (IBaseResource o : observations) {
-      beaconMeasures.add(transferObservation((Observation) o));
+      BeaconMeasure measure = transferObservation((Observation) o);
+      if (measure != null) {
+        measures.add(measure);
+      }
     }
 
-    return beaconMeasures;
+    return measures;
   }
 
   /**
@@ -136,18 +174,17 @@ public class Bbmri2BeaconIndividual {
       log.info("Observation is BMI");
       double value = observation.getValueQuantity().getValue().doubleValue();
       beaconMeasure = BeaconMeasure.makeBmiMeasure(value, effectiveDateTime);
-    }
-    else if (code.equals("29463-7")) {
+    } else if (code.equals("29463-7")) {
       log.info("Observation is Weight");
       double value = observation.getValueQuantity().getValue().doubleValue();
       beaconMeasure = BeaconMeasure.makeWeightMeasure(value, effectiveDateTime);
-    }
-    else if (code.equals("8302-2")) {
+    } else if (code.equals("8302-2")) {
       log.info("Observation is Height");
       double value = observation.getValueQuantity().getValue().doubleValue();
       beaconMeasure = BeaconMeasure.makeHeightMeasure(value, effectiveDateTime);
-    } else
+    } else {
       log.warn("Unknown code " + code + " in Observation " + id);
+    }
 
     return beaconMeasure;
   }
@@ -159,7 +196,8 @@ public class Bbmri2BeaconIndividual {
    */
   private HashSet<String> loadPatients() {
     HashSet<String> patientRefs =
-            fhirComponent.transferController.getSpecimenPatients(fhirComponent.getSourceFhirServer());
+            fhirComponent.transferController.getSpecimenPatients(
+                    fhirComponent.getSourceFhirServer());
 
     log.info("Loaded " + patientRefs.size() + " Patients");
 
@@ -168,20 +206,11 @@ public class Bbmri2BeaconIndividual {
 
   /**
    * Export all individuals to a JSON file.
+   *
+   * @param path Path to the directory where the file should be stored.
+   *             Null value is allowed.
    */
-  public void export() {
-    String filename = "individuals.json";
-    String path = TempParams.getSaveToFilePath();
-    String filepath = path + "/" + filename;
-    log.info("export: filepath=" + filepath);
-    try {
-      FileWriter myWriter = new FileWriter(filepath);
-      String output = new GsonBuilder().setPrettyPrinting().create().toJson(beaconIndividuals.individuals);
-      myWriter.write(output);
-      myWriter.close();
-    } catch (IOException e) {
-      log.error("An error occurred while writing output to file " + filepath);
-      e.printStackTrace();
-    }
+  public void export(String path) {
+    BeaconFileSaver.export(beaconIndividuals.individuals, path, "individuals.json");
   }
 }

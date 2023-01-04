@@ -1,8 +1,9 @@
 package de.samply.transfair.mappings;
 
+import de.samply.transfair.Configuration;
+import de.samply.transfair.fhir.FhirComponent;
 import de.samply.transfair.mappings.beacon.Bbmri2BeaconBiosamples;
 import de.samply.transfair.mappings.beacon.Bbmri2BeaconIndividual;
-import de.samply.transfair.fhir.FhirComponent;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class Bbmri2Beacon extends FhirMappings {
 
   @Autowired FhirComponent fhirComponent;
+  @Autowired public Configuration configuration;
 
   private List<String> resources;
 
@@ -27,16 +29,15 @@ public class Bbmri2Beacon extends FhirMappings {
       return;
     }
 
-    // As a sideeffect, gets the path for saving the BFF files.
-    fhirComponent.getFhirExportInterface();
+    String path = configuration.getBeaconPath();
 
     Bbmri2BeaconIndividual bbmri2BeaconIndividual = new Bbmri2BeaconIndividual(fhirComponent);
     bbmri2BeaconIndividual.transfer();
-    bbmri2BeaconIndividual.export();
+    bbmri2BeaconIndividual.export(path);
 
     Bbmri2BeaconBiosamples bbmri2BeaconBiosamples = new Bbmri2BeaconBiosamples(fhirComponent);
     bbmri2BeaconBiosamples.transfer();
-    bbmri2BeaconBiosamples.export();
+    bbmri2BeaconBiosamples.export(path);
   }
 
   private Boolean setup() {
@@ -44,13 +45,7 @@ public class Bbmri2Beacon extends FhirMappings {
     if (fhirComponent.configuration.getSourceFhirServer().isBlank()) {
       return false;
     }
-    boolean complete = fhirComponent.configuration.isSaveToFileSystem()
-        || !fhirComponent.configuration.getTargetFhirServer().isBlank()
-        || !this.overrideSourceFhirServer.isEmpty()
-        || !this.overrideTargetFhirServer.isEmpty();
 
-    log.info("Setup complete");
-
-    return complete;
+    return true;
   }
 }

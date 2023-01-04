@@ -9,6 +9,11 @@ import java.util.List;
 public class BeaconSampleCharacteristics {
   public List<BeaconOrganism> organism;
 
+  /**
+   * Create an instance of this class that is specific to H. Sapiens.
+   *
+   * @return Instance of this class.
+   */
   public static BeaconSampleCharacteristics createHumanSampleCharacteristics() {
     BeaconSampleCharacteristics characteristics = new BeaconSampleCharacteristics();
     List<BeaconOrganism> organisms = new ArrayList<BeaconOrganism>();

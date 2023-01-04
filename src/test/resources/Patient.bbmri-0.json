@@ -1,0 +1,40 @@
+{
+  "address": [
+    {
+      "line": [
+        "Wall Street",
+        "New York",
+        "Spain"
+      ]
+    }
+  ],
+  "birthDate": "1989-11-18",
+  "extension": [
+    {
+      "url": "https://fhir.bbmri.de/StructureDefinition/FamilyNumber",
+      "valueString": "4152"
+    }
+  ],
+  "gender": "male",
+  "id": "bbmri-0",
+  "identifier": [
+    {
+      "system": "dkfz-heidelberg.de",
+      "value": "2506"
+    }
+  ],
+  "meta": {
+    "profile": [
+      "https://fhir.bbmri.de/StructureDefinition/Patient"
+    ]
+  },
+  "name": [
+    {
+      "family": "Mayer",
+      "given": [
+        "Elin"
+      ]
+    }
+  ],
+  "resourceType": "Patient"
+}

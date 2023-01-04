@@ -23,7 +23,8 @@ tf:
         username: ""
         password: ""
     filesystem: "false"
-    filepath: ""
+  beacon:
+    path: ""
   pseudo:
     csv: ""
 

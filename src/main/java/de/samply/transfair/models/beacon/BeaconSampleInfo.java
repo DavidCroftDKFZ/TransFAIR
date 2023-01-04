@@ -7,9 +7,15 @@ public class BeaconSampleInfo {
   public BeaconSampleCharacteristics characteristics;
   public String taxId;
 
+  /**
+   * Create an instance of this class that is specific to H. Sapiens.
+   *
+   * @return Instance of this class.
+   */
   public static BeaconSampleInfo createHumanBeaconSampleInfo() {
     BeaconSampleInfo beaconSampleInfo = new BeaconSampleInfo();
-    beaconSampleInfo.characteristics = BeaconSampleCharacteristics.createHumanSampleCharacteristics();
+    beaconSampleInfo.characteristics =
+            BeaconSampleCharacteristics.createHumanSampleCharacteristics();
     beaconSampleInfo.taxId = "9606";
 
     return beaconSampleInfo;

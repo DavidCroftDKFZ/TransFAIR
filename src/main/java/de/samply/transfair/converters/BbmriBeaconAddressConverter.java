@@ -4,17 +4,17 @@ import de.samply.transfair.models.beacon.BeaconGeographicOrigin;
 import lombok.extern.slf4j.Slf4j;
 
 /** Static methods for converting the bbmri.de address to Beacon geographic location
- * and back.
- *
- * See full list here: https://github.com/EnvironmentOntology/gaz/blob/master/src/ontology/gaz_countries.csv
+ * and back. See full list here:
+ * https://github.com/EnvironmentOntology/gaz/blob/master/src/ontology/gaz_countries.csv
  * */
 @Slf4j
 public class BbmriBeaconAddressConverter {
 
   /** From bbmri.de to Beacon address. */
   public static BeaconGeographicOrigin fromBbmriToBeacon(String bbmriCountry) {
-    if (bbmriCountry == null)
+    if (bbmriCountry == null) {
       return null;
+    }
     if (bbmriCountry.equalsIgnoreCase("Italy")) {
       return new BeaconGeographicOrigin("GAZ:00002650", "Italy");
     }

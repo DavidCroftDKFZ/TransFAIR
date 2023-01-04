@@ -10,6 +10,11 @@ public class BeaconOrganism {
   public List<String> ontologyTerms;
   public String text;
 
+  /**
+   * Create an instance of this class that is specific to H. Sapiens.
+   *
+   * @return Instance of this class.
+   */
   public static BeaconOrganism createHumanBeaconOrganism() {
     BeaconOrganism beaconOrganism = new BeaconOrganism();
     beaconOrganism.text = "Homo sapiens";

@@ -1,17 +1,18 @@
 package de.samply.transfair.mappings.beacon;
 
-import com.google.gson.GsonBuilder;
-import de.samply.transfair.TempParams;
 import de.samply.transfair.converters.BbmriBeaconTypeConverter;
 import de.samply.transfair.fhir.FhirComponent;
-import de.samply.transfair.models.beacon.*;
-import lombok.extern.slf4j.Slf4j;
-import org.hl7.fhir.r4.model.*;
-
-import java.io.FileWriter;
-import java.io.IOException;
+import de.samply.transfair.models.beacon.BeaconBiosample;
+import de.samply.transfair.models.beacon.BeaconBiosamples;
+import de.samply.transfair.models.beacon.BeaconSampleInfo;
+import de.samply.transfair.models.beacon.BeaconSampleOriginType;
 import java.util.HashSet;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.Specimen;
 
 /**
  * This mapping transfers sample-related data from one blaze with bbmri to a biosamples.json file.
@@ -25,6 +26,9 @@ public class Bbmri2BeaconBiosamples {
     this.fhirComponent = fhirComponent;
   }
 
+  /**
+   * Transfer data relating to samples from FHIR to Beacon.
+   */
   public void transfer() {
     HashSet<String> specimenRefs = loadSpecimens();
     beaconBiosamples = new BeaconBiosamples();
@@ -40,11 +44,22 @@ public class Bbmri2BeaconBiosamples {
    * @param sid ID of a specimen in FHIR store.
    * @return Beacon biosample.
    */
-  private BeaconBiosample transferBiosample(String sid) {
+  public BeaconBiosample transferBiosample(String sid) {
     log.info("Loading data for sample " + sid);
 
     Specimen specimen = fhirComponent.transferController.fetchSpecimenResource(
             fhirComponent.getSourceFhirServer(), sid);
+
+    return transferBiosample(specimen);
+  }
+
+  /**
+   * Create an object encapsulating a Beacon biosample, based on a Specimen in the FHIR store.
+   *
+   * @param specimen ID of a specimen in FHIR store.
+   * @return Beacon biosample.
+   */
+  public BeaconBiosample transferBiosample(Specimen specimen) {
     BeaconBiosample beaconBiosample = new BeaconBiosample();
     beaconBiosample.id = transferId(specimen);
     beaconBiosample.individualId = transferPatientId(specimen);
@@ -55,14 +70,27 @@ public class Bbmri2BeaconBiosamples {
     return beaconBiosample;
   }
 
+  /**
+   * Pulls an ID from the BBMRI Specimen.
+   *
+   * @param specimen BBMRI Specimen.
+   * @return ID.
+   */
   private String transferId(Specimen specimen) {
     String id = specimen.getIdPart();
-    if (id == null)
+    if (id == null) {
       id = specimen.getId();
+    }
 
     return id;
   }
 
+  /**
+   * Returns the ID of the patient from whom the specimen was taken.
+   *
+   * @param specimen BBMRI Specimen.
+   * @return Patient ID.
+   */
   private String transferPatientId(Specimen specimen) {
     Reference subject = specimen.getSubject();
     String patientId = subject.getReference().toString();
@@ -70,18 +98,37 @@ public class Bbmri2BeaconBiosamples {
     return patientId.substring(8);
   }
 
+  /**
+   * Returns the date at which the specimen was collected.
+   *
+   * @param specimen BBMRI Specimen.
+   * @return Collectin date.
+   */
   private String transferCollectionDate(Specimen specimen) {
     String date = specimen.getCollection().getCollectedDateTimeType().getValueAsString();
 
     return date;
   }
 
+  /**
+   * Returns the "info" object required by Beacon. This contains mainly information
+   * about the species of the subject. I.e. H. sapiens.
+   *
+   * @param specimen BBMRI Specimen.
+   * @return Beacin info object.
+   */
   private BeaconSampleInfo transferInfo(Specimen specimen) {
     BeaconSampleInfo beaconSampleInfo = BeaconSampleInfo.createHumanBeaconSampleInfo();
 
     return beaconSampleInfo;
   }
 
+  /**
+   * Returns the type of the sample, e.g. blood.
+   *
+   * @param specimen BBMRI Specimen.
+   * @return Sample type.
+   */
   private BeaconSampleOriginType transferType(Specimen specimen) {
     CodeableConcept type = specimen.getType();
     if (type == null) {
@@ -94,7 +141,8 @@ public class Bbmri2BeaconBiosamples {
       return null;
     }
     String code = codings.get(0).getCode();
-    BeaconSampleOriginType beaconSampleOriginType = BbmriBeaconTypeConverter.fromBbmriToBeacon(code);
+    BeaconSampleOriginType beaconSampleOriginType =
+            BbmriBeaconTypeConverter.fromBbmriToBeacon(code);
 
     return beaconSampleOriginType;
   }
@@ -115,20 +163,11 @@ public class Bbmri2BeaconBiosamples {
 
   /**
    * Export all specimens to a JSON file.
+   *
+   * @param path Path to the directory where the file should be stored.
+   *             Null value is allowed.
    */
-  public void export() {
-    String filename = "biosamples.json";
-    String path = TempParams.getSaveToFilePath();
-    String filepath = path + "/" + filename;
-    log.info("export: filepath=" + filepath);
-    try {
-      FileWriter myWriter = new FileWriter(filepath);
-      String output = new GsonBuilder().setPrettyPrinting().create().toJson(beaconBiosamples.biosamples);
-      myWriter.write(output);
-      myWriter.close();
-    } catch (IOException e) {
-      log.error("An error occurred while writing output to file " + filepath);
-      e.printStackTrace();
-    }
+  public void export(String path) {
+    BeaconFileSaver.export(beaconBiosamples.biosamples, path, "biosamples.json");
   }
 }

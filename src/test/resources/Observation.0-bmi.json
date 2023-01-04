@@ -1,0 +1,38 @@
+{
+  "category": [
+    {
+      "coding": [
+        {
+          "code": "vital-signs",
+          "system": "http://terminology.hl7.org/CodeSystem/observation-category"
+        }
+      ]
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "code": "39156-5",
+        "system": "http://loinc.org"
+      }
+    ]
+  },
+  "effectiveDateTime": "2000-01-07",
+  "id": "0-bmi",
+  "meta": {
+    "profile": [
+      "https://fhir.bbmri.de/StructureDefinition/Bmi"
+    ]
+  },
+  "resourceType": "Observation",
+  "status": "final",
+  "subject": {
+    "reference": "Patient/bbmri-0"
+  },
+  "valueQuantity": {
+    "code": "kg/m2",
+    "system": "http://unitsofmeasure.org",
+    "unit": "kg/m2",
+    "value": 24.6
+  }
+}
